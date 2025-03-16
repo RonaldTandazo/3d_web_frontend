@@ -25,6 +25,9 @@ FROM nginx:alpine
 # Copiar los archivos construidos a la imagen de nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copia el código del proyecto al contenedor
+COPY . /app/
+
 # Exponer el puerto
 EXPOSE 80
 
