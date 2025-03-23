@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiLogIn } from "react-icons/bi";
 import { useColorMode } from "@/components/ui/color-mode";
-import CustomAlert from "@/custom/components/CustomAlert";
+import NotificationAlert from "@/custom/Components/NotificationAlert";
 
 interface FormValues {
     username: string;
@@ -44,7 +44,6 @@ const SignIn = () => {
     return (
         <Flex 
             h="100vh" 
-            w="98vw" 
             align="center" 
             justify="center"
         >
@@ -99,7 +98,7 @@ const SignIn = () => {
                 </Card.Footer>
             </Card.Root>
             {showAlert && error?.message && (
-                <CustomAlert
+                <NotificationAlert
                     type="error"
                     title="Sign In Error"
                     message={error.message}

@@ -1,33 +1,34 @@
-import { Box, Grid, Image, Text, Button } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import ArtVerseGrid from '@/custom/Components/ArtVerseGrid';
+import { useEffect, useState } from 'react';
 
 interface Product {
   id: number;
   name: string;
   image: string;
-  price: string;
+  price: number;
 }
 
 const ArtVerse = () => {
-  const products: Product[] = [
-    { id: 1, name: "Producto 1", image: "/product1.jpg", price: "$10" },
-    { id: 2, name: "Producto 2", image: "/product2.jpg", price: "$20" },
-    { id: 3, name: "Producto 3", image: "/product3.jpg", price: "$30" }
-  ];
+  const products: Product[] = Array.from({ length: 200 }, (_, index) => ({
+    id: index,
+    name: `Item ${index}`,
+    image: "https://via.placeholder.com/150",
+    price: index * 10,
+  }));
+
+  const [characters, setCharacters] = useState([]);
+
+  useEffect(() => {
+    fetch("https://rickandmortyapi.com/api/character/")
+      .then((response) => response.json())
+      .then((data) => setCharacters(data.results))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   return (
-    <Box p={5}>
-      <Grid templateColumns="repeat(3, 1fr)" gap={6}>
-        {products.map((product) => (
-          <Box key={product.id} borderWidth="1px" borderRadius="lg" overflow="hidden">
-            <Image src={product.image} alt={product.name} />
-            <Box p={5}>
-              <Text fontSize="xl">{product.name}</Text>
-              <Text color="gray.500">{product.price}</Text>
-              <Button mt={2} variant="outline">Ver Producto</Button>
-            </Box>
-          </Box>
-        ))}
-      </Grid>
+    <Box mt={5}>
+      <ArtVerseGrid items={characters}/>
     </Box>
   );
 };

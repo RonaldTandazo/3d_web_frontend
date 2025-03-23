@@ -2,7 +2,7 @@ import { IconButton } from "@chakra-ui/react";
 import { BsFillMoonFill, BsFillSunFill } from "react-icons/bs";
 import { useColorMode } from "@/components/ui/color-mode";
 
-const FloatingButton = () => {
+const ThemeButton = () => {
     const { colorMode, toggleColorMode } = useColorMode();
     
     return (
@@ -25,4 +25,4 @@ const FloatingButton = () => {
     );
 }
 
-export default FloatingButton;
+export default ThemeButton;

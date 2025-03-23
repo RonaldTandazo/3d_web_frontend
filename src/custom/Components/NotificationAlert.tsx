@@ -8,7 +8,7 @@ interface AlertProps {
     onClose: () => void;
 }
 
-const CustomAlert: React.FC<AlertProps> = ({ type, title, message, onClose }) => {
+const NotificationAlert: React.FC<AlertProps> = ({ type, title, message, onClose }) => {
     const { open, onOpen, onToggle } = useDisclosure();
 
     useEffect(() => {
@@ -17,14 +17,27 @@ const CustomAlert: React.FC<AlertProps> = ({ type, title, message, onClose }) =>
         }
     }, [message, onOpen]);
 
+    const handleClose = () => {
+        onToggle();
+
+        setTimeout(() => {
+            onClose();
+        }, 1000);
+    };
+
     return (
         <Presence
             present={open}
             animationName={{ _open: "fade-in", _closed: "fade-out" }}
-            animationDuration="moderate"
+            animationDuration="slower"
         >
             <Alert.Root 
+                maxW={"20vw"}
                 status={type}
+                position="fixed"
+                top="20px"
+                right="20px"
+                zIndex={"tooltip"}
             >
                 <Alert.Indicator />
                 <Alert.Content>
@@ -37,14 +50,11 @@ const CustomAlert: React.FC<AlertProps> = ({ type, title, message, onClose }) =>
                     pos="relative" 
                     top="-2" 
                     insetEnd="-2"
-                    onClick={() => {
-                        onToggle()
-                        onClose()
-                    }}
+                    onClick={handleClose}
                 />
             </Alert.Root>
         </Presence>
     );
 };
 
-export default CustomAlert;
+export default NotificationAlert;

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BsPersonFillAdd } from "react-icons/bs";
 import { useColorMode } from "@/components/ui/color-mode";
-import CustomAlert from "@/custom/components/CustomAlert";
+import NotificationAlert from "@/custom/Components/NotificationAlert";
 
 interface FormValues {
     firstName: string;
@@ -39,6 +39,7 @@ const SignUp = () => {
         register,
         handleSubmit,
         formState: { errors },
+        getValues 
     } = useForm<FormValues>();
 
     const onSubmit = handleSubmit(async (data: any) => {
@@ -47,8 +48,7 @@ const SignUp = () => {
 
     return (
         <Flex 
-            h="100vh" 
-            w="98vw" 
+            minH="100vh" 
             align="center" 
             justify="center"
         >
@@ -102,13 +102,23 @@ const SignUp = () => {
 
                             <Field.Root invalid={!!errors.password}>
                                 <Field.Label>Password</Field.Label>
-                                <PasswordInput {...register("password", { required: "Password is required" })} />
+                                <PasswordInput 
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        validate: value => value === getValues("confirmPassword") || "Passwords must match"
+                                    })}
+                                />
                                 <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
                             </Field.Root>
 
                             <Field.Root invalid={!!errors.confirmPassword}>
                                 <Field.Label>Confirm Password</Field.Label>
-                                <PasswordInput {...register("confirmPassword", { required: "Confirm Password is required" })} />
+                                <PasswordInput 
+                                    {...register("confirmPassword", { 
+                                        required: "Confirm Password is required" ,
+                                        validate: value => value === getValues("password") || "Passwords must match"
+                                    })}
+                                />
                                 <Field.ErrorText>{errors.confirmPassword?.message}</Field.ErrorText>
                             </Field.Root>
 
@@ -135,7 +145,7 @@ const SignUp = () => {
                 </Card.Footer>
             </Card.Root>
             {showAlert && error?.message && (
-                <CustomAlert
+                <NotificationAlert
                     type="error"
                     title="Sign Up Error"
                     message={error.message}

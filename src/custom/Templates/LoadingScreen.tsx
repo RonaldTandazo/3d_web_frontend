@@ -4,7 +4,7 @@ const LoadignScreen = () => {
     return (
         <Flex 
             h="100vh" 
-            w="98vw" 
+            w="100vw" 
             align="center" 
             justify="center"
         >
