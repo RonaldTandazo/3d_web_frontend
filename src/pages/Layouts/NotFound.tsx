@@ -23,8 +23,6 @@ const NotFoundPage = () => {
             <Button color={"white"} bg={"cyan.500"} onClick={() => navigate("/")} size={"md"} mt={6}>
                 Go to ArtVerse
             </Button>
-
-            <FloatingButton />
         </Box>
     );
 };
