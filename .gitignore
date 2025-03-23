@@ -23,4 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+<<<<<<< HEAD
 .env
+=======
+.env
+>>>>>>> f403f36 (SignIn and SignUp Screen, AuthContext, Auth and Main Layout)

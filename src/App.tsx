@@ -1,36 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Route, Routes } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import ArtVerse from './pages/Home/ArtVerse';
+import ProductPage from './pages/Models/Model';
+// import LoginPage from './components/pages/LoginPage';
+import { Button, Box } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/signin');
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+    <Box>
+      <Box as="header" p={4} bg="teal.500" color="white">
+        <Button onClick={() => navigate('/')}>ArtVerse</Button>
+        {isAuthenticated ? (
+          <>
+            <Button onClick={handleLogout} ml={4}>Logout</Button>
+            <Button onClick={() => navigate('/product/1')} ml={4}>Product Page</Button>
+          </>
+        ) : (
+          <Button onClick={() => navigate('/signin')} ml={4}>Login</Button>
+        )}
+      </Box>
+    </Box>
+  );
+};
 
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+export default App;
