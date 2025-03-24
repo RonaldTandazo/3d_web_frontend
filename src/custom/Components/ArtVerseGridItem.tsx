@@ -1,12 +1,19 @@
 import { GridItem, Box, Image, Text, Grid } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import DecorativeBox from "../Templates/DecorativeBox";
+import Indicator3D from "../FloatingIcons/3dIndicator";
+import VideoIndicator from "../FloatingIcons/VideoIndicator";
+import { useNavigate } from "react-router-dom";
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const ArtVerseGridItem = ({ item }: { item: any }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const navigate = useNavigate();
+
+    const handleNavigate = (item: any) => {
+        navigate(`/specifications/${item.id}`, { state: { item } });
+    }
 
     return (
         <GridItem 
@@ -17,7 +24,12 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Box position="relative" w="100%" h="100%">
+            <Box 
+                position="relative" 
+                w="100%" 
+                h="100%"
+                onClick={() => handleNavigate(item)}
+            >
                 <Image
                     src={item.image}
                     alt={item.name}
@@ -25,47 +37,38 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                     h="100%"
                     objectFit="cover"
                     aspectRatio={1}
-                    transition="0.5s ease"
-                    filter={isHovered ? "brightness(50%)" : "brightness(100%)"}
+                    borderRadius={"sm"}
                 />
 
                 <MotionBox
                     position="absolute"
                     top="0"
-                    bottom={isHovered ? "0" : "-100%"}  // Aparece desde abajo
-                    left={isHovered ? "0" : "-100%"}
+                    bottom={isHovered ? "0" : "-100%"}
                     w="100%"
                     h="100%"
-                    bg="rgba(0, 0, 0, 0.25)"
+                    backgroundImage={isHovered ? 
+                        "linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))"
+                        : "none"
+                    }
                     color="white"
                     display="flex"
                     flexDirection="column"
                     justifyContent="end"
-                    //alignItems="center"
-                    //textAlign="center"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: isHovered ? "0%" : "-100%" }}
+                    initial={{ y: "100%" }}
+                    animate={{ y: isHovered ? "0%" : "100%" }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                     p={3}
                 >
+                    <Box display="flex" flexDirection="column" alignItems="end" h={"100%"}>
+                        <VideoIndicator />
+                        <Indicator3D />
+                    </Box>
                     <Grid
                         templateRows="repeat(2, auto)"
                         templateColumns="repeat(20, auto)"
                         position={"relative"}
-                    >
-                        <GridItem 
-                            colSpan={1}
-                            rowSpan={1}
-                            top={5}
-                        >
-                            <DecorativeBox name={"video"} image={null}/>
-                        </GridItem>
-                        <GridItem 
-                            colSpan={1}
-                            rowSpan={1}
-                        >
-                            <DecorativeBox name={"3D"} image={null}/>
-                        </GridItem>
+                        h={"auto"}
+                    >   
                         <GridItem 
                             colSpan={1}
                             rowSpan={2}

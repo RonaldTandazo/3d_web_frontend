@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import ArtVerse from '@/pages/Home/ArtVerse';
-import Model from '@/pages/Models/Model';
+import ArtEspecifications from '@/pages/Models/ArtEspecifications';
 import SignIn from '@/pages/Authentication/SignIn';
 import SignUp from '@/pages/Authentication/SignUp';
 //import Profile from './pages/User/Profile';
@@ -18,7 +18,7 @@ const AppRoutes = () => {
             {/* Rutas públicas */}
             <Route element={<MainLayout />}>
                 <Route path="/" element={<ArtVerse />} />
-                <Route path="/product/:id" element={<Model />} />
+                <Route path="/specifications/:id" element={<ArtEspecifications />} />
             </Route>
 
             {/* Rutas protegidas */}

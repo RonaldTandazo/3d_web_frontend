@@ -28,11 +28,12 @@ const NavBar = () => {
         <Box 
             as="nav" 
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
-            /*position="sticky" 
+            position="sticky" 
             top="0" 
+            p={5}
             zIndex="sticky" 
             shadow={isScrolled ? "md" : "none"}
-            transition="box-shadow 0.3s ease"*/
+            transition="box-shadow 0.3s ease"
         >
             <Flex align="center" mx="auto" justifyContent="space-between">
                 {/* Logo totalmente a la izquierda */}

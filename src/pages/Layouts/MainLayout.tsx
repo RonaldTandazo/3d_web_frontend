@@ -14,7 +14,7 @@ const MainLayout = () => {
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
             color={colorMode === "light" ? "black" : "white"}
             overflowY="auto"
-            p={5}
+            px={5}
         >
             <NavBar />
             <ThemeButton />

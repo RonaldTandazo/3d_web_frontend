@@ -5,7 +5,7 @@ const ArtVerseGrid = ({ items }: { items: any[] }) => {
     return (
         <Grid
             templateRows="repeat(auto, auto)"
-            templateColumns="repeat(8, auto)"
+            templateColumns="repeat(2, auto)"
             gap={1}
         >
             {items.map((item: any) => (
