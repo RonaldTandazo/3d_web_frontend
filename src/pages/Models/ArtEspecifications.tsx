@@ -1,4 +1,5 @@
 import ArtVerseGrid from '@/custom/Components/ArtVerseGrid';
+import ArtVerseButton from '@/custom/FloatingButtons/ArtVerseButton';
 import DecorativeBox from '@/custom/Templates/DecorativeBox';
 import Empty from '@/custom/Templates/Empty';
 import { Box, Grid, GridItem } from '@chakra-ui/react';
@@ -72,6 +73,8 @@ const ArtEspecifications = () => {
                     <DecorativeBox name={"More"} image={null} />
                 </GridItem>
             </Grid>
+
+            <ArtVerseButton />
         </Box>
     );
 };
