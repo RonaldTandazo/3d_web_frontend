@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+.space-grotesk-heading {
+  font-family: "Space Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: bolder;
+  font-style: normal;
+}

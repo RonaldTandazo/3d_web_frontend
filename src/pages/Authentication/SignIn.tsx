@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { BiLogIn } from "react-icons/bi";
 import { useColorMode } from "@/components/ui/color-mode";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
+import LoadignScreen from "@/custom/Templates/LoadingScreen";
 
 interface FormValues {
     username: string;
@@ -18,6 +19,7 @@ const SignIn = () => {
     const { colorMode } = useColorMode();
     const [showAlert, setShowAlert] = useState(false);
     const navigate = useNavigate();
+
     
     useEffect(() => {
         if (isAuthenticated) {

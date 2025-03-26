@@ -3,7 +3,6 @@ import ArtVerse from '@/pages/Home/ArtVerse';
 import ArtEspecifications from '@/pages/Models/ArtEspecifications';
 import SignIn from '@/pages/Authentication/SignIn';
 import SignUp from '@/pages/Authentication/SignUp';
-//import Profile from './pages/User/Profile';
 //import Favorites from './pages/User/Favorites';
 import PrivateRoute from '../utils/PrivateRoute';
 import MainLayout from '@/pages/Layouts/MainLayout';
@@ -11,6 +10,7 @@ import AuthLayout from '@/pages/Layouts/AuthLayout';
 import LoadignScreen from '@/custom/Templates/LoadingScreen';
 import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
+import Profile from '@/pages/User/Profile';
 
 const AppRoutes = () => {
     return (
@@ -22,10 +22,12 @@ const AppRoutes = () => {
             </Route>
 
             {/* Rutas protegidas */}
-            {/*<Route element={<PrivateRoute />}>
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/favorites" element={<Favorites />} />
-            </Route>*/}
+            <Route element={<PrivateRoute />}>
+                <Route element={<MainLayout />}>
+                    <Route path="/profile/:username" element={<Profile />} />
+                    {/*<Route path="/favorites" element={<Favorites />} />*/}
+                </Route>
+            </Route>
 
             {/* Ruta para login */}
             <Route element={<AuthLayout />}>

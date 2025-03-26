@@ -5,11 +5,11 @@ import { ApolloError } from '@apollo/client';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    signup: (first_name: string, last_name: string, email: string, username: string, password: string) => Promise<void>;
+    signup: (firstName: string, lastName: string, email: string, username: string, password: string) => Promise<void>;
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
     token: string | null;
-    user: { id_user: number, first_name: string; last_name: string; username: string; email: string } | null;
+    user: { id_user: number, firstName: string; lastName: string; username: string; email: string; location: string | null; telephone: string | null; professionalHeadline: string | null; summary: string | null; socialMedia: object | null; } | null;
     loading: boolean;
     error: null | ApolloError;
     clearError: () => void;
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<{ id_user: number; first_name: string; last_name: string; username: string; email: string; } | null>(null);
+    const [user, setUser] = useState<{ id_user: number; firstName: string; lastName: string; username: string; email: string; location: string | null; telephone: string | null; professionalHeadline: string | null; summary: string | null; socialMedia: object | null; } | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<null | ApolloError>(null);
@@ -93,11 +93,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const signup = async (first_name: string, last_name: string, email: string, username: string, password: string) => {
+    const signup = async (firstName: string, lastName: string, email: string, username: string, password: string) => {
         try {
             clearError()
             setLoading(true);
-            await SignUp(first_name, last_name, email, username, password);
+            await SignUp(firstName, lastName, email, username, password);
         } catch (error) {
             console.error("Sign Up Error:", error);
         } finally {          
