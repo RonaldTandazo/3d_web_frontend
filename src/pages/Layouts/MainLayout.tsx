@@ -1,11 +1,16 @@
 import { Box } from "@chakra-ui/react";
 import { useColorMode } from "@/components/ui/color-mode";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import ThemeButton from "@/custom/FloatingButtons/ThemeButton";
 import NavBar from "@/custom/Components/NavBar";
+import ArtVerseButton from "@/custom/FloatingButtons/ArtVerseButton";
 
 const MainLayout = () => {
     const { colorMode } = useColorMode();
+    const location = useLocation();
+    const excludedRoutes = ['/'];
+
+    const shouldShowButton = !excludedRoutes.includes(location.pathname);
 
     return (
         <Box 
@@ -18,6 +23,7 @@ const MainLayout = () => {
         >
             <NavBar />
             <ThemeButton />
+            {shouldShowButton && <ArtVerseButton />}
 
             <Outlet />
         </Box>

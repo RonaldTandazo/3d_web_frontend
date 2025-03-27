@@ -63,8 +63,12 @@ const NavBar = () => {
                 rounded="full"
                 size="md"
                 onClick={() => navigate(`/profile/${user.username}`)}
+                bg={colorMode === "light" ? "cyan.500":"pink.500"}
             >
-                <Icon size="xl">
+                <Icon 
+                    size="xl"
+                    color={colorMode === "light" ? "white":"black"}
+                >
                     <VscAccount />
                 </Icon>
             </IconButton>
@@ -88,7 +92,7 @@ const NavBar = () => {
                 <Box flex="1" maxW="60vw" mx={4}>
                     <InputGroup flex="1" startElement={<BsSearch />}>
                         <Input 
-                            placeholder="What are you looking for?" 
+                            placeholder="What are you looking for?..." 
                             borderRadius="full" 
                             size="lg" 
                             borderColor={colorMode === 'light' ? "blackAlpha.700":"whiteAlpha.700"}

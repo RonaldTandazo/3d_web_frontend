@@ -1,20 +1,21 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import ArtVerseButton from "@/custom/FloatingButtons/ArtVerseButton";
 import { Box, Button, Flex, Grid, GridItem, Icon, IconButton, Image, Link, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
 import { MdEmail } from "react-icons/md";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import { FaFacebook, FaInstagram, FaTwitter, FaUserEdit, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaPlusSquare, FaTwitter, FaUserEdit, FaYoutube } from "react-icons/fa";
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
     const { colorMode } = useColorMode();
     const { user } = useAuth();
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
     const [isUserInfoVisible, setIsUserInfoVisible] = useState(true);
+    const navigate = useNavigate();
 
     user.professionalHeadline = '3D Modeler, and Fullstack Developer'
     user.summary = 'I have a hobby to model vehicles, and rarely make sculptures of characters. I practice to improve my skills and knowledge day by day, to have better results.'
@@ -105,6 +106,12 @@ const Profile = () => {
         // ... más URLs de imágenes
     ];
 
+    const handleNavigate = () => {
+        if(user && user?.email){
+            navigate(`/EditProfile/${user.email}`)
+        }
+    }
+
     return (
         <Box h={"auto"} mx={5}>
             <Grid
@@ -132,6 +139,32 @@ const Profile = () => {
                                 maxH={"80vh"}
                             >
                                 <Box position="relative" width={"100%"}>
+                                    <IconButton
+                                        onClick={() => setIsUserInfoVisible(false)}
+                                        borderRadius="full"
+                                        colorScheme="black"
+                                        size="sm"
+                                        bg={"transparent"}
+                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                                        position="absolute"
+                                        top="-20px"
+                                        left="-20px"
+                                    >
+                                        <IoEyeOff />
+                                    </IconButton>
+                                    <IconButton
+                                        borderRadius="full"
+                                        colorScheme="black"
+                                        size="sm"
+                                        bg={"transparent"}
+                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                                        position="absolute"
+                                        top="-20px"
+                                        right="-20px"
+                                        onClick={handleNavigate}
+                                    >
+                                        <FaUserEdit />
+                                    </IconButton>
                                     <Stack>
                                         <Box 
                                             w="100%"
@@ -238,31 +271,6 @@ const Profile = () => {
                                             </>
                                         )}
                                     </Stack>
-                                    <IconButton
-                                        onClick={() => setIsUserInfoVisible(false)}
-                                        borderRadius="full"
-                                        colorScheme="black"
-                                        size="sm"
-                                        bg={"transparent"}
-                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
-                                        position="absolute"
-                                        top="-20px"
-                                        left="-20px"
-                                    >
-                                        <IoEyeOff />
-                                    </IconButton>
-                                    <IconButton
-                                        borderRadius="full"
-                                        colorScheme="black"
-                                        size="sm"
-                                        bg={"transparent"}
-                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
-                                        position="absolute"
-                                        top="-20px"
-                                        right="-20px"
-                                    >
-                                        <FaUserEdit />
-                                    </IconButton>
                                 </Box>
                             </GridItem>
                         </motion.div>
@@ -272,8 +280,16 @@ const Profile = () => {
                     style={{ gridColumn: isUserInfoVisible ? "2 / 3" : "1 / 2" }}
                 >
                     <Stack gap="5" align="flex-start">
-                        <Flex gap="3" direction={"row"} mb={0}>
+                        <Flex gap="3" direction={"row"} mb={0} justifyContent="space-between" width="100%">
                             <Text alignSelf={"center"} fontSize={"3xl"} fontWeight={"medium"}>Artworks</Text>
+                            <Button 
+                                size="xs" 
+                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                color={"white"}
+                                shadow={"lg"}
+                            >
+                                <FaPlusSquare /> New Artwork
+                            </Button>
                         </Flex>
                         <Box 
                             bg={colorMode === 'light' ? "whiteAlpha.950":"blackAlpha.500"}
@@ -311,7 +327,6 @@ const Profile = () => {
                         <IoEye />
                     </IconButton>
                 )}
-                <ArtVerseButton />
             </Flex>
         </Box>
     )   
