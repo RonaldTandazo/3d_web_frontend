@@ -13,7 +13,7 @@ const ArtVerse = () => {
   }, []);
 
   return (
-    <Box>
+    <Box mx={5}>
       <ArtVerseGrid items={characters}/>
     </Box>
   );

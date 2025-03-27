@@ -77,7 +77,7 @@ const NavBar = () => {
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
             position="sticky" 
             top="0" 
-            py={5}
+            p={5}
             zIndex="sticky" 
             shadow={isScrolled ? "md" : "none"}
             transition="box-shadow 0.3s ease"
