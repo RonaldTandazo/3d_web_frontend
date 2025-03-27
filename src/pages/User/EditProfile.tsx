@@ -22,25 +22,30 @@ const TickValue = () => {
 };
 
 const EditProfile = () => {
+    const [activeTab, setActiveTab] = useState<string | null>("1")
     const colorMode = useColorMode();
 
     const items = [
-    {
-        index: "1",
-        title: "Tab 1",
-        content: "Content 1",
-    },
-    {
-        index: "2",
-        title: "Tab 2",
-        content: "Content 2",
-    },
-    {
-        index: "3",
-        title: "Tab 3",
-        content: "Content 3",
-    }
+        {
+            index: "1",
+            title: "Tab 1",
+            content: "Content 1",
+        },
+        {
+            index: "2",
+            title: "Tab 2",
+            content: "Content 2",
+        },
+        {
+            index: "3",
+            title: "Tab 3",
+            content: "Content 3",
+        }
     ];
+
+    const handleTab = (e) => {
+        setActiveTab(e.value)
+    }
 
     return (
         <Box mx={5}>
@@ -50,6 +55,8 @@ const EditProfile = () => {
                 defaultValue="1"
                 width="full"
                 orientation="vertical"
+                onValueChange={handleTab}
+                value={activeTab}
             >
                 <Tabs.List
                     rounded="l3"
@@ -57,6 +64,7 @@ const EditProfile = () => {
                     gap={3}
                     maxWidth="200px"
                     overflowX="hidden"
+                    bg="bg.muted"
                 >
                     {items.map((item) => (
                         <Tabs.Trigger
@@ -72,6 +80,7 @@ const EditProfile = () => {
                             </Text>
                         </Tabs.Trigger>
                     ))}
+                    <Tabs.Indicator rounded="l2" />
                 </Tabs.List>
                 <Box pos="relative" width="full">
                     {items.map((item) => (
