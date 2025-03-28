@@ -132,7 +132,7 @@ const Profile = () => {
                         >
                             <GridItem
                                 bg={colorMode === 'light' ? "whiteAlpha.950" : "blackAlpha.500"}
-                                borderRadius={"lg"}
+                                rounded={"lg"}
                                 shadow={"lg"}
                                 p={7}
                                 overflowY={"auto"}
@@ -145,7 +145,7 @@ const Profile = () => {
                                         colorScheme="black"
                                         size="sm"
                                         bg={"transparent"}
-                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                                        color={colorMode === "light" ? "cyan.500":"pink.500" }
                                         position="absolute"
                                         top="-20px"
                                         left="-20px"
@@ -157,7 +157,7 @@ const Profile = () => {
                                         colorScheme="black"
                                         size="sm"
                                         bg={"transparent"}
-                                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                                        color={colorMode === "light" ? "cyan.500":"pink.500"}
                                         position="absolute"
                                         top="-20px"
                                         right="-20px"
@@ -230,7 +230,7 @@ const Profile = () => {
                                                             cursor="pointer"
                                                             textDecoration="none"
                                                             _hover={{ textDecoration: "underline" }}
-                                                            color={colorMode === "light" ? "pink.500" : 'cyan.500'}
+                                                            color={colorMode === "light" ? "cyan.500":"pink.500"}
                                                             onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
                                                             display="flex"
                                                             alignItems="center"
@@ -240,11 +240,11 @@ const Profile = () => {
                                                                 {isSummaryExpanded ? "Show Less" : "Show More"}
                                                             </span>
                                                             {isSummaryExpanded ? (
-                                                                <span style={{ textDecoration: 'underline' }}>
+                                                                <span>
                                                                     <SlArrowUp />
                                                                 </span>
                                                             ) : (
-                                                                <span style={{ textDecoration: 'underline' }}>
+                                                                <span>
                                                                     <SlArrowDown />
                                                                 </span>
                                                             )}
@@ -261,7 +261,7 @@ const Profile = () => {
                                                     <Flex gap={4}>
                                                         {Object.entries(user.socialMedia).map(([platform, url]) => (
                                                             <Link href={url} key={platform}>
-                                                                <Icon boxSize={6} color={colorMode === "light" ? "pink.500":"cyan.500"}>
+                                                                <Icon boxSize={6} color={colorMode === "light" ? "cyan.500":"pink.500"}>
                                                                     {socialMediaIcons[platform as SocialMediaPlatform]}
                                                                 </Icon>
                                                             </Link>
@@ -293,7 +293,7 @@ const Profile = () => {
                         </Flex>
                         <Box 
                             bg={colorMode === 'light' ? "whiteAlpha.950":"blackAlpha.500"}
-                            borderRadius={"lg"}
+                            rounded={"lg"}
                             shadow={"lg"}
                             p={7}
                         >
