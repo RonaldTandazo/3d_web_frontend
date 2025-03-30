@@ -9,7 +9,21 @@ interface AuthContextType {
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
     token: string | null;
-    user: { id_user: number, firstName: string; lastName: string; username: string; email: string; location: string | null; telephone: string | null; professionalHeadline: string | null; summary: string | null; socialMedia: object | null; } | null;
+    user: { 
+        userId: number, 
+        firstName: string; 
+        lastName: string; 
+        username: string; 
+        email: string; 
+        location: string | null; 
+        telephone: string | null; 
+        professionalHeadline: string | null; 
+        summary: string | null; 
+        socialMedia: object | null; 
+        since: string | null; 
+        countryId: number | null; 
+        city: string | null; 
+    } | null;
     loading: boolean;
     error: null | ApolloError;
     clearError: () => void;
@@ -19,7 +33,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<{ id_user: number; firstName: string; lastName: string; username: string; email: string; location: string | null; telephone: string | null; professionalHeadline: string | null; summary: string | null; socialMedia: object | null; } | null>(null);
+    const [user, setUser] = useState<{ 
+        userId: number; 
+        firstName: string; 
+        lastName: string; 
+        username: string; 
+        email: string; 
+        location: string | null; 
+        telephone: string | null; 
+        professionalHeadline: string | null; 
+        summary: string | null; 
+        socialMedia: object | null;
+        since: string | null;  
+        countryId: number | null; 
+        city: string | null; 
+    } | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<null | ApolloError>(null);

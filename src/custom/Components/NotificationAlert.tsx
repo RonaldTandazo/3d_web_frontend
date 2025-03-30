@@ -35,7 +35,7 @@ const NotificationAlert: React.FC<AlertProps> = ({ type, title, message, onClose
                 maxW={"20vw"}
                 status={type}
                 position="fixed"
-                top="20px"
+                top="85px"
                 right="20px"
                 zIndex={"tooltip"}
             >

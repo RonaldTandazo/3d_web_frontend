@@ -14,9 +14,14 @@ export const useLogin = () => {
 
     const login = async (username: string, password: string) => {
         try {
-            await loginMutation({ variables: { username, password } });
+            await loginMutation({ 
+                variables: { username, password },
+                context: { requireAuth: false }
+            });
         } catch (err) {
-            return err
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
         }
     };
 
@@ -29,7 +34,7 @@ export const useLogin = () => {
 };
 
 const SIGNUP_MUTATION = gql`
-    mutation registerUser($userData: UserInput!) { 
+    mutation registerUser($userData: RegisterInput!) { 
         registerUser(userData: $userData)
     }
 `;
@@ -40,7 +45,10 @@ export const useSignUp = () => {
     const signUp = async (firstName: string, lastName: string, email: string, username: string, password: string) => {
         try {
             const userData = { firstName, lastName, email, username, password };
-            await signUpMutation({ variables: { userData } });
+            await signUpMutation({ 
+                variables: { userData },
+                context: { requireAuth: false }
+            });
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

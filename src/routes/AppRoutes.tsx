@@ -11,7 +11,7 @@ import LoadignScreen from '@/custom/Templates/LoadingScreen';
 import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
-import EditProfile from '@/pages/User/EditProfile';
+import ProfileSettings from '@/pages/User/ProfileSettings';
 
 const AppRoutes = () => {
     return (
@@ -26,7 +26,7 @@ const AppRoutes = () => {
             <Route element={<PrivateRoute />}>
                 <Route element={<MainLayout />}>
                     <Route path="/profile/:username" element={<Profile />} />
-                    <Route path="/editProfile/:username" element={<EditProfile />} />
+                    <Route path="/profileSettings/:username" element={<ProfileSettings />} />
                     {/*<Route path="/favorites" element={<Favorites />} />*/}
                 </Route>
             </Route>

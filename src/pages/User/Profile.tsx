@@ -1,6 +1,6 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Button, Flex, Grid, GridItem, Icon, IconButton, Image, Link, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, GridItem, Icon, IconButton, Image, Link, Separator, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
 import { MdEmail } from "react-icons/md";
@@ -107,8 +107,8 @@ const Profile = () => {
     ];
 
     const handleNavigate = () => {
-        if(user && user?.email){
-            navigate(`/EditProfile/${user.email}`)
+        if(user && user?.username){
+            navigate(`/ProfileSettings/${user.username}`)
         }
     }
 
@@ -184,8 +184,8 @@ const Profile = () => {
                                             w="100%"
                                             my={5}
                                         >
-                                            <Text fontSize={"3xl"} justifySelf={"center"} fontWeight={"extrabold"}>{user?.firstName} {user?.lastName}</Text>
-                                            <Text fontSize={"xl"} justifySelf={"center"}>{user?.username}</Text>
+                                            <Text fontSize={"3xl"} justifySelf={"center"} textAlign={"center"} fontWeight={"extrabold"}>{user?.firstName} {user?.lastName}</Text>
+                                            <Text fontSize={"xl"} justifySelf={"center"} textAlign={"center"}>{user?.username}</Text>
                                         </Box>
                                         <Box>
                                             {user?.professionalHeadline && user.professionalHeadline !== '' && (
@@ -220,7 +220,7 @@ const Profile = () => {
                                         </Flex>
                                         {user?.summary && user.summary !== '' && (
                                             <>
-                                                <hr style={{ color: "white" }} />
+                                                <Separator variant={"solid"} style={{ color: "white" }} />
                                                 <Box w="100%" mt={2} mb={5}>
                                                     <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Summary</Text>
                                                     <Text textAlign={"justify"}>{truncatedSummary}</Text>
@@ -255,7 +255,7 @@ const Profile = () => {
                                         )}
                                         {user?.socialMedia && Object.keys(user.socialMedia).length > 0 && (
                                             <>
-                                                <hr style={{ color: "white" }} />
+                                                <Separator variant={"solid"} style={{ color: "white" }} />
                                                 <Box w="100%" mt={2}>
                                                     <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Social Media</Text>
                                                     <Flex gap={4}>
