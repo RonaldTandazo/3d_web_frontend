@@ -1,15 +1,17 @@
+import { useColorMode } from "@/components/ui/color-mode";
 import { Select, Input, Box, Portal } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 
 const SearchableSelect = ({ disabled=false, placeholder = "Select Options", options, field, multiple = false, defaultValue, ...rest }: any) => {
-    const [searchTerm, setSearchTerm] = useState("");
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [selectedOptions, setSelectedOptions] = useState(null);
+    const { colorMode } = useColorMode();
+    const [searchTerm, setSearchTerm] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
 
     useEffect(() => {
-        if(defaultValue){
+        if(defaultValue && options.length > 0){
             if(multiple){
                 const matchedOptions = options.filter((option: any) => Array.isArray(defaultValue) ? defaultValue.includes(option.value):[defaultValue].includes(option.value));
                 setSelectedOptions(matchedOptions.map((option: any) => option.label).join(", "));
@@ -24,7 +26,7 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
                 field.onChange([defaultValue]);
             }
         }
-    }, []);
+    }, [options]);
 
     const handleSearch = (e:any) => {
         const term = e.target.value.toLowerCase();
@@ -70,13 +72,13 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
         >
             <Select.HiddenSelect {...rest} />
             <Select.Control>
-                <Select.Trigger onClick={() => {setIsOpen(true)}} bg={"transparent"} border={"solid thin"} borderColor={"gray.200"} rounded={"sm"}>
+                <Select.Trigger onClick={() => {setIsOpen(true)}} bg={"transparent"} border={"solid thin"} borderColor={colorMode === "light" ? "gray.200" : "whiteAlpha.300"} rounded={"sm"}>
                     <Select.ValueText>
                         {selectedOptions ?  selectedOptions:placeholder}
                     </Select.ValueText>
                 </Select.Trigger>
                 <Select.IndicatorGroup>
-                    <Select.ClearTrigger onClick={handleClear}/>
+                    <Select.ClearTrigger onClick={handleClear} color={colorMode === "light" ? "cyan.500" : "pink.500"} bg={"transparent"}/>
                     <Select.Indicator />
                 </Select.IndicatorGroup>
             </Select.Control>
@@ -88,12 +90,14 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
                                 placeholder="Search..."
                                 value={searchTerm}
                                 onChange={handleSearch}
+                                color={colorMode === "light" ? "black":"white"}
                             />
                         </Box>
                         {filteredOptions.map((option:any) => (
                             <Select.Item 
                                 item={option}
                                 key={option.value}
+                                color={colorMode === "light" ? "black":"white"}
                             >
                                 {option.label}
                                 <Select.ItemIndicator />

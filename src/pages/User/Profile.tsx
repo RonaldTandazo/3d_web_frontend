@@ -17,10 +17,6 @@ const Profile = () => {
     const [isUserInfoVisible, setIsUserInfoVisible] = useState(true);
     const navigate = useNavigate();
 
-    user.professionalHeadline = '3D Modeler, and Fullstack Developer'
-    user.summary = 'I have a hobby to model vehicles, and rarely make sculptures of characters. I practice to improve my skills and knowledge day by day, to have better results.'
-    user.location = 'Guayaquil, Ecuador'
-    user.telephone = '+593 0962618451'
     user.socialMedia = {
         facebook: "https://www.facebook.com",
         instagram: "https://www.instagram.com",
@@ -30,7 +26,7 @@ const Profile = () => {
 
     const charsPerLine = 50;
     const maxLines = 2;
-    const estimatedLines = Math.ceil(user?.summary.length / charsPerLine);
+    const estimatedLines = user?.summary ? Math.ceil(user?.summary.length / charsPerLine):0;
     const shouldExpand = user?.summary && estimatedLines > maxLines;
 
     const truncatedSummary = shouldExpand && !isSummaryExpanded

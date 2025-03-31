@@ -2,7 +2,7 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/context/AuthContext";
 import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaUserTie } from "react-icons/fa";
 import { ImProfile, ImUser } from "react-icons/im";
@@ -13,6 +13,7 @@ import { PiShareNetworkFill } from "react-icons/pi";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import SearchableSelect from "@/custom/Components/SeachableSelect";
 import { useGetCountry } from "@/services/Country/CountryService";
+import { useGetSocialMedia } from "@/services/SocialMedia/SocialMediaService";
 
 interface ProfileFormValues {
     firstName: string;
@@ -20,17 +21,24 @@ interface ProfileFormValues {
     professionalHeadline: string;
     countryId: number;
     city: string;
-} 
+}
+
+interface SocialMediaFormValues {
+    socialMediaId: number;
+    link: string;
+}
 
 interface PasswordFormValues {
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
-} 
+}
 
 const ProfileSettings = () => {
     const [countries, setCountries] = useState([]);
-    const { data: countryData, error: countryError, loading: countryLoading } = useGetCountry();
+    const [socialMedia, setSocialMedia] = useState([]);
+    const { getCountries, data: countryData, error: countryError, loading: countryLoading } = useGetCountry();
+    const { getSocialMedia, data: socialMediaData, error: socialMediaError, loading: socialMediaLoading } = useGetSocialMedia();
     const { changePassword: ChangePassword, data: passwordData, error: passwordError, loading: passwordLoading } = useChangePassword();
     const { profileUpdate: ProfileUpdate, data: profileData, error: profileError, loading: profileLoading } = useProfileUpdate();
 
@@ -41,11 +49,37 @@ const ProfileSettings = () => {
     const [since, setSince] = useState<string | null>(null);
     const { colorMode } = useColorMode();
     const { user } = useAuth();
+    const [selectedImage, setSelectedImage] = useState(null);
+    const fileInputRef = useRef(null);
     
     const opciones = {
         year: 'numeric',
         month: 'long',
     };
+
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    useEffect(() => {
+        if(activeTab == "1"){
+            getCountries()
+        }
+        if (activeTab == "3") {
+            getSocialMedia()
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if (countries.length <= 0 && countryData && countryData.getCountries) {
@@ -56,6 +90,16 @@ const ProfileSettings = () => {
             setCountries(formattedCountries);
         }
     }, [countryData]);
+
+    useEffect(() => {
+        if (socialMedia.length <= 0 && socialMediaData && socialMediaData.getSocialMedia) {
+            const formattedSocialMedia = socialMediaData.getSocialMedia.map((network: any) => ({
+                value: network.socialMediaId,
+                label: network.name,
+            }));
+            setSocialMedia(formattedSocialMedia);
+        }
+    }, [socialMediaData]);
 
     useEffect(() => {
         if (user && user.since) {
@@ -76,12 +120,26 @@ const ProfileSettings = () => {
         register: registerProfile,
         handleSubmit: handleSubmitProfile,
         formState: { errors: errorsProfile },
-        control
+        control: profileControl
     } = useForm<ProfileFormValues>();
 
     const onSubmitProfile = handleSubmitProfile(async (data: any) => {
         resetAlert()
         await ProfileUpdate(data.firstName, data.lastName, data.professionalHeadline, data.city, data.countryId[0])
+    });
+
+    // SOCIAL MEDIA
+    const {
+        register: registerSocialMedia,
+        handleSubmit: handleSocialMedia,
+        formState: { errors: errorsSocialeMedia },
+        control: socialMediaControl
+    } = useForm<SocialMediaFormValues>();
+
+    const onSubmitSocialMedia = handleSocialMedia(async (data: any) => {
+        console.log(data)
+        //resetAlert()
+        //await ProfileUpdate(data.firstName, data.lastName, data.professionalHeadline, data.city, data.countryId[0])
     });
 
     // PASSWORD
@@ -98,29 +156,32 @@ const ProfileSettings = () => {
     });
 
     useEffect(() => {
-        if(countryError?.message){
+        if(profileError?.message){
             setShowAlert(true);
-            setMessage({message: countryError?.message, type:"error"});
+            setMessage({message: profileError?.message, type:"error"});
+        }else if(socialMediaError?.message){
+            setShowAlert(true);
+            setMessage({message: socialMediaError?.message, type:"error"});
         }else if (passwordError?.message) {
             setShowAlert(true);
             setMessage({message: passwordError?.message, type:"error"});
-        }else if(profileError?.message){
+        }else if (passwordError?.message) {
             setShowAlert(true);
-            setMessage({message: profileError?.message, type:"error"});
+            setMessage({message: passwordError?.message, type:"error"});
         }
-    }, [passwordError, countryError, profileError]);
+    }, [profileError, countryError, socialMediaError, passwordError,  ]);
 
     useEffect(() => {
-        if(passwordData){
-            const valor = Object.values(passwordData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(profileData){
+        if(profileData){
             const valor = Object.values(profileData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
-        }
-    }, [passwordData, profileData]);
+        }else if(passwordData){
+            const valor = Object.values(passwordData).find(value => value !== undefined);
+            setMessage({message: valor, type: "success"})
+            setShowAlert(true)
+        } 
+    }, [profileData, passwordData]);
 
     const items = [
         {
@@ -128,15 +189,17 @@ const ProfileSettings = () => {
             title: "Profile Information",
             icon: <ImProfile />,
             content: (
-                <Stack pl={7}>
-                    <Box w={"full"} mb={3}>
-                        <Heading size="3xl">Profile Information</Heading>
-                    </Box>
-                    <Box w={"full"} mb={10}>
-                        <Heading size="lg">Fill in your basic information</Heading>
+                <Stack p={7}>
+                    <Box w={"full"}>
+                        <Box w={"full"} mb={3}>
+                            <Heading size="3xl">Profile Information</Heading>
+                        </Box>
+                        <Box w={"full"} mb={10}>
+                            <Heading size="lg">Fill in your basic information</Heading>
+                        </Box>
                     </Box>
                     <form onSubmit={onSubmitProfile}>
-                        <Stack gap={4}>
+                        <Stack gap={5}>
                             <Flex direction={"row"} gap={5}>
                                 <Field.Root invalid={!!errorsProfile.firstName}>
                                     <Field.Label>First Name</Field.Label>
@@ -162,7 +225,7 @@ const ProfileSettings = () => {
                                 <Field.Root invalid={!!errorsProfile.countryId}>
                                     <Field.Label>Country</Field.Label>
                                     <Controller
-                                        control={control}
+                                        control={profileControl}
                                         name="countryId"
                                         rules={{ required: "Country is required" }}
                                         render={({ field }) => (
@@ -203,7 +266,52 @@ const ProfileSettings = () => {
             index: "3",
             title: "Social Media",
             icon: <PiShareNetworkFill />,
-            content: ""
+            content: (
+                <Stack p={7}>
+                    <Box w={"full"}>
+                        <Box w={"full"} mb={3}>
+                            <Heading size="3xl">Social Media</Heading>
+                        </Box>
+                        <Box w={"full"} mb={10}>
+                            <Heading size="lg">Share your Contact && Social Media links</Heading>
+                        </Box>
+                    </Box>
+                    <form onSubmit={onSubmitSocialMedia}>
+                        <Stack gap={5}>
+                            <Flex direction={"row"} gap={5} w={"full"} alignItems={"center"}>
+                                <Field.Root invalid={!!errorsSocialeMedia.socialMediaId} w={"20vw"}>
+                                    <Field.Label>Social Network</Field.Label>
+                                    <Controller
+                                        control={socialMediaControl}
+                                        name="socialMediaId"
+                                        rules={{ required: "Social Network is required" }}
+                                        render={({ field }) => (
+                                            <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false} defaultValue={null}/>
+                                        )}
+                                    />
+                                    <Field.ErrorText>{errorsSocialeMedia.socialMediaId?.message}</Field.ErrorText>
+                                </Field.Root>
+                                <Field.Root invalid={!!errorsSocialeMedia.link}>
+                                    <Field.Label>Link</Field.Label>
+                                    <Input {...registerSocialMedia("link", { required: "Link is required" })}/>
+                                    <Field.ErrorText>{errorsSocialeMedia.link?.message}</Field.ErrorText>
+                                </Field.Root>
+                            </Flex>
+                            
+                            <Button
+                                type="submit" 
+                                alignSelf={"flex-end"} 
+                                bg={"cyan.600"} 
+                                color={"white"}
+                                loading={passwordLoading}
+                                disabled={passwordLoading}
+                            >
+                                <IoIosSave />Save
+                            </Button>
+                        </Stack>
+                    </form>
+                </Stack>
+            )
         },
         {
             index: "4",
@@ -211,14 +319,16 @@ const ProfileSettings = () => {
             icon: <RiLockPasswordFill />,
             content: (
                 <Stack pl={7}>
-                    <Box w={"full"} mb={3}>
-                        <Heading size="3xl">Password</Heading>
-                    </Box>
-                    <Box w={"full"} mb={10}>
-                        <Heading size="lg">Change your Password</Heading>
+                    <Box w={"full"}>
+                        <Box w={"full"} mb={3}>
+                            <Heading size="3xl">Password</Heading>
+                        </Box>
+                        <Box w={"full"} mb={10}>
+                            <Heading size="lg">Change your Password</Heading>
+                        </Box>
                     </Box>
                     <form onSubmit={onSubmitPassword}>
-                        <Stack gap={4}>
+                        <Stack gap={5}>
                             <Field.Root invalid={!!errorsPassword.currentPassword}>
                                 <Field.Label>Current Password</Field.Label>
                                 <PasswordInput {...registerPassword("currentPassword", { required: "Password is required" })} />
@@ -266,6 +376,7 @@ const ProfileSettings = () => {
 
     const handleTab = (e) => {
         setActiveTab(e.value);
+        resetAlert()
     };
 
     return (
@@ -284,19 +395,44 @@ const ProfileSettings = () => {
                             display={"flex"}
                             justifyContent="center" 
                             alignItems="center"
+                            onClick={handleImageClick}
                         >
-                            {user?.avatar ? (
+                            {selectedImage ? (
                                 <Image
-                                    src="URL_DE_TU_IMAGEN"
-                                    alt="Imagen centrada"
+                                    src={selectedImage}
+                                    alt="Selected Image"
                                     boxSize="200px"
                                     borderRadius="full"
                                     fit="cover"
+                                    cursor="pointer"
                                 />
-                            ):(
-                                <Icon as={ImUser} boxSize="200px" color={colorMode === "light" ? "cyan.50":"pink.200"} bg={colorMode === "light" ? "cyan.500":"pink.500"} rounded={"full"}/>
+                            ) : user?.avatar ? (
+                                <Image
+                                    src={user.avatar}
+                                    alt="Stored Image"
+                                    boxSize="200px"
+                                    borderRadius="full"
+                                    fit="cover"
+                                    cursor="pointer"
+                                />
+                            ) : (
+                                <Icon
+                                    as={ImUser}
+                                    boxSize="200px"
+                                    color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
+                                    bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                                    rounded={'full'}
+                                    cursor="pointer"
+                                />
                             )}
                         </Box>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleImageChange}
+                        />
                         <Box 
                             w="100%"
                             my={5}
@@ -396,7 +532,7 @@ const ProfileSettings = () => {
             {showAlert && message.message != "" &&(
                 <NotificationAlert
                     type={message.type}
-                    title="User Settings"
+                    title="Profile Settings"
                     message={message.message}
                     onClose={() => {
                         setMessage({message: "", type: ""})

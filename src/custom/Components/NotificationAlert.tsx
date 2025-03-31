@@ -2,7 +2,7 @@ import { Alert, CloseButton, Presence, useDisclosure } from "@chakra-ui/react";
 import { useEffect } from "react";
 
 interface AlertProps {
-    type: "error" | "success" | "warning" | "info";
+    type: "error" | "success" | "warning" | "info" | string;
     title: string;
     message: string;
     onClose: () => void;
@@ -51,6 +51,7 @@ const NotificationAlert: React.FC<AlertProps> = ({ type, title, message, onClose
                     top="-2" 
                     insetEnd="-2"
                     onClick={handleClose}
+                    bg={"transparent"}
                 />
             </Alert.Root>
         </Presence>
