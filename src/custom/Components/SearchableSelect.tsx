@@ -11,6 +11,9 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
     const ref = useRef(null);
 
     useEffect(() => {
+        if(filteredOptions.length <= 0){
+            setFilteredOptions(options)
+        }
         if(defaultValue && options.length > 0){
             if(multiple){
                 const matchedOptions = options.filter((option: any) => Array.isArray(defaultValue) ? defaultValue.includes(option.value):[defaultValue].includes(option.value));
@@ -28,6 +31,22 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
         }
     }, [options]);
 
+    useEffect(() => {
+        setFilteredOptions(options)
+        if (options.length > 0 && defaultValue !== undefined && defaultValue !== null) {
+            const valueArray = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+            field.onChange(valueArray);
+    
+            if (multiple) {
+                const matchedOptions = options.filter((option: any) => valueArray.includes(option.value));
+                setSelectedOptions(matchedOptions.map((option: any) => option.label).join(", "));
+            } else {
+                const selectedOption = options.find((option: any) => option.value === defaultValue);
+                setSelectedOptions(selectedOption ? selectedOption.label : "");
+            }
+        }
+    }, [options, defaultValue]);
+
     const handleSearch = (e:any) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
@@ -40,11 +59,13 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
 
     const handleClose = () => {
         if(field.value && field.value.length > 0){
-            if(multiple){
-                const matchedOptions = options.filter((option: any) => field.value && field.value.includes(option.value));
+            const valueArray = field.value;
+            if (multiple) {
+                const matchedOptions = options.filter((option: any) => valueArray.includes(option.value));
                 setSelectedOptions(matchedOptions.map((option: any) => option.label).join(", "));
-            }else{
-                setSelectedOptions(options.find((option: any) => field.value && field.value.includes(option.value)).label);
+            } else {
+                const selectedOption = options.find((option: any) => valueArray.includes(option.value));
+                setSelectedOptions(selectedOption ? selectedOption.label : "");
             }
         }
         setIsOpen(false);

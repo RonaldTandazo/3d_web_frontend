@@ -1,8 +1,8 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For, Separator } from "@chakra-ui/react";
+import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaUserTie } from "react-icons/fa";
 import { ImProfile, ImUser } from "react-icons/im";
@@ -11,9 +11,11 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { IoIosSave } from "react-icons/io";
 import { PiShareNetworkFill } from "react-icons/pi";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
-import SearchableSelect from "@/custom/Components/SeachableSelect";
+import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCountry } from "@/services/Country/CountryService";
 import { useGetSocialMedia } from "@/services/SocialMedia/SocialMediaService";
+import { useGetUserSocialMedia, useStoreUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
+import LoadingProgress from "@/custom/Components/LoadingProgress";
 
 interface ProfileFormValues {
     firstName: string;
@@ -37,10 +39,15 @@ interface PasswordFormValues {
 const ProfileSettings = () => {
     const [countries, setCountries] = useState([]);
     const [socialMedia, setSocialMedia] = useState([]);
+    const [userSocialMedia, setUserSocialMedia] = useState([]);
+
     const { getCountries, data: countryData, error: countryError, loading: countryLoading } = useGetCountry();
     const { getSocialMedia, data: socialMediaData, error: socialMediaError, loading: socialMediaLoading } = useGetSocialMedia();
+    const { getUserSocialMedia, data: userSocialMediaData, error: userSocialMediaError, loading: userSocialMediaLoading } = useGetUserSocialMedia();
+    
     const { changePassword: ChangePassword, data: passwordData, error: passwordError, loading: passwordLoading } = useChangePassword();
     const { profileUpdate: ProfileUpdate, data: profileData, error: profileError, loading: profileLoading } = useProfileUpdate();
+    const { storeUserNetwork: StoreUserNetwork, data: storeUserNetworkData, error: storeUserNetworkError, loading: storeUserNetworkLoading } = useStoreUserSocialNetowrk();
 
     const [showAlert, setShowAlert] = useState(false);
     const [message, setMessage] = useState({message: "", type: ""});
@@ -78,6 +85,7 @@ const ProfileSettings = () => {
         }
         if (activeTab == "3") {
             getSocialMedia()
+            getUserSocialMedia()
         }
     }, [activeTab]);
 
@@ -99,7 +107,12 @@ const ProfileSettings = () => {
             }));
             setSocialMedia(formattedSocialMedia);
         }
-    }, [socialMediaData]);
+
+        if(userSocialMediaData && userSocialMediaData.getUserSocialMedia){
+            console.log(userSocialMediaData.getUserSocialMedia)
+            setUserSocialMedia(userSocialMediaData.getUserSocialMedia)
+        }
+    }, [socialMediaData, userSocialMediaData]);
 
     useEffect(() => {
         if (user && user.since) {
@@ -138,8 +151,8 @@ const ProfileSettings = () => {
 
     const onSubmitSocialMedia = handleSocialMedia(async (data: any) => {
         console.log(data)
-        //resetAlert()
-        //await ProfileUpdate(data.firstName, data.lastName, data.professionalHeadline, data.city, data.countryId[0])
+        resetAlert()
+        await StoreUserNetwork(data.socialMediaId[0], data.link)
     });
 
     // PASSWORD
@@ -159,21 +172,31 @@ const ProfileSettings = () => {
         if(profileError?.message){
             setShowAlert(true);
             setMessage({message: profileError?.message, type:"error"});
+        }else if (countryError?.message) {
+            setShowAlert(true);
+            setMessage({message: countryError?.message, type:"error"});
         }else if(socialMediaError?.message){
             setShowAlert(true);
             setMessage({message: socialMediaError?.message, type:"error"});
-        }else if (passwordError?.message) {
+        }else if(storeUserNetworkError?.message){
             setShowAlert(true);
-            setMessage({message: passwordError?.message, type:"error"});
+            setMessage({message: storeUserNetworkError?.message, type:"error"});
+        }else if(userSocialMediaError?.message){
+            setShowAlert(true);
+            setMessage({message: userSocialMediaError?.message, type:"error"});
         }else if (passwordError?.message) {
             setShowAlert(true);
             setMessage({message: passwordError?.message, type:"error"});
         }
-    }, [profileError, countryError, socialMediaError, passwordError,  ]);
+    }, [profileError, countryError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
 
     useEffect(() => {
         if(profileData){
             const valor = Object.values(profileData).find(value => value !== undefined);
+            setMessage({message: valor, type: "success"})
+            setShowAlert(true)
+        }else if(storeUserNetworkData){
+            const valor = Object.values(storeUserNetworkData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
         }else if(passwordData){
@@ -181,7 +204,7 @@ const ProfileSettings = () => {
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
         } 
-    }, [profileData, passwordData]);
+    }, [profileData, storeUserNetworkData, passwordData]);
 
     const items = [
         {
@@ -303,11 +326,34 @@ const ProfileSettings = () => {
                                 alignSelf={"flex-end"} 
                                 bg={"cyan.600"} 
                                 color={"white"}
-                                loading={passwordLoading}
-                                disabled={passwordLoading}
+                                loading={storeUserNetworkLoading}
+                                disabled={storeUserNetworkLoading}
                             >
                                 <IoIosSave />Save
                             </Button>
+
+                            {userSocialMediaLoading ? <LoadingProgress />:
+                                (userSocialMedia.length > 0 && (
+                                    <Stack gap={5}>
+                                        <Text fontSize={"2xl"} fontWeight="bold" my={5}>Added Social Media</Text>
+                                        <For
+                                            each={userSocialMedia}
+                                        >
+                                            {(item) => (
+                                                <React.Fragment>
+                                                    <Separator size="sm" />
+                                                    <Flex direction={"row"} key={item.userSocialNetworkId} justifyContent={"space-between"} px={5}>
+                                                        <Text fontWeight="bold">{item.network}</Text>
+                                                        <Text color="fg.muted">{item.link}</Text>
+                                                        {/*<Text color="fg.muted">Powers: {item.link.join(", ")}</Text>*/}
+                                                    </Flex>
+                                                </React.Fragment>
+                                            )}
+                                        </For>
+                                    </Stack>
+                                ))
+                            }
+
                         </Stack>
                     </form>
                 </Stack>
