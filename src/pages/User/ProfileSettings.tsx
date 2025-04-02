@@ -1,7 +1,7 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For, Separator } from "@chakra-ui/react";
+import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For, Separator, Menu, Portal, Popover, Group } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaUserTie } from "react-icons/fa";
@@ -9,13 +9,17 @@ import { ImProfile, ImUser } from "react-icons/im";
 import { useChangePassword, useProfileUpdate } from "../../services/User/UserService";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { IoIosSave } from "react-icons/io";
+import { GrMenu } from "react-icons/gr";
 import { PiShareNetworkFill } from "react-icons/pi";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCountry } from "@/services/Country/CountryService";
 import { useGetSocialMedia } from "@/services/SocialMedia/SocialMediaService";
-import { useGetUserSocialMedia, useStoreUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
+import { useGetUserSocialMedia, useRemoveUserSocialNetowrk, useStoreUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
+import { AiFillEdit } from "react-icons/ai";
+import { TiDelete } from "react-icons/ti";
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface ProfileFormValues {
     firstName: string;
@@ -48,6 +52,7 @@ const ProfileSettings = () => {
     const { changePassword: ChangePassword, data: passwordData, error: passwordError, loading: passwordLoading } = useChangePassword();
     const { profileUpdate: ProfileUpdate, data: profileData, error: profileError, loading: profileLoading } = useProfileUpdate();
     const { storeUserNetwork: StoreUserNetwork, data: storeUserNetworkData, error: storeUserNetworkError, loading: storeUserNetworkLoading } = useStoreUserSocialNetowrk();
+    const { removeUserNetwork: RemoveUserNetwork, data: removeUserNetworkData, error: removeUserNetworkError, loading: removeUserNetworkLoading } = useRemoveUserSocialNetowrk();
 
     const [showAlert, setShowAlert] = useState(false);
     const [message, setMessage] = useState({message: "", type: ""});
@@ -58,6 +63,8 @@ const ProfileSettings = () => {
     const { user } = useAuth();
     const [selectedImage, setSelectedImage] = useState(null);
     const fileInputRef = useRef(null);
+    const buttonRef = useRef(null);
+    const [buttonWidth, setButtonWidth] = useState('auto');
     
     const opciones = {
         year: 'numeric',
@@ -78,6 +85,18 @@ const ProfileSettings = () => {
             reader.readAsDataURL(file);
         }
     };
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (buttonRef.current) {
+                setButtonWidth(`${buttonRef.current.offsetWidth}px`);
+            } else {
+                setTimeout(updateWidth, 50);
+            }
+        };
+
+        updateWidth();
+    }, []);
 
     useEffect(() => {
         if(activeTab == "1"){
@@ -109,7 +128,6 @@ const ProfileSettings = () => {
         }
 
         if(userSocialMediaData && userSocialMediaData.getUserSocialMedia){
-            console.log(userSocialMediaData.getUserSocialMedia)
             setUserSocialMedia(userSocialMediaData.getUserSocialMedia)
         }
     }, [socialMediaData, userSocialMediaData]);
@@ -150,10 +168,26 @@ const ProfileSettings = () => {
     } = useForm<SocialMediaFormValues>();
 
     const onSubmitSocialMedia = handleSocialMedia(async (data: any) => {
-        console.log(data)
         resetAlert()
+        const maxId = Math.max(...userSocialMedia.map(item => item.userSocialNetworkId), 0);
+        const network = socialMedia.find((network:any) => network.value === data.socialMediaId[0]);
+        const newItem = {
+            userSocialNetworkId: maxId + 1,
+            socialMediaId: data.socialMediaId,
+            network: network.label,
+            link: data.link
+        }
+
+        setUserSocialMedia([...userSocialMedia, newItem]);
         await StoreUserNetwork(data.socialMediaId[0], data.link)
     });
+
+    const removeSocialNetowrk = async (data: any) => {
+        resetAlert()
+        console.log(data)
+        setUserSocialMedia(userSocialMedia.filter((item: any) => item.userSocialNetworkId !== data.userSocialNetworkId))
+        await RemoveUserNetwork(data.userSocialNetworkId)
+    }
 
     // PASSWORD
     const {
@@ -178,17 +212,20 @@ const ProfileSettings = () => {
         }else if(socialMediaError?.message){
             setShowAlert(true);
             setMessage({message: socialMediaError?.message, type:"error"});
-        }else if(storeUserNetworkError?.message){
-            setShowAlert(true);
-            setMessage({message: storeUserNetworkError?.message, type:"error"});
         }else if(userSocialMediaError?.message){
             setShowAlert(true);
             setMessage({message: userSocialMediaError?.message, type:"error"});
+        }else if(storeUserNetworkError?.message){
+            setShowAlert(true);
+            setMessage({message: storeUserNetworkError?.message, type:"error"});
+        }else if(removeUserNetworkError?.message){
+            setShowAlert(true);
+            setMessage({message: removeUserNetworkError?.message, type:"error"});
         }else if (passwordError?.message) {
             setShowAlert(true);
             setMessage({message: passwordError?.message, type:"error"});
         }
-    }, [profileError, countryError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
+    }, [profileError, countryError, socialMediaError, userSocialMediaError, storeUserNetworkError, removeUserNetworkError, passwordError ]);
 
     useEffect(() => {
         if(profileData){
@@ -199,12 +236,16 @@ const ProfileSettings = () => {
             const valor = Object.values(storeUserNetworkData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
+        }else if(removeUserNetworkData){
+            const valor = Object.values(removeUserNetworkData).find(value => value !== undefined);
+            setMessage({message: valor, type: "success"})
+            setShowAlert(true)
         }else if(passwordData){
             const valor = Object.values(passwordData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
         } 
-    }, [profileData, storeUserNetworkData, passwordData]);
+    }, [profileData, storeUserNetworkData, removeUserNetworkData, passwordData]);
 
     const items = [
         {
@@ -332,28 +373,128 @@ const ProfileSettings = () => {
                                 <IoIosSave />Save
                             </Button>
 
-                            {userSocialMediaLoading ? <LoadingProgress />:
-                                (userSocialMedia.length > 0 && (
-                                    <Stack gap={5}>
-                                        <Text fontSize={"2xl"} fontWeight="bold" my={5}>Added Social Media</Text>
-                                        <For
-                                            each={userSocialMedia}
-                                        >
-                                            {(item) => (
-                                                <React.Fragment>
-                                                    <Separator size="sm" />
-                                                    <Flex direction={"row"} key={item.userSocialNetworkId} justifyContent={"space-between"} px={5}>
-                                                        <Text fontWeight="bold">{item.network}</Text>
-                                                        <Text color="fg.muted">{item.link}</Text>
-                                                        {/*<Text color="fg.muted">Powers: {item.link.join(", ")}</Text>*/}
-                                                    </Flex>
-                                                </React.Fragment>
-                                            )}
-                                        </For>
-                                    </Stack>
-                                ))
-                            }
+                            <Box w={"full"} display={userSocialMediaLoading || removeUserNetworkLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading || removeUserNetworkLoading  ? "center":"start"}>
+                                {userSocialMediaLoading || removeUserNetworkLoading || storeUserNetworkLoading ? <LoadingProgress />:
+                                    (userSocialMedia.length > 0 && (
+                                        <Stack gap={5}>
+                                            <Text fontSize={"2xl"} fontWeight="bold" my={5}>Added Social Media</Text>
+                                            <For
+                                                each={userSocialMedia}
+                                            >
+                                                {(item) => { 
+                                                    const [menuOpen, setMenuOpen] = useState(false);
+                                                    const [popoverOpen, setPopoverOpen] = useState(false);
 
+                                                    return (
+                                                        <React.Fragment key={item.userSocialNetworkId}>
+                                                            <Separator size="sm" />
+                                                            <Flex direction={"row"} key={item.userSocialNetworkId} justifyContent={"space-between"} alignItems={"center"} px={5}>
+                                                                <Text fontWeight="bold">{item.network}</Text>
+                                                                <Text color="fg.muted">{item.link}</Text>
+                                                                <Menu.Root unmountOnExit lazyMount open={menuOpen}>
+                                                                    <Menu.Trigger asChild onClick={() => setMenuOpen(!menuOpen)}>
+                                                                        <Button size={"sm"} bg={"transparent"} color={colorMode === "light" ? "cyan.500":"pink.500"} ref={buttonRef}>
+                                                                            <Icon size={"lg"}>
+                                                                                <GrMenu />
+                                                                            </Icon>
+                                                                        </Button>
+                                                                    </Menu.Trigger>
+                                                                    <Portal>
+                                                                        <Menu.Positioner>
+                                                                            <Menu.Content minW={buttonWidth} style={{ minWidth: buttonWidth }}>
+                                                                                <Tooltip
+                                                                                    content="Edit"
+                                                                                    openDelay={500}
+                                                                                    closeDelay={100}
+                                                                                    unmountOnExit={true}    
+                                                                                    lazyMount={true}
+                                                                                    positioning={{ placement: "top" }}
+                                                                                    showArrow
+                                                                                    contentProps={{ 
+                                                                                        css: { 
+                                                                                            "--tooltip-bg": colorMode === "light" ? "colors.cyan.500" : "colors.pink.500",
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    <Menu.Item value={"edit"} justifyContent={"center"} alignItems={"center"}>
+                                                                                        <Icon size={"sm"} color={colorMode === "light" ? "cyan.500":"pink.500"}>
+                                                                                            <AiFillEdit />
+                                                                                        </Icon>
+                                                                                    </Menu.Item>
+                                                                                </Tooltip>
+                                                                                <Separator my={1}/>
+                                                                                <Tooltip
+                                                                                    content="Remove"
+                                                                                    openDelay={500}
+                                                                                    closeDelay={100}
+                                                                                    unmountOnExit={true}    
+                                                                                    lazyMount={true}
+                                                                                    positioning={{ placement: "top" }}
+                                                                                    showArrow
+                                                                                    contentProps={{ 
+                                                                                        css: { 
+                                                                                            "--tooltip-bg": "tomato",
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    <Menu.Item
+                                                                                        value={"delete"}
+                                                                                        color="fg.error"
+                                                                                        _hover={{ bg: "bg.error", color: "fg.error" }}
+                                                                                        justifyContent={"center"} 
+                                                                                        alignItems={"center"}
+                                                                                    >
+                                                                                        <Popover.Root lazyMount unmountOnExit open={popoverOpen}>
+                                                                                            <Popover.Trigger asChild onClick={() => setPopoverOpen(!popoverOpen)}>
+                                                                                                <Icon size={"sm"}>
+                                                                                                    <TiDelete />
+                                                                                                </Icon>
+                                                                                            </Popover.Trigger>
+                                                                                            <Portal>
+                                                                                                <Popover.Positioner>
+                                                                                                    <Popover.Content>
+                                                                                                        <Popover.Arrow />
+                                                                                                        <Popover.Header fontWeight="bold" color={colorMode === "light" ? "black":"white"}>Remove</Popover.Header>
+                                                                                                        <Popover.Body>
+                                                                                                            <Text color={colorMode === "light" ? "black":"white"}>
+                                                                                                                Are you sure you want to remove this Social Netowrk?
+                                                                                                            </Text>
+                                                                                                        </Popover.Body>
+                                                                                                        <Popover.Footer justifyContent={"flex-end"}>
+                                                                                                            <Group display={"flex"}>
+                                                                                                                <Button 
+                                                                                                                    size="xs" 
+                                                                                                                    onClick={() => {
+                                                                                                                        removeSocialNetowrk(item)
+                                                                                                                        setPopoverOpen(false)
+                                                                                                                        setMenuOpen(false)
+                                                                                                                    }} 
+                                                                                                                    bg={"tomato"} 
+                                                                                                                    color={"white"}
+                                                                                                                >Yes</Button>
+                                                                                                                <Button size="xs" onClick={() => setPopoverOpen(false)} variant={"surface"} bg={"transparent"} color={colorMode === "light" ? "black":"white"}>No</Button>
+                                                                                                            </Group>
+                                                                                                        </Popover.Footer>
+                                                                                                    </Popover.Content>
+                                                                                                </Popover.Positioner>
+                                                                                            </Portal>
+                                                                                        </Popover.Root>
+                                                                                        
+                                                                                    </Menu.Item>
+                                                                                </Tooltip>
+                                                                            </Menu.Content>
+                                                                        </Menu.Positioner>
+                                                                    </Portal>
+                                                                </Menu.Root>
+                                                            </Flex>
+                                                        </React.Fragment>
+                                                    )
+                                                }}
+                                            </For>
+                                        </Stack>
+                                    ))
+                                }
+                            </Box>
                         </Stack>
                     </form>
                 </Stack>
@@ -431,7 +572,7 @@ const ProfileSettings = () => {
             bg={colorMode === "light" ? "whiteAlpha.950" : "blackAlpha.500"}
             shadow={"lg"}
             rounded={"lg"}
-            maxH={"50vh"}
+            maxH={"89vh"}
         >
             <Grid w={"75%"} templateColumns="35% 65%" gap={4} p={10} justifySelf={"center"} alignSelf={"center"}>
                 <GridItem display="flex" justifyContent="center" alignItems="center">
@@ -543,7 +684,7 @@ const ProfileSettings = () => {
                                 </Tabs.Trigger>
                             ))}
                         </Tabs.List>
-                        <Box position={"relative"} w={"full"} h="calc(50vh - 100px)">
+                        <Box position={"relative"} w={"full"} h="calc(89vh - 100px)">
                             {items.map((item) => (
                                 <Box
                                     key={item.index}
