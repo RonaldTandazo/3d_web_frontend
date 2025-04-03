@@ -339,7 +339,7 @@ const ProfileSettings = () => {
                             <Heading size="3xl">Social Media</Heading>
                         </Box>
                         <Box w={"full"} mb={10}>
-                            <Heading size="lg">Share your Contact && Social Media links</Heading>
+                            <Heading size="lg">Share your Contact & Social Media links</Heading>
                         </Box>
                     </Box>
                     <form onSubmit={onSubmitSocialMedia}>
@@ -675,8 +675,11 @@ const ProfileSettings = () => {
             shadow={"lg"}
             rounded={"lg"}
             maxH={"89vh"}
+            display={"flex"}
+            alignItems={"center"}
+            justifyContent={"center"}
         >
-            <Grid w={"75%"} templateColumns="35% 65%" gap={4} p={10} justifySelf={"center"} alignSelf={"center"}>
+            <Grid w={"75%"} templateColumns="35% 65%" gap={4} p={10}>
                 <GridItem display="flex" justifyContent="center" alignItems="center">
                     <Stack>
                         <Box 
