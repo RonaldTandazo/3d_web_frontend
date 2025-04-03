@@ -65,6 +65,37 @@ export const useStoreUserSocialNetowrk= () => {
     };
 };
 
+const UPDATE_USER_NETWORK = gql`
+    mutation UpdateUserSocialNetwork($updateUserNetwork: UpdateUserNetworkInput!) { 
+        updateUserSocialNetwork(updateUserNetwork: $updateUserNetwork)
+    }
+`;
+
+export const useUpdateUserSocialNetowrk= () => {
+    const [updateSocialNetowrkMutation, { data, loading, error }] = useMutation(UPDATE_USER_NETWORK);
+
+    const updateUserNetwork = async (userSocialNetworkId: Number, socialMediaId: number, link: string) => {
+        try {
+            const updateUserNetwork = { userSocialNetworkId, socialMediaId, link };
+            await updateSocialNetowrkMutation({ 
+                variables: { updateUserNetwork },
+                context: { requireAuth: true }
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        updateUserNetwork,
+        data,
+        loading,
+        error,
+    };
+};
+
 const REMOVE_USER_NETWORK = gql`
     mutation RemoveUserSocialNetwork($userSocialNetworkId: Int!) { 
         removeUserSocialNetwork(userSocialNetworkId: $userSocialNetworkId)
