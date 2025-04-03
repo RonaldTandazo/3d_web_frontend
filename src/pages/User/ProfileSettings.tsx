@@ -254,7 +254,7 @@ const ProfileSettings = () => {
             index: "1",
             title: "Profile Information",
             icon: <ImProfile />,
-            content: (
+            content: (countryData ? (
                 <Stack p={7}>
                     <Box w={"full"}>
                         <Box w={"full"} mb={3}>
@@ -320,7 +320,9 @@ const ProfileSettings = () => {
                         </Stack>
                     </form>
                 </Stack>
-            )
+            ):(
+                <LoadingProgress/>
+            ))
         },
         {
             index: "2",
@@ -332,7 +334,7 @@ const ProfileSettings = () => {
             index: "3",
             title: "Social Media",
             icon: <PiShareNetworkFill />,
-            content: (
+            content: (socialMediaData && userSocialMediaData ? (
                 <Stack p={7}>
                     <Box w={"full"}>
                         <Box w={"full"} mb={3}>
@@ -600,7 +602,9 @@ const ProfileSettings = () => {
                         </Stack>
                     </form>
                 </Stack>
-            )
+            ):(
+                <LoadingProgress/>
+            ))
         },
         {
             index: "4",
