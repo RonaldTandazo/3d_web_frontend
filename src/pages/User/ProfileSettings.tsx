@@ -1,26 +1,22 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For, Separator, Menu, Portal, Popover, Group, HStack } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaUserTie } from "react-icons/fa";
 import { ImProfile, ImUser } from "react-icons/im";
 import { useChangePassword, useProfileUpdate } from "../../services/User/UserService";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { IoIosSave } from "react-icons/io";
-import { GrMenu } from "react-icons/gr";
 import { PiShareNetworkFill } from "react-icons/pi";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCountry } from "@/services/Country/CountryService";
 import { useGetSocialMedia } from "@/services/SocialMedia/SocialMediaService";
-import { useGetUserSocialMedia, useRemoveUserSocialNetowrk, useStoreUserSocialNetowrk, useUpdateUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
+import { useGetUserSocialMedia, useStoreUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
-import { AiFillEdit } from "react-icons/ai";
-import { TiDelete } from "react-icons/ti";
-import { Tooltip } from "@/components/ui/tooltip"
-import IconsSocialMedia from "@/custom/Components/IconsSocialMedia";
+import SocialMediaListItem from "@/custom/Components/SocialMediaListItem";
 
 interface ProfileFormValues {
     firstName: string;
@@ -53,8 +49,6 @@ const ProfileSettings = () => {
     const { changePassword: ChangePassword, data: passwordData, error: passwordError, loading: passwordLoading } = useChangePassword();
     const { profileUpdate: ProfileUpdate, data: profileData, error: profileError, loading: profileLoading } = useProfileUpdate();
     const { storeUserNetwork: StoreUserNetwork, data: storeUserNetworkData, error: storeUserNetworkError, loading: storeUserNetworkLoading } = useStoreUserSocialNetowrk();
-    const { updateUserNetwork: UpdateUserNetwork, data: updateUserNetworkData, error: updateUserNetworkError, loading: updateUserNetworkLoading } = useUpdateUserSocialNetowrk();
-    const { removeUserNetwork: RemoveUserNetwork, data: removeUserNetworkData, error: removeUserNetworkError, loading: removeUserNetworkLoading } = useRemoveUserSocialNetowrk();
 
     const [showAlert, setShowAlert] = useState(false);
     const [message, setMessage] = useState({message: "", type: ""});
@@ -64,7 +58,6 @@ const ProfileSettings = () => {
     const { colorMode } = useColorMode();
     const { user } = useAuth();
     const [selectedImage, setSelectedImage] = useState(null);
-    const [executingId, setExecutingId] = useState([]);
     const fileInputRef = useRef(null);
     const buttonRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
@@ -109,10 +102,7 @@ const ProfileSettings = () => {
             getSocialMedia()
             getUserSocialMedia()
         }
-        if(storeUserNetworkData){
-            getUserSocialMedia()
-        }
-    }, [activeTab, storeUserNetworkData]);
+    }, [activeTab]);
 
     useEffect(() => {
         if (countries.length <= 0 && countryData && countryData.getCountries) {
@@ -178,12 +168,6 @@ const ProfileSettings = () => {
         await StoreUserNetwork(data.socialMediaId[0], data.link)
     });
 
-    const removeSocialNetowrk = async (data: any) => {
-        resetAlert()
-        setUserSocialMedia(userSocialMedia.filter((item: any) => item.userSocialNetworkId !== data.userSocialNetworkId))
-        await RemoveUserNetwork(data.userSocialNetworkId)
-    }
-
     // PASSWORD
     const {
         register: registerPassword,
@@ -213,17 +197,11 @@ const ProfileSettings = () => {
         }else if(storeUserNetworkError?.message){
             setShowAlert(true);
             setMessage({message: storeUserNetworkError?.message, type:"error"});
-        }else if(updateUserNetworkError?.message){
-            setShowAlert(true);
-            setMessage({message: updateUserNetworkError?.message, type:"error"});
-        }else if(removeUserNetworkError?.message){
-            setShowAlert(true);
-            setMessage({message: removeUserNetworkError?.message, type:"error"});
         }else if (passwordError?.message) {
             setShowAlert(true);
             setMessage({message: passwordError?.message, type:"error"});
         }
-    }, [profileError, countryError, socialMediaError, userSocialMediaError, storeUserNetworkError, updateUserNetworkError, removeUserNetworkError, passwordError ]);
+    }, [profileError, countryError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
 
     useEffect(() => {
         if(profileData){
@@ -234,20 +212,12 @@ const ProfileSettings = () => {
             const valor = Object.values(storeUserNetworkData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
-        }else if(updateUserNetworkData){
-            const valor = Object.values(updateUserNetworkData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(removeUserNetworkData){
-            const valor = Object.values(removeUserNetworkData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
         }else if(passwordData){
             const valor = Object.values(passwordData).find(value => value !== undefined);
             setMessage({message: valor, type: "success"})
             setShowAlert(true)
         } 
-    }, [profileData, storeUserNetworkData, updateUserNetworkData, removeUserNetworkData, passwordData]);
+    }, [profileData, storeUserNetworkData, passwordData]);
 
     const items = [
         {
@@ -377,8 +347,8 @@ const ProfileSettings = () => {
                                 <IoIosSave />Save
                             </Button>
 
-                            <Box w={"full"} display={userSocialMediaLoading || removeUserNetworkLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading || removeUserNetworkLoading  ? "center":"start"}>
-                                {userSocialMediaLoading || removeUserNetworkLoading || storeUserNetworkLoading ? (
+                            <Box w={"full"} display={userSocialMediaLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading  ? "center":"start"}>
+                                {userSocialMediaLoading || storeUserNetworkLoading ? (
                                     <LoadingProgress />
                                 ):userSocialMedia.length > 0 && (
                                     <Stack gap={5}>
@@ -386,8 +356,17 @@ const ProfileSettings = () => {
                                         <For
                                             each={userSocialMedia}
                                         >
-                                            {(item) => { 
-                                                const [menuOpen, setMenuOpen] = useState(false);
+                                            {(item) => {
+                                                return (
+                                                    <SocialMediaListItem 
+                                                        key={item.userSocialNetworkId}
+                                                        item={item} 
+                                                        socialMedia={socialMedia}
+                                                        socialMediaLoading={socialMediaLoading}
+                                                    />
+                                                )
+
+                                                /*const [menuOpen, setMenuOpen] = useState(false);
                                                 const [popoverOpen, setPopoverOpen] = useState(false);
                                                 const [editingId, setEditingId] = useState(null);
 
@@ -421,7 +400,6 @@ const ProfileSettings = () => {
                                                 const handleClose = () => {
                                                     setMenuOpen(false)
                                                     setEditingId(null);
-                                                    console.log(executingId)
                                                 }
 
                                                 const onSubmitUpdateSocialMedia = handleUpdateSocialMedia(async (data: any) => {
@@ -486,7 +464,7 @@ const ProfileSettings = () => {
                                                                 ):(
                                                                     <>
                                                                         <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
-                                                                            <IconsSocialMedia socialNetwork={item.network} link={item.link} size={'lg'} />
+                                                                            <IconsSocialMedia key={item.userSocialNetworkId} socialNetwork={item.network} link={item.link} size={'lg'} />
                                                                         </GridItem>
                                                                         <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
                                                                             <Text color="fg.muted">{item.link}</Text>
@@ -593,7 +571,7 @@ const ProfileSettings = () => {
                                                             </Grid>
                                                         </Flex>
                                                     </React.Fragment>
-                                                )
+                                                )*/
                                             }}
                                         </For>
                                     </Stack>

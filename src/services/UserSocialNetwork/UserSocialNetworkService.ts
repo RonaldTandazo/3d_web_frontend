@@ -41,7 +41,9 @@ const STORE_USER_NETWORK = gql`
 `;
 
 export const useStoreUserSocialNetowrk= () => {
-    const [socialNetowrkMutation, { data, loading, error }] = useMutation(STORE_USER_NETWORK);
+    const [socialNetowrkMutation, { data, loading, error }] = useMutation(STORE_USER_NETWORK, {
+        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+    });
 
     const storeUserNetwork = async (socialMediaId: number, link: string) => {
         try {
@@ -72,9 +74,11 @@ const UPDATE_USER_NETWORK = gql`
 `;
 
 export const useUpdateUserSocialNetowrk= () => {
-    const [updateSocialNetowrkMutation, { data, loading, error }] = useMutation(UPDATE_USER_NETWORK);
+    const [updateSocialNetowrkMutation, { data, loading, error }] = useMutation(UPDATE_USER_NETWORK, {
+        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+    });
 
-    const updateUserNetwork = async (userSocialNetworkId: Number, socialMediaId: number, link: string) => {
+    const updateUserNetwork = async (userSocialNetworkId: number, socialMediaId: number, link: string) => {
         try {
             const updateUserNetwork = { userSocialNetworkId, socialMediaId, link };
             await updateSocialNetowrkMutation({ 
@@ -103,7 +107,9 @@ const REMOVE_USER_NETWORK = gql`
 `;
 
 export const useRemoveUserSocialNetowrk= () => {
-    const [removeUserNetowrkMutation, { data, loading, error }] = useMutation(REMOVE_USER_NETWORK);
+    const [removeUserNetowrkMutation, { data, loading, error }] = useMutation(REMOVE_USER_NETWORK, {
+        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+    });
 
     const removeUserNetwork = async (userSocialNetworkId: number) => {
         try {

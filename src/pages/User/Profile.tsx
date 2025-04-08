@@ -1,14 +1,17 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Button, Flex, Grid, GridItem, Icon, IconButton, Image, Link, Separator, Stack, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Button, Flex, For, Grid, GridItem, IconButton, Image, Separator, Stack, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
 import { MdEmail } from "react-icons/md";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
-import { FaFacebook, FaInstagram, FaPlusSquare, FaTwitter, FaUserEdit, FaYoutube } from "react-icons/fa";
+import { FaPlusSquare, FaUserEdit } from "react-icons/fa";
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import IconsSocialMedia from "@/custom/Components/IconsSocialMedia";
+import { useGetUserSocialMedia } from "@/services/UserSocialNetwork/UserSocialNetworkService";
+import LoadignScreen from "@/custom/Templates/LoadingScreen";
 
 const Profile = () => {
     const { colorMode } = useColorMode();
@@ -16,31 +19,28 @@ const Profile = () => {
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
     const [isUserInfoVisible, setIsUserInfoVisible] = useState(true);
     const navigate = useNavigate();
+    const [userSocialMedia, setUserSocialMedia] = useState([]);
 
-    user.socialMedia = {
-        facebook: "https://www.facebook.com",
-        instagram: "https://www.instagram.com",
-        twitter: "https://www.x.com",
-        youtube: "https://www.youtube.com"
-    }
+    const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
 
     const charsPerLine = 50;
     const maxLines = 2;
-    const estimatedLines = user?.summary ? Math.ceil(user?.summary.length / charsPerLine):0;
+    const estimatedLines = user?.summary ? Math.ceil(user?.summary.length / charsPerLine) : 0;
     const shouldExpand = user?.summary && estimatedLines > maxLines;
 
     const truncatedSummary = shouldExpand && !isSummaryExpanded
         ? user.summary.slice(0, maxLines * charsPerLine) + '...'
         : user?.summary;
 
-    type SocialMediaPlatform = 'facebook' | 'instagram' | 'twitter' | 'youtube';
+    useEffect(() => {
+        getUserSocialMedia();
+    }, []);
 
-    const socialMediaIcons = {
-        facebook: <FaFacebook />,
-        instagram: <FaInstagram />,
-        twitter: <FaTwitter />,
-        youtube: <FaYoutube />
-    };
+    useEffect(() => {
+        if (userSocialMediaData && userSocialMediaData.getUserSocialMedia) {
+            setUserSocialMedia(userSocialMediaData.getUserSocialMedia)
+        }
+    }, [userSocialMediaData]);
 
     const artworks = [
         "https://bit.ly/naruto-sage",
@@ -103,13 +103,18 @@ const Profile = () => {
     ];
 
     const handleNavigate = () => {
-        if(user && user?.username){
+        if (user && user?.username) {
             navigate(`/ProfileSettings/${user.username}`)
         }
     }
 
+    if (userSocialMediaLoading) {
+        console.log("is loading")
+        return <LoadignScreen />
+    }
+
     return (
-        <Box h={"auto"} mx={5}>
+        <Box w={"auto"} h={"auto"} mx={5}>
             <Grid
                 templateColumns={isUserInfoVisible ? "1fr 4fr" : "1fr"}
                 maxW={"100vw"}
@@ -133,6 +138,7 @@ const Profile = () => {
                                 p={7}
                                 overflowY={"auto"}
                                 maxH={"80vh"}
+                                maxW={"20vW"}
                             >
                                 <Box position="relative" width={"100%"}>
                                     <IconButton
@@ -141,7 +147,7 @@ const Profile = () => {
                                         colorScheme="black"
                                         size="sm"
                                         bg={"transparent"}
-                                        color={colorMode === "light" ? "cyan.500":"pink.500" }
+                                        color={colorMode === "light" ? "cyan.500" : "pink.500"}
                                         position="absolute"
                                         top="-20px"
                                         left="-20px"
@@ -153,7 +159,7 @@ const Profile = () => {
                                         colorScheme="black"
                                         size="sm"
                                         bg={"transparent"}
-                                        color={colorMode === "light" ? "cyan.500":"pink.500"}
+                                        color={colorMode === "light" ? "cyan.500" : "pink.500"}
                                         position="absolute"
                                         top="-20px"
                                         right="-20px"
@@ -162,10 +168,10 @@ const Profile = () => {
                                         <FaUserEdit />
                                     </IconButton>
                                     <Stack>
-                                        <Box 
+                                        <Box
                                             w="100%"
                                             display={"flex"}
-                                            justifyContent="center" 
+                                            justifyContent="center"
                                             alignItems="center"
                                         >
                                             <Image
@@ -176,7 +182,7 @@ const Profile = () => {
                                                 alt="Naruto Uzumaki"
                                             />
                                         </Box>
-                                        <Box 
+                                        <Box
                                             w="100%"
                                             my={5}
                                         >
@@ -188,11 +194,11 @@ const Profile = () => {
                                                 <Text fontSize={"md"} justifySelf={"start"} textAlign={"justify"}>{user.professionalHeadline}</Text>
                                             )}
                                         </Box>
-                                        <Flex my={5} w="100%" gap={2} direction={"column"}> 
+                                        <Flex my={5} w="100%" gap={2} direction={"column"}>
                                             {user?.email && user.email !== '' && (
                                                 <Flex align="center" visibility={user?.email}>
-                                                    <MdEmail /> 
-                                                    <Text fontSize={"md"} ml={2}> 
+                                                    <MdEmail />
+                                                    <Text fontSize={"md"} ml={2}>
                                                         {user?.email}
                                                     </Text>
                                                 </Flex>
@@ -200,7 +206,7 @@ const Profile = () => {
                                             {user?.location && user.location !== '' && (
                                                 <Flex align="center" >
                                                     <BsGlobe2 />
-                                                    <Text fontSize={"md"} ml={2}> 
+                                                    <Text fontSize={"md"} ml={2}>
                                                         {user?.location}
                                                     </Text>
                                                 </Flex>
@@ -208,7 +214,7 @@ const Profile = () => {
                                             {user?.telephone && user.telephone !== '' && (
                                                 <Flex align="center" >
                                                     <BsTelephoneFill />
-                                                    <Text fontSize={"md"} ml={2}> 
+                                                    <Text fontSize={"md"} ml={2}>
                                                         {user?.telephone}
                                                     </Text>
                                                 </Flex>
@@ -226,7 +232,7 @@ const Profile = () => {
                                                             cursor="pointer"
                                                             textDecoration="none"
                                                             _hover={{ textDecoration: "underline" }}
-                                                            color={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
                                                             onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
                                                             display="flex"
                                                             alignItems="center"
@@ -249,19 +255,26 @@ const Profile = () => {
                                                 </Box>
                                             </>
                                         )}
-                                        {user?.socialMedia && Object.keys(user.socialMedia).length > 0 && (
+                                        {userSocialMedia && userSocialMedia.length > 0 && (
                                             <>
                                                 <Separator variant={"solid"} style={{ color: "white" }} />
                                                 <Box w="100%" mt={2}>
                                                     <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Social Media</Text>
-                                                    <Flex gap={4}>
-                                                        {Object.entries(user.socialMedia).map(([platform, url]) => (
-                                                            <Link href={url} key={platform}>
-                                                                <Icon boxSize={6} color={colorMode === "light" ? "cyan.500":"pink.500"}>
-                                                                    {socialMediaIcons[platform as SocialMediaPlatform]}
-                                                                </Icon>
-                                                            </Link>
-                                                        ))}
+                                                    <Flex 
+                                                        gap={4}
+                                                        display="grid" 
+                                                        gridTemplateColumns="repeat(12, 1fr)"
+                                                        gridAutoRows="auto"
+                                                    >
+                                                        <For
+                                                            each={userSocialMedia}
+                                                        >
+                                                            {(item) => {
+                                                                return (
+                                                                    <IconsSocialMedia key={item.userSocialNetworkId} socialNetwork={item.network} link={item.link} size={'lg'} />
+                                                                )
+                                                            }}
+                                                        </For>
                                                     </Flex>
                                                 </Box>
                                             </>
@@ -278,17 +291,17 @@ const Profile = () => {
                     <Stack gap="5" align="flex-start">
                         <Flex gap="3" direction={"row"} mb={0} justifyContent="space-between" width="100%">
                             <Text alignSelf={"center"} fontSize={"3xl"} fontWeight={"medium"}>Artworks</Text>
-                            <Button 
-                                size="xs" 
-                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                            <Button
+                                size="xs"
+                                bg={colorMode === "light" ? "cyan.500" : "pink.500"}
                                 color={"white"}
                                 shadow={"lg"}
                             >
                                 <FaPlusSquare /> New Artwork
                             </Button>
                         </Flex>
-                        <Box 
-                            bg={colorMode === 'light' ? "whiteAlpha.950":"blackAlpha.500"}
+                        <Box
+                            bg={colorMode === 'light' ? "whiteAlpha.950" : "blackAlpha.500"}
                             rounded={"lg"}
                             shadow={"lg"}
                             p={7}
@@ -306,7 +319,7 @@ const Profile = () => {
             </Grid>
             <Flex>
                 {!isUserInfoVisible && (
-                    <IconButton 
+                    <IconButton
                         position="fixed"
                         aria-label="Show Info"
                         onClick={() => setIsUserInfoVisible(true)}
@@ -314,7 +327,7 @@ const Profile = () => {
                         colorScheme="black"
                         shadow="md"
                         borderRadius="full"
-                        bg={colorMode === "light" ? "black" : "white"} 
+                        bg={colorMode === "light" ? "black" : "white"}
                         color={colorMode === "light" ? "pink.500" : "cyan.500"}
                         left="20px"
                         bottom="75px"
@@ -325,7 +338,7 @@ const Profile = () => {
                 )}
             </Flex>
         </Box>
-    )   
+    )
 }
 
 export default Profile;
