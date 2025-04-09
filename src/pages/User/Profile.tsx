@@ -102,14 +102,17 @@ const Profile = () => {
         // ... más URLs de imágenes
     ];
 
-    const handleNavigate = () => {
+    const handleNavigateSettings = () => {
         if (user && user?.username) {
             navigate(`/ProfileSettings/${user.username}`)
         }
     }
 
+    const handleNavigateNewArt = () => {
+        navigate(`/NewArt`)
+    }
+
     if (userSocialMediaLoading) {
-        console.log("is loading")
         return <LoadignScreen />
     }
 
@@ -163,7 +166,7 @@ const Profile = () => {
                                         position="absolute"
                                         top="-20px"
                                         right="-20px"
-                                        onClick={handleNavigate}
+                                        onClick={handleNavigateSettings}
                                     >
                                         <FaUserEdit />
                                     </IconButton>
@@ -290,14 +293,15 @@ const Profile = () => {
                 >
                     <Stack gap="5" align="flex-start">
                         <Flex gap="3" direction={"row"} mb={0} justifyContent="space-between" width="100%">
-                            <Text alignSelf={"center"} fontSize={"3xl"} fontWeight={"medium"}>Artworks</Text>
+                            <Text alignSelf={"center"} fontSize={"3xl"} fontWeight={"medium"}>ArtWorks</Text>
                             <Button
                                 size="xs"
                                 bg={colorMode === "light" ? "cyan.500" : "pink.500"}
                                 color={"white"}
                                 shadow={"lg"}
+                                onClick={handleNavigateNewArt}
                             >
-                                <FaPlusSquare /> New Artwork
+                                <FaPlusSquare /> New ArtWork
                             </Button>
                         </Flex>
                         <Box
@@ -309,7 +313,7 @@ const Profile = () => {
                             <Grid templateColumns="repeat(6, 1fr)" gap={4}>
                                 {artworks.map((artwork, index) => (
                                     <GridItem key={index} w="100%" h="auto">
-                                        <Image src={artwork} alt={`Artwork ${index}`} w="100%" h="auto" borderRadius="md" />
+                                        <Image src={artwork} alt={`ArtWork ${index}`} w="100%" h="auto" borderRadius="md" />
                                     </GridItem>
                                 ))}
                             </Grid>

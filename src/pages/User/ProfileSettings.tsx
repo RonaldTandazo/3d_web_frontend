@@ -17,6 +17,7 @@ import { useGetSocialMedia } from "@/services/SocialMedia/SocialMediaService";
 import { useGetUserSocialMedia, useStoreUserSocialNetowrk } from "@/services/UserSocialNetwork/UserSocialNetworkService";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SocialMediaListItem from "@/custom/Components/SocialMediaListItem";
+import { GrNodes } from "react-icons/gr";
 
 interface ProfileFormValues {
     firstName: string;
@@ -219,6 +220,12 @@ const ProfileSettings = () => {
         } 
     }, [profileData, storeUserNetworkData, passwordData]);
 
+    
+    const handleTab = (e) => {
+        setActiveTab(e.value);
+        resetAlert()
+    };
+
     const items = [
         {
             index: "1",
@@ -296,9 +303,77 @@ const ProfileSettings = () => {
         },
         {
             index: "2",
-            title: "Professional Information",
-            icon: <FaUserTie />,
-            content: ""
+            title: "Skills & Interests",
+            icon: <GrNodes />,
+            content: (true ? (
+                <Stack p={7}>
+                    <Box w={"full"}>
+                        <Box w={"full"} mb={3}>
+                            <Heading size="3xl">Skills & Interests</Heading>
+                        </Box>
+                        <Box w={"full"} mb={10}>
+                            <Heading size="lg">Share your skills & interests</Heading>
+                        </Box>
+                    </Box>
+                    <form onSubmit={onSubmitProfile}>
+                        <Stack gap={5}>
+                            <Flex direction={"row"} gap={5}>
+                                <Field.Root invalid={!!errorsProfile.firstName}>
+                                    <Field.Label>First Name</Field.Label>
+                                    <Input {...registerProfile("firstName", { required: "First Name is required" })} defaultValue={user?.firstName ?? undefined}/>
+                                    <Field.ErrorText>{errorsProfile.firstName?.message}</Field.ErrorText>
+                                </Field.Root>
+                                <Field.Root invalid={!!errorsProfile.lastName}>
+                                    <Field.Label>Last Name</Field.Label>
+                                    <Input {...registerProfile("lastName", { required: "Last Name is required" })} defaultValue={user?.lastName ?? undefined}/>
+                                    <Field.ErrorText>{errorsProfile.lastName?.message}</Field.ErrorText>
+                                </Field.Root>
+                            </Flex>
+
+                            <Flex direction={"row"}>
+                                <Field.Root invalid={!!errorsProfile.professionalHeadline}>
+                                    <Field.Label>Professional Headline</Field.Label>
+                                    <Input {...registerProfile("professionalHeadline", { required: "Professional Headline is required" })} defaultValue={user?.professionalHeadline ?? undefined}/>
+                                    <Field.ErrorText>{errorsProfile.professionalHeadline?.message}</Field.ErrorText>
+                                </Field.Root>
+                            </Flex>
+
+                            <Flex direction={"row"} gap={5}>
+                                <Field.Root invalid={!!errorsProfile.countryId}>
+                                    <Field.Label>Country</Field.Label>
+                                    <Controller
+                                        control={profileControl}
+                                        name="countryId"
+                                        rules={{ required: "Country is required" }}
+                                        render={({ field }) => (
+                                            <SearchableSelect disabled={countryLoading} placeholder={"Select your Country"} options={countries} field={field} multiple={false} defaultValue={user?.countryId ?? null}/>
+                                        )}
+                                    />
+                                    <Field.ErrorText>{errorsProfile.countryId?.message}</Field.ErrorText>
+                                </Field.Root>
+                                <Field.Root invalid={!!errorsProfile.city}>
+                                    <Field.Label>City</Field.Label>
+                                    <Input {...registerProfile("city", { required: "City is required" })} defaultValue={user?.city ?? undefined}/>
+                                    <Field.ErrorText>{errorsProfile.city?.message}</Field.ErrorText>
+                                </Field.Root>
+                            </Flex>
+
+                            <Button 
+                                type="submit" 
+                                alignSelf={"flex-end"} 
+                                bg={"cyan.600"} 
+                                color={"white"}
+                                loading={profileLoading}
+                                disabled={profileLoading}
+                            >
+                                <IoIosSave />Save
+                            </Button>
+                        </Stack>
+                    </form>
+                </Stack>
+            ):(
+                <LoadingProgress/>
+            ))
         },
         {
             index: "3",
@@ -365,213 +440,6 @@ const ProfileSettings = () => {
                                                         socialMediaLoading={socialMediaLoading}
                                                     />
                                                 )
-
-                                                /*const [menuOpen, setMenuOpen] = useState(false);
-                                                const [popoverOpen, setPopoverOpen] = useState(false);
-                                                const [editingId, setEditingId] = useState(null);
-
-                                                const {
-                                                    register: editSocialMedia,
-                                                    handleSubmit: handleUpdateSocialMedia,
-                                                    formState: { errors: errorsUpdateSocialeMedia },
-                                                    control: updateSocialMediaControl
-                                                } = useForm<SocialMediaFormValues>();
-
-                                                const handleEditClick = (item) => {
-                                                    setEditingId(item.userSocialNetworkId);
-                                                };
-                                            
-                                                const updateSocialNetwork = (updatedItem: any) => {
-                                                    setUserSocialMedia((prevUserSocialMedia) => {
-                                                        return prevUserSocialMedia.map((item) => {
-                                                            if (item.userSocialNetworkId === editingId) {
-                                                                return {
-                                                                    ...item,
-                                                                    network: updatedItem.network,
-                                                                    socialMediaId: updatedItem.socialMediaId, 
-                                                                    link: updatedItem.link,
-                                                                };
-                                                            }
-                                                            return item;
-                                                        });
-                                                    });
-                                                };
-
-                                                const handleClose = () => {
-                                                    setMenuOpen(false)
-                                                    setEditingId(null);
-                                                }
-
-                                                const onSubmitUpdateSocialMedia = handleUpdateSocialMedia(async (data: any) => {
-                                                    setExecutingId([...executingId, editingId])
-                                                    await UpdateUserNetwork(editingId, data.socialMediaId[0], data.link)
-                                                    const itemToUpdate = socialMedia.find(item => item.value === data.socialMediaId[0]);
-                                                    updateSocialNetwork({
-                                                        socialMediaId: data.socialMediaId[0],
-                                                        link: data.link,
-                                                        network: itemToUpdate ? itemToUpdate.label:""
-                                                    });
-                                                    setExecutingId(executingId.filter((item) => item !== editingId))
-                                                    handleClose()
-                                                })
-
-                                                return (
-                                                    <React.Fragment key={item.userSocialNetworkId}>
-                                                        <Separator size="sm" />
-                                                        <Flex direction={"row"} key={item.userSocialNetworkId} justifyContent={"space-between"} alignItems={"center"} px={5} w={"full"}>
-                                                            <Grid w="full" templateColumns={editingId ? "30% 60% 10%":"10% 80% 10%"} gap={4}>
-                                                                {editingId === item.userSocialNetworkId ? (
-                                                                    <>
-                                                                        {executingId.includes(item.userSocialNetworkId) && updateUserNetworkLoading ? (
-                                                                            <LoadingProgress />
-                                                                        ):(
-                                                                            <>
-                                                                                <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
-                                                                                    <Field.Root invalid={!!errorsUpdateSocialeMedia.socialMediaId} w={"15vw"}>
-                                                                                        <Controller
-                                                                                            control={updateSocialMediaControl}
-                                                                                            name="socialMediaId"
-                                                                                            rules={{ required: "Social Network is required" }}
-                                                                                            render={({ field }) => (
-                                                                                                <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false} defaultValue={item.socialMediaId}/>
-                                                                                            )}
-                                                                                        />
-                                                                                        <Field.ErrorText>{errorsUpdateSocialeMedia.socialMediaId?.message}</Field.ErrorText>
-                                                                                    </Field.Root>
-                                                                                </GridItem>
-                                                                                <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
-                                                                                    <Field.Root invalid={!!errorsUpdateSocialeMedia.link}>
-                                                                                        <Input {...editSocialMedia("link", { required: "Link is required" })} defaultValue={item.link}/>
-                                                                                        <Field.ErrorText>{errorsUpdateSocialeMedia.link?.message}</Field.ErrorText>
-                                                                                    </Field.Root>
-                                                                                </GridItem>
-                                                                                <GridItem alignItems={"center"} display={"flex"} justifyContent={"center"}>
-                                                                                    <Button
-                                                                                        type="submit" 
-                                                                                        alignSelf={"flex-end"} 
-                                                                                        bg={"cyan.600"} 
-                                                                                        color={"white"}
-                                                                                        loading={false}
-                                                                                        disabled={false}
-                                                                                        onClick={onSubmitUpdateSocialMedia}
-                                                                                    >
-                                                                                        <IoIosSave />
-                                                                                    </Button>
-                                                                                </GridItem>
-                                                                            </>
-                                                                        )}
-                                                                    </>
-                                                                ):(
-                                                                    <>
-                                                                        <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
-                                                                            <IconsSocialMedia key={item.userSocialNetworkId} socialNetwork={item.network} link={item.link} size={'lg'} />
-                                                                        </GridItem>
-                                                                        <GridItem alignItems={"center"} display={"flex"} justifyContent={"flex-start"}>
-                                                                            <Text color="fg.muted">{item.link}</Text>
-                                                                        </GridItem>
-                                                                        <GridItem alignItems={"center"} display={"flex"} justifyContent={"center"}>
-                                                                            <Menu.Root unmountOnExit lazyMount open={menuOpen}>
-                                                                                <Menu.Trigger asChild onClick={() => setMenuOpen(!menuOpen)}>
-                                                                                    <Button size={"md"} bg={"transparent"} color={colorMode === "light" ? "cyan.500":"pink.500"} ref={buttonRef}>
-                                                                                        <Icon size={"lg"}>
-                                                                                            <GrMenu />
-                                                                                        </Icon>
-                                                                                    </Button>
-                                                                                </Menu.Trigger>
-                                                                                <Portal>
-                                                                                    <Menu.Positioner>
-                                                                                        <Menu.Content minW={buttonWidth} style={{ minWidth: buttonWidth }}>
-                                                                                            <Tooltip
-                                                                                                content="Edit"
-                                                                                                openDelay={500}
-                                                                                                closeDelay={100}
-                                                                                                unmountOnExit={true}    
-                                                                                                lazyMount={true}
-                                                                                                positioning={{ placement: "top" }}
-                                                                                                showArrow
-                                                                                                contentProps={{ 
-                                                                                                    css: { 
-                                                                                                        "--tooltip-bg": colorMode === "light" ? "colors.cyan.500" : "colors.pink.500",
-                                                                                                    }
-                                                                                                }}
-                                                                                            >
-                                                                                                <Menu.Item value={"edit"} justifyContent={"center"} alignItems={"center"} onClick={() => handleEditClick(item)}>
-                                                                                                    <Icon size={"sm"} color={colorMode === "light" ? "cyan.500":"pink.500"}>
-                                                                                                        <AiFillEdit />
-                                                                                                    </Icon>
-                                                                                                </Menu.Item>
-                                                                                            </Tooltip>
-                                                                                            <Separator my={1}/>
-                                                                                            <Tooltip
-                                                                                                content="Remove"
-                                                                                                openDelay={500}
-                                                                                                closeDelay={100}
-                                                                                                unmountOnExit={true}    
-                                                                                                lazyMount={true}
-                                                                                                positioning={{ placement: "top" }}
-                                                                                                showArrow
-                                                                                                contentProps={{ 
-                                                                                                    css: { 
-                                                                                                        "--tooltip-bg": "tomato",
-                                                                                                    }
-                                                                                                }}
-                                                                                            >
-                                                                                                <Menu.Item
-                                                                                                    value={"delete"}
-                                                                                                    color="fg.error"
-                                                                                                    _hover={{ bg: "bg.error", color: "fg.error" }}
-                                                                                                    justifyContent={"center"} 
-                                                                                                    alignItems={"center"}
-                                                                                                >
-                                                                                                    <Popover.Root lazyMount unmountOnExit open={popoverOpen}>
-                                                                                                        <Popover.Trigger asChild onClick={() => setPopoverOpen(!popoverOpen)}>
-                                                                                                            <Icon size={"sm"}>
-                                                                                                                <TiDelete />
-                                                                                                            </Icon>
-                                                                                                        </Popover.Trigger>
-                                                                                                        <Portal>
-                                                                                                            <Popover.Positioner>
-                                                                                                                <Popover.Content>
-                                                                                                                    <Popover.Arrow />
-                                                                                                                    <Popover.Header fontWeight="bold" color={colorMode === "light" ? "black":"white"}>Remove</Popover.Header>
-                                                                                                                    <Popover.Body>
-                                                                                                                        <Text color={colorMode === "light" ? "black":"white"}>
-                                                                                                                            Are you sure you want to remove this Social Netowrk?
-                                                                                                                        </Text>
-                                                                                                                    </Popover.Body>
-                                                                                                                    <Popover.Footer justifyContent={"flex-end"}>
-                                                                                                                        <Group display={"flex"}>
-                                                                                                                            <Button 
-                                                                                                                                size="xs" 
-                                                                                                                                onClick={() => {
-                                                                                                                                    removeSocialNetowrk(item)
-                                                                                                                                    setPopoverOpen(false)
-                                                                                                                                    setMenuOpen(false)
-                                                                                                                                }} 
-                                                                                                                                bg={"tomato"} 
-                                                                                                                                color={"white"}
-                                                                                                                            >Yes</Button>
-                                                                                                                            <Button size="xs" onClick={() => setPopoverOpen(false)} variant={"surface"} bg={"transparent"} color={colorMode === "light" ? "black":"white"}>No</Button>
-                                                                                                                        </Group>
-                                                                                                                    </Popover.Footer>
-                                                                                                                </Popover.Content>
-                                                                                                            </Popover.Positioner>
-                                                                                                        </Portal>
-                                                                                                    </Popover.Root>
-                                                                                                    
-                                                                                                </Menu.Item>
-                                                                                            </Tooltip>
-                                                                                        </Menu.Content>
-                                                                                    </Menu.Positioner>
-                                                                                </Portal>
-                                                                            </Menu.Root>
-                                                                        </GridItem>
-                                                                    </>
-                                                                )}
-                                                            </Grid>
-                                                        </Flex>
-                                                    </React.Fragment>
-                                                )*/
                                             }}
                                         </For>
                                     </Stack>
@@ -589,7 +457,7 @@ const ProfileSettings = () => {
             title: "Password",
             icon: <RiLockPasswordFill />,
             content: (
-                <Stack pl={7}>
+                <Stack p={7}>
                     <Box w={"full"}>
                         <Box w={"full"} mb={3}>
                             <Heading size="3xl">Password</Heading>
@@ -644,11 +512,6 @@ const ProfileSettings = () => {
             )
         }
     ];
-
-    const handleTab = (e) => {
-        setActiveTab(e.value);
-        resetAlert()
-    };
 
     return (
         <Box

@@ -12,6 +12,7 @@ import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
 import ProfileSettings from '@/pages/User/ProfileSettings';
+import ArtStore from '@/pages/Models/ArtStore';
 
 const AppRoutes = () => {
     return (
@@ -25,17 +26,18 @@ const AppRoutes = () => {
             {/* Rutas protegidas */}
             <Route element={<PrivateRoute />}>
                 <Route element={<MainLayout />}>
-                    <Route path="/profile/:username" element={<Profile />} />
-                    <Route path="/profileSettings/:username" element={<ProfileSettings />} />
+                    <Route path="/Profile/:username" element={<Profile />} />
+                    <Route path="/ProfileSettings/:username" element={<ProfileSettings />} />
+                    <Route path="/NewArt" element={<ArtStore />} />
                     {/*<Route path="/favorites" element={<Favorites />} />*/}
                 </Route>
             </Route>
 
             {/* Ruta para login */}
             <Route element={<AuthLayout />}>
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/loading" element={<LoadignScreen />} />
+                <Route path="/SignIn" element={<SignIn />} />
+                <Route path="/SignUp" element={<SignUp />} />
+                <Route path="/Loading" element={<LoadignScreen />} />
                 <Route path="/NotFound" element={<NotFoundPage />} />
             </Route>
 

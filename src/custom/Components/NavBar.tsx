@@ -43,14 +43,14 @@ const NavBar = () => {
                     mr={3}
                     bg={colorMode === "light" ? "blackAlpha.700" : "white"}
                     color={colorMode === "light" ? "white" : "black"}
-                    onClick={() => navigate("/signup")}
+                    onClick={() => navigate("/SignUp")}
                 >
                     <BsPencilSquare /> Sign Up
                 </Button>
                 <Button
                     bg="cyan.600"
                     color="white"
-                    onClick={() => navigate("/signin")}
+                    onClick={() => navigate("/SignIn")}
                 >
                     <BsFillPersonVcardFill /> Sign In
                 </Button>
@@ -62,7 +62,7 @@ const NavBar = () => {
                 aria-label="Personal Profile"
                 rounded="full"
                 size="md"
-                onClick={() => navigate(`/profile/${user.username}`)}
+                onClick={() => navigate(`/Profile/${user.username}`)}
                 bg={colorMode === "light" ? "cyan.500":"pink.500"}
             >
                 <Icon 

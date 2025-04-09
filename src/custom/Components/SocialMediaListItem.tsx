@@ -60,6 +60,10 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
         handleClose();
     });
 
+    useEffect(() => {
+
+    }, [updateUserNetworkError, removeUserNetworkError])
+
     if (removeUserNetworkData) return null;
 
     return (

@@ -42,8 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         location: string | null; 
         telephone: string | null; 
         professionalHeadline: string | null; 
-        summary: string | null; 
-        socialMedia: object | null;
         since: string | null;  
         countryId: number | null; 
         city: string | null; 
