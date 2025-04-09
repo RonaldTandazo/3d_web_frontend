@@ -65,11 +65,11 @@ const ArtStore = () => {
                         </Flex>
                         <Stack mx={10} mt={5} mb={10} gap={10}>
                             <Field.Root>
-                                <Field.Label fontSize={"lg"}>Description</Field.Label>
+                                <Field.Label fontSize={"lg"}>Software Used</Field.Label>
                                 <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." />
                             </Field.Root>
                             <Field.Root>
-                                <Field.Label fontSize={"lg"}>Mature Content</Field.Label>
+                                <Field.Label fontSize={"lg"}>Tags</Field.Label>
                                 <Checkbox.Root defaultChecked variant={"subtle"}>
                                     <Checkbox.HiddenInput />
                                     <Checkbox.Control />
