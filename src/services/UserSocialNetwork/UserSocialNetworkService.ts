@@ -1,18 +1,9 @@
-import { gql, ApolloError, useMutation, useLazyQuery } from '@apollo/client';
-
-const USER_SOCIAL_MEDIA = gql`
-    query GetUserSocialMedia{ 
-        getUserSocialMedia { 
-            userSocialNetworkId 
-            socialMediaId 
-            network
-            link
-        }
-    }
-`;
+import { ApolloError, useMutation, useLazyQuery } from '@apollo/client';
+import { GET_USER_SOCIAL_MEDIA } from '@/graphql/UserSocialNetwork/UserSocialNetworkQueries';
+import { REMOVE_USER_NETWORK, STORE_USER_NETWORK, UPDATE_USER_NETWORK } from '@/graphql/UserSocialNetwork/UserSocialNetworkMutations';
 
 export const useGetUserSocialMedia = () => {
-    const [getUserSocialMedia, { data, loading, error }] = useLazyQuery(USER_SOCIAL_MEDIA);
+    const [getUserSocialMedia, { data, loading, error }] = useLazyQuery(GET_USER_SOCIAL_MEDIA);
 
     const GetUserSocialMedia = async () => {
         try {
@@ -34,15 +25,9 @@ export const useGetUserSocialMedia = () => {
     };
 };
 
-const STORE_USER_NETWORK = gql`
-    mutation StoreUserSocialNetwork($storeUserNetwork: SocialMediaStoreInput!) { 
-        storeUserSocialNetwork(storeUserNetwork: $storeUserNetwork)
-    }
-`;
-
 export const useStoreUserSocialNetowrk= () => {
     const [socialNetowrkMutation, { data, loading, error }] = useMutation(STORE_USER_NETWORK, {
-        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+        refetchQueries: [{ query: GET_USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
     });
 
     const storeUserNetwork = async (socialMediaId: number, link: string) => {
@@ -67,15 +52,9 @@ export const useStoreUserSocialNetowrk= () => {
     };
 };
 
-const UPDATE_USER_NETWORK = gql`
-    mutation UpdateUserSocialNetwork($updateUserNetwork: UpdateUserNetworkInput!) { 
-        updateUserSocialNetwork(updateUserNetwork: $updateUserNetwork)
-    }
-`;
-
 export const useUpdateUserSocialNetowrk= () => {
     const [updateSocialNetowrkMutation, { data, loading, error }] = useMutation(UPDATE_USER_NETWORK, {
-        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+        refetchQueries: [{ query: GET_USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
     });
 
     const updateUserNetwork = async (userSocialNetworkId: number, socialMediaId: number, link: string) => {
@@ -100,15 +79,9 @@ export const useUpdateUserSocialNetowrk= () => {
     };
 };
 
-const REMOVE_USER_NETWORK = gql`
-    mutation RemoveUserSocialNetwork($userSocialNetworkId: Int!) { 
-        removeUserSocialNetwork(userSocialNetworkId: $userSocialNetworkId)
-    }
-`;
-
 export const useRemoveUserSocialNetowrk= () => {
     const [removeUserNetowrkMutation, { data, loading, error }] = useMutation(REMOVE_USER_NETWORK, {
-        refetchQueries: [{ query: USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
+        refetchQueries: [{ query: GET_USER_SOCIAL_MEDIA, context: { requireAuth: true } }],
     });
 
     const removeUserNetwork = async (userSocialNetworkId: number) => {

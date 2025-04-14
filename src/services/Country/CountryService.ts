@@ -1,16 +1,8 @@
-import { gql, ApolloError, useLazyQuery } from '@apollo/client';
-
-const COUNTRIES_QUERY = gql`    
-    query GetCountries{ 
-        getCountries { 
-            countryId 
-            name
-        }
-    }
-`;
+import { ApolloError, useLazyQuery } from '@apollo/client';
+import { GET_COUNTRIES } from '@/graphql/Country/CountryQueries';
 
 export const useGetCountry = () => {
-    const [getCountries, { data, loading, error }] = useLazyQuery(COUNTRIES_QUERY);
+    const [getCountries, { data, loading, error }] = useLazyQuery(GET_COUNTRIES);
 
     const GetCountries = async () => {
         try {

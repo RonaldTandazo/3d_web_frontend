@@ -1,13 +1,5 @@
-import { gql, ApolloError, useMutation } from '@apollo/client';
-
-const SIGNIN_MUTATION = gql`
-    mutation Login($username: String!, $password: String!) {
-        login(username: $username, password: $password) {
-            accessToken
-            tokenType
-        }
-    }
-`;
+import { ApolloError, useMutation } from '@apollo/client';
+import { SIGNIN_MUTATION, SIGNUP_MUTATION} from '@/graphql/Authentication/AuthenticationMutations';
 
 export const useLogin = () => {
     const [loginMutation, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
@@ -32,12 +24,6 @@ export const useLogin = () => {
         error,
     };
 };
-
-const SIGNUP_MUTATION = gql`
-    mutation registerUser($userData: RegisterInput!) { 
-        registerUser(userData: $userData)
-    }
-`;
 
 export const useSignUp = () => {
     const [signUpMutation, { loading, data, error }] = useMutation(SIGNUP_MUTATION);

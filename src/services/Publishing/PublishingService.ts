@@ -1,12 +1,12 @@
 import { ApolloError, useLazyQuery } from '@apollo/client';
-import { GET_SOCIAL_MEDIA } from '@/graphql/SocialMedia/SocialMediaQueries';
+import { GET_PUBLISHING } from '@/graphql/Publishing/PublishingQueries';
 
-export const useGetSocialMedia = () => {
-    const [getSocialMedia, { data, loading, error }] = useLazyQuery(GET_SOCIAL_MEDIA);
+export const useGetPublishing = () => {
+    const [getPublishing, { data, loading, error }] = useLazyQuery(GET_PUBLISHING);
 
-    const GetSocialMedia = async () => {
+    const GetPublishing = async () => {
         try {
-            await getSocialMedia({ 
+            await getPublishing({ 
                 context: { requireAuth: true }
             });
         } catch (err) {
@@ -17,7 +17,7 @@ export const useGetSocialMedia = () => {
     };
 
     return {
-        getSocialMedia: GetSocialMedia,
+        getPublishing: GetPublishing,
         data,
         loading,
         error,

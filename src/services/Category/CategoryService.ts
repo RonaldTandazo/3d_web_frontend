@@ -1,16 +1,8 @@
-import { gql, ApolloError, useLazyQuery } from '@apollo/client';
-
-const CATEGORIES_QUERY = gql`    
-    query GetCategories{ 
-        getCategories { 
-            categoryId 
-            name
-        }
-    }
-`;
+import { ApolloError, useLazyQuery } from '@apollo/client';
+import { GET_CATEGORIES } from '@/graphql/Category/CategoryQueries';
 
 export const useGetCategory = () => {
-    const [getCategories, { data, loading, error }] = useLazyQuery(CATEGORIES_QUERY);
+    const [getCategories, { data, loading, error }] = useLazyQuery(GET_CATEGORIES);
 
     const GetCountries = async () => {
         try {

@@ -119,6 +119,7 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
                                 item={option}
                                 key={option.value}
                                 color={colorMode === "light" ? "black":"white"}
+                                cursor="pointer"
                             >
                                 {option.label}
                                 <Select.ItemIndicator />

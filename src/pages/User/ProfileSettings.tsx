@@ -2,9 +2,8 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/context/AuthContext";
 import { Box, Icon, Tabs, Text, Grid, GridItem, Image, Stack, Field, Button, Heading, Flex, Input, For } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FaUserTie } from "react-icons/fa";
 import { ImProfile, ImUser } from "react-icons/im";
 import { useChangePassword, useProfileUpdate } from "../../services/User/UserService";
 import { RiLockPasswordFill } from "react-icons/ri";
@@ -58,9 +57,9 @@ const ProfileSettings = () => {
     const [since, setSince] = useState<string | null>(null);
     const { colorMode } = useColorMode();
     const { user } = useAuth();
-    const [selectedImage, setSelectedImage] = useState(null);
-    const fileInputRef = useRef(null);
-    const buttonRef = useRef(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
     
     const opciones = {
@@ -69,15 +68,15 @@ const ProfileSettings = () => {
     };
 
     const handleImageClick = () => {
-        fileInputRef.current.click();
+        fileInputRef.current?.click();
     };
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setSelectedImage(reader.result);
+                setSelectedImage(reader.result?.toString() || '');
             };
             reader.readAsDataURL(file);
         }

@@ -1,10 +1,5 @@
-import { gql, ApolloError, useMutation } from '@apollo/client';
-
-const CHANGE_PASSWORD_MUTATION = gql`
-    mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
-        changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
-    }
-`;
+import { ApolloError, useMutation } from '@apollo/client';
+import { CHANGE_PASSWORD_MUTATION, PROFILE_MUTATION } from '@/graphql/User/UserMutations';
 
 export const useChangePassword = () => {
     const [passwordMutation, { data, loading, error }] = useMutation(CHANGE_PASSWORD_MUTATION);
@@ -29,12 +24,6 @@ export const useChangePassword = () => {
         error,
     };
 };
-
-const PROFILE_MUTATION = gql`
-    mutation ProfileUpdate($profileUpdate: ProfileInput!) { 
-        profileUpdate(profileUpdate: $profileUpdate)
-    }
-`;
 
 export const useProfileUpdate= () => {
     const [profileMutation, { data, loading, error }] = useMutation(PROFILE_MUTATION);
