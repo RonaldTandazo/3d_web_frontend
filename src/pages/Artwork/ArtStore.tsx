@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCategory } from "@/services/Category/CategoryService";
-import { Box, Breadcrumb, Button, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Stack, Textarea } from "@chakra-ui/react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaArchive, FaCheckCircle } from "react-icons/fa";
@@ -17,6 +17,9 @@ import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import { useGetPublishing } from "@/services/Publishing/PublishingService";
+import { useGetSoftware } from "@/services/Software/PublishingService";
+import SearchableInput from "@/custom/Components/SearchableInput";
+import { useStoreArtwork } from "@/services/Artwork/ArtworkService";
 
 interface ArtWorkForm {
     status: number[];
@@ -32,19 +35,29 @@ interface PublishingOptions {
     label: string;
 }
 
+interface SoftwareOptions {
+    value: number;
+    label: string;
+}
+
 const ArtStore = () => {
     const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
     const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
+    const { getSoftware, data: softwareData, loading: softwareLoading } = useGetSoftware();
+
+    const { storeArtwork: StoreArtwork } = useStoreArtwork();
 
     const navigate = useNavigate();
     const { user } = useAuth();
     const { colorMode } = useColorMode();
     const [categories, setCategories] = useState<CategoryOption[]>([]);
     const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
+    const [software, setSoftware] = useState<SoftwareOptions[]>([]);
     const [title, setTitle] = useState<string>('ArtWork');
     const [description, setDescription] = useState<string | null>(null);
     const [matureContent, setMatureContent] = useState<boolean>(false);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [crop, setCrop] = useState<Crop>()
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
@@ -64,8 +77,9 @@ const ArtStore = () => {
     } = useForm<ArtWorkForm>();
 
     useEffect(() => {
-        getCategories();
         getPublishing();
+        getCategories();
+        getSoftware();
     }, []);
 
     useEffect(() => {
@@ -90,7 +104,18 @@ const ArtStore = () => {
         }
     }, [publishingData]);
 
-    if (categoriesLoading) return <LoadingProgress />
+    useEffect(() => {
+        if (software.length <= 0 && softwareData && softwareData.getSoftware) {
+            const formattedSoftware: SoftwareOptions[] = softwareData.getSoftware.map((software: any) => ({
+                value: software.softwareId,
+                label: software.name,
+            }));
+
+            setSoftware(formattedSoftware);
+        }
+    }, [softwareData]);
+
+    if (categoriesLoading || publishingLoading || softwareLoading) return <LoadingProgress />
 
     const handleNavigate = () => {
         if(user){
@@ -103,6 +128,20 @@ const ArtStore = () => {
             setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
         } else {
             setSelectedCategories([...selectedCategories, categoryId]);
+        }
+    };
+
+    const handleSoftwareChange = (item: SoftwareOptions, action: string) => {
+        if(action === "remove"){
+            if (selectedSoftware.find((software) => item.value === software.value)) {
+                setSelectedSoftware(selectedSoftware.filter((software) => item.value !== software.value));
+            }
+        }
+
+        if(action === "add"){
+            if (!selectedSoftware.find((software) => item.value == software.value)) {
+                setSelectedSoftware([...selectedSoftware, item]);
+            }
         }
     };
 
@@ -192,17 +231,20 @@ const ArtStore = () => {
         console.log(formData)
     });
 
-    const handleSaveDraft = () => {
-        const formData = {
+    const handleSaveDraft = async() => {
+        const softwareIds = selectedSoftware.map(({ value }) => value);
+        
+        const artworkData = {
             title: title,
             description: description,
             matureContent: matureContent,
             categories: selectedCategories,
-            thumbnail: preview,
-            status: 3,
+            softwares: softwareIds,
+            thumbnail: "",
+            publishing: 3,
         }
 
-        console.log(formData)
+        await StoreArtwork(artworkData)
     };
 
     const resetThumbnail = () => {
@@ -307,10 +349,46 @@ const ArtStore = () => {
                                                 </For>
                                             </Flex>
                                         </Box>
-                                        <Field.Root>
-                                            <Field.Label fontSize={"lg"}>Software Used</Field.Label>
-                                            <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." />
-                                        </Field.Root>
+                                        <Box w={"full"}>
+                                            <Field.Root>
+                                                <Field.Label fontSize={"lg"}>Topics</Field.Label>
+                                            </Field.Root>
+                                        </Box>
+                                        <Box w={"full"}>
+                                            <Field.Root>
+                                                <Field.Label fontSize={"lg"}>Software Used</Field.Label>
+                                                <SearchableInput options={software} placeholder="Choose software used..." onSelect={handleSoftwareChange}/>
+                                            </Field.Root>
+                                            <Show
+                                                when={selectedSoftware.length > 0}
+                                            >
+                                                <Flex
+                                                    gap={4}
+                                                    display="grid"
+                                                    gridTemplateColumns="repeat(8, 1fr)"
+                                                    gridAutoRows="auto"
+                                                    borderRadius={"sm"}
+                                                    p={5}
+                                                    mt={5}
+                                                    shadow={"inner"}
+                                                >
+                                                    <For each={selectedSoftware}>
+                                                        {(item) => (
+                                                            <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                <Card.Body display={"flex"} justifyContent={"center"}>
+                                                                    <Flex justifyContent={"space-between"} alignItems={"center"}>
+                                                                        <Heading size="md">{item.label}</Heading>
+                                                                        <Button onClick={() => handleSoftwareChange(item, "remove")} size={"xs"} bg={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                            X
+                                                                        </Button>
+                                                                    </Flex>
+                                                                </Card.Body>
+                                                            </Card.Root>
+                                                        )}
+                                                    </For>
+                                                </Flex>
+                                            </Show>
+                                        </Box>
                                     </Stack>
                                 </Box>
                             </Stack>
@@ -323,7 +401,7 @@ const ArtStore = () => {
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10}>
                                         <Field.Root>
-                                            {!preview && (
+                                            <Show when={!preview}>
                                                 <FileUpload.Root maxW="xl" alignItems="stretch" maxFiles={1} accept={["image/png", "image/jpeg", "image/gif", "image/webp"]} w={"full"} h={"full"}>
                                                     <FileUpload.HiddenInput onChange={(files) => handleFileChange(files)} />
                                                     <FileUpload.Dropzone>
@@ -337,43 +415,41 @@ const ArtStore = () => {
                                                     </FileUpload.Dropzone>
                                                     <FileUpload.List />
                                                 </FileUpload.Root>
-                                            )}
-                                            {preview && (
-                                                <>
-                                                    <Box w="full" h="full" display={"flex"} justifyContent={"center"}  alignItems={"center"}>
-                                                        <Image 
-                                                            src={preview} 
-                                                            alt="Image Preview" 
-                                                            w="full" 
-                                                            h="full" 
-                                                            objectFit="cover" 
-                                                            borderRadius={"md"}
-                                                            cursor="pointer"
-                                                            onClick={handleImageClick}
-                                                        />
-                                                        <input
-                                                            type="file"
-                                                            ref={fileInputRef}
-                                                            style={{ display: 'none' }}
-                                                            onChange={handleFileChange}
-                                                            accept="image/jpeg, image/png, image/gif, image/webp"
-                                                        />
-                                                    </Box>
-                                                    <Box w={"full"} h={"full"} display={"flex"} justifyContent={"space-between"}  alignItems={"center"} mt={3}>
-                                                        <Button
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                        >
-                                                            <FaCropSimple /> Crop
-                                                        </Button>
-                                                        <Button 
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                            onClick={resetThumbnail}
-                                                        > 
-                                                            <GrPowerReset /> Reset
-                                                        </Button>
-                                                    </Box>
-                                                </>
-                                            )}
+                                            </Show>
+                                            <Show when={preview}>
+                                                <Box w="full" h="full" display={"flex"} justifyContent={"center"}  alignItems={"center"}>
+                                                    <Image 
+                                                        src={preview} 
+                                                        alt="Image Preview" 
+                                                        w="full" 
+                                                        h="full" 
+                                                        objectFit="cover" 
+                                                        borderRadius={"md"}
+                                                        cursor="pointer"
+                                                        onClick={handleImageClick}
+                                                    />
+                                                    <input
+                                                        type="file"
+                                                        ref={fileInputRef}
+                                                        style={{ display: 'none' }}
+                                                        onChange={handleFileChange}
+                                                        accept="image/jpeg, image/png, image/gif, image/webp"
+                                                    />
+                                                </Box>
+                                                <Box w={"full"} h={"full"} display={"flex"} justifyContent={"space-between"}  alignItems={"center"} mt={3}>
+                                                    <Button
+                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                    >
+                                                        <FaCropSimple /> Crop
+                                                    </Button>
+                                                    <Button 
+                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                        onClick={resetThumbnail}
+                                                    > 
+                                                        <GrPowerReset /> Reset
+                                                    </Button>
+                                                </Box>
+                                            </Show>
                                         </Field.Root>
                                     </Stack>
 
@@ -394,7 +470,7 @@ const ArtStore = () => {
                                                             onComplete={(c) => setCompletedCrop(c)}
                                                             keepSelection
                                                         >
-                                                            {imgURL && (
+                                                            <Show when={imgURL}>
                                                                 <Image
                                                                     ref={imgRef}
                                                                     alt="Image Crop"
@@ -402,7 +478,7 @@ const ArtStore = () => {
                                                                     style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
                                                                     onLoad={onImageLoad}
                                                                 />
-                                                            )}
+                                                            </Show>
                                                         </ReactCrop>
                                                     </Dialog.Body>
                                                     <Dialog.Footer>
@@ -433,7 +509,7 @@ const ArtStore = () => {
                                         <Heading fontSize={"lg"} color={"white"}>Publishing</Heading>
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10}>
-                                        {publishing.length > 0 && (
+                                        <Show when={publishing.length > 0}>
                                             <Field.Root invalid={!!errors.status}>
                                                 <Field.Label fontSize={"lg"}>Status</Field.Label>
                                                 <Controller
@@ -446,16 +522,16 @@ const ArtStore = () => {
                                                 />
                                                 <Field.ErrorText>{errors.status?.message}</Field.ErrorText>
                                             </Field.Root>
-                                        )}
+                                        </Show>
                                         <Box display={"flex"} justifyContent={"space-between"} mt={3}>
-                                            {publishing.length > 0 && (
+                                            <Show when={publishing.length > 0}>
                                                 <Button
                                                     type="submit"
                                                     bg={colorMode === "light" ? "cyan.500":"pink.500"}
                                                 >
                                                     <FaNewspaper /> Publish
-                                                </Button>
-                                            )}
+                                                </Button>                                                
+                                            </Show>
                                             <Button
                                                 bg={colorMode === "light" ? "cyan.500":"pink.500"}
                                                 onClick={handleSaveDraft}
@@ -470,14 +546,14 @@ const ArtStore = () => {
                     </Grid>
                 </form>
             </Box>
-            {fileError && (
+            <Show when={fileError}>
                 <NotificationAlert
                     title="New ArtWork"
                     message={fileError}
                     type="error"
                     onClose={() => setFileError(null)}
                 />
-            )}
+            </Show>
         </Box>
     )
 }

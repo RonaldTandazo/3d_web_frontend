@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import ArtVerse from '@/pages/Home/ArtVerse';
-import ArtEspecifications from '@/pages/Models/ArtEspecifications';
+import ArtEspecifications from '@/pages/Artwork/ArtEspecifications';
 import SignIn from '@/pages/Authentication/SignIn';
 import SignUp from '@/pages/Authentication/SignUp';
 //import Favorites from './pages/User/Favorites';
@@ -12,7 +12,7 @@ import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
 import ProfileSettings from '@/pages/User/ProfileSettings';
-import ArtStore from '@/pages/Models/ArtStore';
+import ArtStore from '@/pages/Artwork/ArtStore';
 
 const AppRoutes = () => {
     return (
