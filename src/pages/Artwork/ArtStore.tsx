@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCategory } from "@/services/Category/CategoryService";
-import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Stack, Textarea } from "@chakra-ui/react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaArchive, FaCheckCircle } from "react-icons/fa";
@@ -45,7 +45,7 @@ const ArtStore = () => {
     const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
     const { getSoftware, data: softwareData, loading: softwareLoading } = useGetSoftware();
 
-    const { storeArtwork: StoreArtwork } = useStoreArtwork();
+    const { storeArtwork: StoreArtwork, data: storeArtworkData, loading: storeArtworkLoading, error: storeArtworkError } = useStoreArtwork();
 
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -68,7 +68,7 @@ const ArtStore = () => {
     const [rotate, setRotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [fileError, setFileError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const {
         handleSubmit,
@@ -115,6 +115,18 @@ const ArtStore = () => {
         }
     }, [softwareData]);
 
+    useEffect(() => {
+        if (storeArtworkData && storeArtworkData.storeArtwork) {
+           handleNavigate()
+        }
+    }, [storeArtworkData]);
+
+    useEffect(() => {
+        if(storeArtworkError?.message){
+            setError(storeArtworkError?.message);
+        }
+    }, [storeArtworkError]);
+
     if (categoriesLoading || publishingLoading || softwareLoading) return <LoadingProgress />
 
     const handleNavigate = () => {
@@ -157,16 +169,16 @@ const ArtStore = () => {
         const maxSize = 5 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            setFileError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+            setError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
             return;
         }
 
         if (file.size > maxSize) {
-            setFileError('File size exceeds the limit of 5MB.');
+            setError('File size exceeds the limit of 5MB.');
             return;
         }
         
-        setFileError(null);
+        setError(null);
         setCrop(undefined)
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -251,11 +263,27 @@ const ArtStore = () => {
         setImgURL(null)
         setCompletedCrop(null)
         setPreview(null)
-        setFileError(null)
+        setError(null)
     }
 
     return (
         <Box w={"auto"} h={"auto"} mx={5}>
+            <Show when={storeArtworkLoading}>
+                <Box
+                    position="fixed"
+                    top="0"
+                    left="0"
+                    width="100vw"
+                    height="100vh"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    backgroundColor="rgba(0, 0, 0, 0.25)"
+                    zIndex="tooltip"
+                >
+                    <Spinner size="xl" color={colorMode === "light" ? "cyan.500":"pink.500"} borderWidth="5px"/>
+                </Box>
+            </Show>
             <Box mt={5}>
                 <Breadcrumb.Root size={"lg"}>
                     <Breadcrumb.List>
@@ -546,12 +574,12 @@ const ArtStore = () => {
                     </Grid>
                 </form>
             </Box>
-            <Show when={fileError}>
+            <Show when={error}>
                 <NotificationAlert
                     title="New ArtWork"
-                    message={fileError}
+                    message={error}
                     type="error"
-                    onClose={() => setFileError(null)}
+                    onClose={() => setError(null)}
                 />
             </Show>
         </Box>
