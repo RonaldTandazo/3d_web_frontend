@@ -240,7 +240,7 @@ const ArtStore = () => {
             matureContent: matureContent,
             categories: selectedCategories,
             softwares: softwareIds,
-            thumbnail: "",
+            thumbnail: preview,
             publishing: 3,
         }
 

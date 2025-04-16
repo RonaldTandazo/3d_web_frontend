@@ -1,7 +1,6 @@
 const TO_RADIANS = Math.PI / 180
 
 export const getCroppedImg = (image: HTMLImageElement, crop: any, rotate = 1, scale = 1) => {
-    console.log(crop)
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
