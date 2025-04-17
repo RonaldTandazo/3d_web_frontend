@@ -16,7 +16,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@react-three/drei": "^10.0.4",
-    "@react-three/fiber": "^9.1.0",
+    "@react-three/fiber": "^9.1.2",
     "@reduxjs/toolkit": "^2.6.1",
     "crypto-browserify": "^3.12.1",
     "framer-motion": "^12.5.0",
@@ -29,7 +29,8 @@
     "react-image-crop": "^11.0.7",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.3.0",
-    "three": "^0.174.0"
+    "three": "^0.174.0",
+    "three-stdlib": "^2.35.15"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

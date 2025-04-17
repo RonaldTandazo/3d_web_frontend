@@ -12,7 +12,7 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
     const navigate = useNavigate();
 
     const handleNavigate = (item: any) => {
-        navigate(`/specifications/${item.id}`, { state: { item } });
+        navigate(`/Specifications/${item.id}`, { state: { item } });
     }
 
     return (

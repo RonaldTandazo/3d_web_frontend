@@ -13,6 +13,7 @@ import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
 import ProfileSettings from '@/pages/User/ProfileSettings';
 import ArtStore from '@/pages/Artwork/ArtStore';
+import Viewer from '@/pages/Artwork/Viewer';
 
 const AppRoutes = () => {
     return (
@@ -20,7 +21,8 @@ const AppRoutes = () => {
             {/* Rutas públicas */}
             <Route element={<MainLayout />}>
                 <Route path="/" element={<ArtVerse />} />
-                <Route path="/specifications/:id" element={<ArtEspecifications />} />
+                <Route path="/Specifications/:id" element={<ArtEspecifications />} />
+                <Route path="/Viewer" element={<Viewer/>}></Route>
             </Route>
 
             {/* Rutas protegidas */}
