@@ -1,4 +1,4 @@
-import { Icon } from "@chakra-ui/react";
+import { Box, Icon } from "@chakra-ui/react";
 import { useColorMode } from "@/components/ui/color-mode";
 import { MdSlowMotionVideo } from "react-icons/md";
 
@@ -6,14 +6,22 @@ const VideoIndicator = () => {
     const { colorMode } = useColorMode();
 
     return (
-        <Icon
-            position="relative"
-            size="lg" 
-            color={colorMode === "light" ? "pink.500" : "cyan.500"}
+        <Box 
+            bg={"blackAlpha.950"}
             mb={2}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            p={1}
+            borderRadius={"full"}
         >
-            <MdSlowMotionVideo />
-        </Icon>
+            <Icon
+                size="md" 
+                color={colorMode === "light" ? "cyan.500" : "pink.500"}
+            >
+                <MdSlowMotionVideo />
+            </Icon>
+        </Box>
     );
 }
 

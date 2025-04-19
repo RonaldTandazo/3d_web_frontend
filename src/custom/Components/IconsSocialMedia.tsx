@@ -60,7 +60,7 @@ const IconsSocialMedia = ({socialNetwork, link, size}: UserSocialNetworkProps) =
                 }
             }}
         >    
-            <Link href={link} target="_blank" rel="noopener noreferrer">
+            <Link href={link} target="_blank" rel="noopener noreferrer" borderRadius={"full"}>
                 <Icon size={size} color={colorMode === "light" ? "cyan.500":"pink.500"}>
                     {icono}
                 </Icon>

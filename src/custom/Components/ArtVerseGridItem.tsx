@@ -1,18 +1,21 @@
-import { GridItem, Box, Image, Text, Grid } from "@chakra-ui/react";
+import { GridItem, Box, Image, Text, Grid, Show, Avatar } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Indicator3D from "../FloatingIcons/3dIndicator";
 import VideoIndicator from "../FloatingIcons/VideoIndicator";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const MotionBox = motion.create(Box);
+const backendUrl = import.meta.env.VITE_API_URL;
 
-const ArtVerseGridItem = ({ item }: { item: any }) => {
+const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
     const [isHovered, setIsHovered] = useState(false);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const handleNavigate = (item: any) => {
-        navigate(`/Specifications/${item.id}`, { state: { item } });
+    const handleNavigate = (artwork: any) => {
+        navigate(`/Specifications/${artwork.artworkId}`, { state: { artwork } });
     }
 
     return (
@@ -28,16 +31,18 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                 position="relative" 
                 w="100%" 
                 h="100%"
-                onClick={() => handleNavigate(item)}
+                onClick={() => handleNavigate(artwork)}
+                cursor={"pointer"}
             >
                 <Image
-                    src={item.image}
-                    alt={item.name}
+                    src={`${backendUrl}/thumbnails/${artwork.thumbnail}`}
+                    alt={artwork.title}
                     w="100%"
                     h="100%"
                     objectFit="cover"
                     aspectRatio={1}
                     borderRadius={"sm"}
+                    //cursor={"pointer"}
                 />
 
                 <MotionBox
@@ -58,6 +63,7 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                     animate={{ y: isHovered ? "0%" : "100%" }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                     p={3}
+                    //cursor={"pointer"}
                 >
                     <Box display="flex" flexDirection="column" alignItems="end" h={"100%"}>
                         <VideoIndicator />
@@ -76,13 +82,10 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                             alignItems="center"
                             justifyContent="center"
                         >
-                            <Image
-                                src={item.image}
-                                boxSize="40px"
-                                borderRadius="full"
-                                fit="cover"
-                                alt="avatar"
-                            />
+                            <Avatar.Root key={"subtle"} variant={"subtle"}>
+                                <Avatar.Fallback name={artwork.owner} />
+                                <Avatar.Image src={artwork.avatar} />
+                            </Avatar.Root>
                         </GridItem>
                         <GridItem 
                             colSpan={19}
@@ -90,7 +93,7 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                             alignItems="center"
                             justifyContent="flex-start"
                         >
-                            <Text fontSize="md" fontWeight="bold">{item.name}</Text>
+                            <Text fontSize="md" fontWeight="bold">{artwork.title}</Text>
                         </GridItem>
                         <GridItem 
                             colSpan={19}
@@ -98,7 +101,7 @@ const ArtVerseGridItem = ({ item }: { item: any }) => {
                             alignItems="center"
                             justifyContent="flex-start"
                         >
-                            <Text fontSize="sm">{item.species}</Text>
+                            <Text fontSize="sm">{artwork.owner}</Text>
                         </GridItem>
                     </Grid>
                 </MotionBox>

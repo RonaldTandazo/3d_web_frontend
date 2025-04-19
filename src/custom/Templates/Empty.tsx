@@ -16,7 +16,7 @@ const Empty = () => {
                 <EmptyState.Content>
                         <Icon
                             boxSize={"300px"}
-                            color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                            color={colorMode === "light" ? "cyan.500":"pink.500"}
                         >        
                             <MdHideSource />
                         </Icon>

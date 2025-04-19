@@ -1,7 +1,7 @@
 import { BrowserRouter as Route, Routes } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import ArtVerse from './pages/Home/ArtVerse';
-import ProductPage from './pages/Artwork/ArtEspecifications';
+import ProductPage from './pages/Artwork/ArtSpecifications';
 // import LoginPage from './components/pages/LoginPage';
 import { Button, Box } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';

@@ -1,9 +1,9 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Button, Flex, For, Grid, GridItem, IconButton, Image, Separator, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, EmptyState, Flex, For, Grid, GridItem, Icon, IconButton, Image, Separator, Show, Stack, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdHideSource } from "react-icons/md";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { FaPlusSquare, FaUserEdit } from "react-icons/fa";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,22 @@ import { useNavigate } from "react-router-dom";
 import IconsSocialMedia from "@/custom/Components/IconsSocialMedia";
 import { useGetUserSocialMedia } from "@/services/UserSocialNetwork/UserSocialNetworkService";
 import LoadignScreen from "@/custom/Templates/LoadingScreen";
+import { useGetUserArtworks } from "@/services/Artwork/ArtworkService";
+import ArtVerseGrid from "@/custom/Components/ArtVerseGrid";
+
+interface Artwork {
+    artworkId: number,
+    title: string,
+    thumbnail: string
+}
+
+interface UserSocialNetwork {
+    userSocialNetworkId: number,
+    network: string,
+    link: string
+}
+
+const backendUrl = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
     const { colorMode } = useColorMode();
@@ -20,19 +36,22 @@ const Profile = () => {
     const [isUserInfoVisible, setIsUserInfoVisible] = useState(true);
     const navigate = useNavigate();
     const [userSocialMedia, setUserSocialMedia] = useState([]);
-
+    const [artworks, setArtworks] = useState([])
+    
     const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
-
+    const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
+    
     const charsPerLine = 50;
     const maxLines = 2;
-    const estimatedLines = user?.summary ? Math.ceil(user?.summary.length / charsPerLine) : 0;
-    const shouldExpand = user?.summary && estimatedLines > maxLines;
+    const estimatedLines = user?.summary && user.summary !== '' ? Math.ceil(user?.summary.length / charsPerLine) : 0;
+    const shouldExpand = estimatedLines > maxLines;
 
-    const truncatedSummary = shouldExpand && !isSummaryExpanded
+    const truncatedSummary = user?.summary && shouldExpand && !isSummaryExpanded
         ? user.summary.slice(0, maxLines * charsPerLine) + '...'
         : user?.summary;
 
     useEffect(() => {
+        getUserArtworks()
         getUserSocialMedia();
     }, []);
 
@@ -42,65 +61,11 @@ const Profile = () => {
         }
     }, [userSocialMediaData]);
 
-    const artworks = [
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        "https://bit.ly/naruto-sage",
-        // ... más URLs de imágenes
-    ];
+    useEffect(() => {
+        if (userArtworksData && userArtworksData.getUserArtworks) {
+            setArtworks(userArtworksData.getUserArtworks)
+        }
+    }, [userArtworksData]);
 
     const handleNavigateSettings = () => {
         if (user && user?.username) {
@@ -112,7 +77,7 @@ const Profile = () => {
         navigate(`/NewArt`)
     }
 
-    if (userSocialMediaLoading) {
+    if (userSocialMediaLoading || userArtworksLoading) {
         return <LoadignScreen />
     }
 
@@ -120,7 +85,7 @@ const Profile = () => {
         <Box w={"auto"} h={"auto"} mx={5}>
             <Grid
                 templateColumns={isUserInfoVisible ? "1fr 4fr" : "1fr"}
-                maxW={"100vw"}
+                w={"full"}
                 gap={10}
                 alignItems={"start"}
             >
@@ -192,96 +157,95 @@ const Profile = () => {
                                             <Text fontSize={"3xl"} justifySelf={"center"} textAlign={"center"} fontWeight={"extrabold"}>{user?.firstName} {user?.lastName}</Text>
                                             <Text fontSize={"xl"} justifySelf={"center"} textAlign={"center"}>{user?.username}</Text>
                                         </Box>
-                                        <Box>
-                                            {user?.professionalHeadline && user.professionalHeadline !== '' && (
-                                                <Text fontSize={"md"} justifySelf={"start"} textAlign={"justify"}>{user.professionalHeadline}</Text>
-                                            )}
-                                        </Box>
-                                        <Flex my={5} w="100%" gap={2} direction={"column"}>
-                                            {user?.email && user.email !== '' && (
+                                        <Show when={user?.professionalHeadline && user.professionalHeadline !== ''}>
+                                            <Box>
+                                                <Text fontSize={"md"} justifySelf={"start"} textAlign={"justify"}>{user?.professionalHeadline}</Text>
+                                            </Box>
+                                        </Show>
+                                        <Stack my={5} w="100%" gap={2}>
+                                            <Show when={user?.email && user.email !== ''}>
                                                 <Flex align="center" visibility={user?.email}>
                                                     <MdEmail />
                                                     <Text fontSize={"md"} ml={2}>
                                                         {user?.email}
                                                     </Text>
                                                 </Flex>
-                                            )}
-                                            {user?.location && user.location !== '' && (
+                                            </Show>
+                                            <Show when={user?.location && user.location !== ''}>
                                                 <Flex align="center" >
                                                     <BsGlobe2 />
                                                     <Text fontSize={"md"} ml={2}>
                                                         {user?.location}
                                                     </Text>
                                                 </Flex>
-                                            )}
-                                            {user?.telephone && user.telephone !== '' && (
+                                            </Show>
+                                            <Show when={user?.telephone && user.telephone !== ''}>
                                                 <Flex align="center" >
                                                     <BsTelephoneFill />
                                                     <Text fontSize={"md"} ml={2}>
                                                         {user?.telephone}
                                                     </Text>
                                                 </Flex>
-                                            )}
-                                        </Flex>
-                                        {user?.summary && user.summary !== '' && (
-                                            <>
-                                                <Separator variant={"solid"} style={{ color: "white" }} />
-                                                <Box w="100%" mt={2} mb={5}>
-                                                    <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Summary</Text>
-                                                    <Text textAlign={"justify"}>{truncatedSummary}</Text>
-                                                    {shouldExpand && (
-                                                        <Text
-                                                            mt={2}
-                                                            cursor="pointer"
-                                                            textDecoration="none"
-                                                            _hover={{ textDecoration: "underline" }}
-                                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
-                                                            onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                                                            display="flex"
-                                                            alignItems="center"
-                                                            gap={1}
-                                                        >
-                                                            <span style={{ marginRight: '5px' }}>
-                                                                {isSummaryExpanded ? "Show Less" : "Show More"}
-                                                            </span>
-                                                            {isSummaryExpanded ? (
-                                                                <span>
-                                                                    <SlArrowUp />
-                                                                </span>
-                                                            ) : (
+                                            </Show>
+                                        </Stack>
+                                        <Show when={user?.summary && user.summary !== ''}>
+                                            <Separator variant={"solid"} style={{ color: "white" }} />
+                                            <Box w="100%" mt={2} mb={5}>
+                                                <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Summary</Text>
+                                                <Text textAlign={"justify"}>{truncatedSummary}</Text>
+                                                <Show when={shouldExpand}>
+                                                    <Text
+                                                        mt={2}
+                                                        cursor="pointer"
+                                                        textDecoration="none"
+                                                        _hover={{ textDecoration: "underline" }}
+                                                        color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                        onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                                                        display="flex"
+                                                        alignItems="center"
+                                                        gap={1}
+                                                    >
+                                                        <span style={{ marginRight: '5px' }}>
+                                                            {isSummaryExpanded ? "Show Less" : "Show More"}
+                                                        </span>
+                                                        <Show 
+                                                            when={isSummaryExpanded} 
+                                                            fallback={
                                                                 <span>
                                                                     <SlArrowDown />
                                                                 </span>
-                                                            )}
-                                                        </Text>
-                                                    )}
-                                                </Box>
-                                            </>
-                                        )}
-                                        {userSocialMedia && userSocialMedia.length > 0 && (
-                                            <>
-                                                <Separator variant={"solid"} style={{ color: "white" }} />
-                                                <Box w="100%" mt={2}>
-                                                    <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Social Media</Text>
-                                                    <Flex 
-                                                        gap={4}
-                                                        display="grid" 
-                                                        gridTemplateColumns="repeat(12, 1fr)"
-                                                        gridAutoRows="auto"
-                                                    >
-                                                        <For
-                                                            each={userSocialMedia}
+                                                            }
                                                         >
-                                                            {(item) => {
-                                                                return (
-                                                                    <IconsSocialMedia key={item.userSocialNetworkId} socialNetwork={item.network} link={item.link} size={'lg'} />
-                                                                )
-                                                            }}
-                                                        </For>
-                                                    </Flex>
-                                                </Box>
-                                            </>
-                                        )}
+                                                            <span>
+                                                                <SlArrowUp />
+                                                            </span>
+                                                        </Show>
+                                                    </Text>
+                                                </Show>
+                                            </Box>
+                                        </Show>
+                                        <Show when={userSocialMedia && userSocialMedia.length > 0}>
+                                            <Separator variant={"solid"} style={{ color: "white" }} />
+                                            <Box w="100%" mt={2}>
+                                                <Text fontSize={"xl"} fontWeight={"medium"} mb={3}>Social Media</Text>
+                                                <Flex 
+                                                    gap={4}
+                                                    display="grid" 
+                                                    gridTemplateColumns="repeat(12, 1fr)"
+                                                    gridAutoRows="auto"
+                                                >
+                                                    <For
+                                                        each={userSocialMedia}
+                                                    >
+                                                        {(item: UserSocialNetwork) => {
+                                                            return (
+                                                                <IconsSocialMedia key={item.userSocialNetworkId} socialNetwork={item.network} link={item.link} size={'lg'} />
+                                                            )
+                                                        }}
+                                                    </For>
+                                                </Flex>
+                                            </Box>
+                                        </Show>
                                     </Stack>
                                 </Box>
                             </GridItem>
@@ -290,6 +254,7 @@ const Profile = () => {
                 </AnimatePresence>
                 <GridItem
                     style={{ gridColumn: isUserInfoVisible ? "2 / 3" : "1 / 2" }}
+                    w={"full"}
                 >
                     <Stack gap="5" align="flex-start">
                         <Flex gap="3" direction={"row"} mb={0} justifyContent="space-between" width="100%">
@@ -309,20 +274,34 @@ const Profile = () => {
                             rounded={"lg"}
                             shadow={"lg"}
                             p={7}
+                            w={"full"}
                         >
-                            <Grid templateColumns="repeat(6, 1fr)" gap={4}>
-                                {artworks.map((artwork, index) => (
-                                    <GridItem key={index} w="100%" h="auto">
-                                        <Image src={artwork} alt={`ArtWork ${index}`} w="100%" h="auto" borderRadius="md" />
-                                    </GridItem>
-                                ))}
-                            </Grid>
+                            <Show 
+                                when={artworks && artworks.length > 0} 
+                                fallback={
+                                    <EmptyState.Root>
+                                        <EmptyState.Content>
+                                                <Icon
+                                                    boxSize={"300px"}
+                                                    color={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                >        
+                                                    <MdHideSource />
+                                                </Icon>
+                                            <VStack textAlign="center">
+                                                <EmptyState.Title>Oooh no!... You don't have any artowkr created yet 😢</EmptyState.Title>
+                                            </VStack>
+                                        </EmptyState.Content>
+                                    </EmptyState.Root>
+                                }
+                            >
+                               <ArtVerseGrid artworks={artworks} columns={6}/>
+                            </Show>
                         </Box>
                     </Stack>
                 </GridItem>
             </Grid>
             <Flex>
-                {!isUserInfoVisible && (
+                <Show when={!isUserInfoVisible}>
                     <IconButton
                         position="fixed"
                         aria-label="Show Info"
@@ -339,7 +318,7 @@ const Profile = () => {
                     >
                         <IoEye />
                     </IconButton>
-                )}
+                </Show>
             </Flex>
         </Box>
     )

@@ -1,20 +1,29 @@
 import { Box } from '@chakra-ui/react';
 import ArtVerseGrid from '@/custom/Components/ArtVerseGrid';
 import { useEffect, useState } from 'react';
+import { useGetUserArtworks } from '@/services/Artwork/ArtworkService';
+import LoadignScreen from '@/custom/Templates/LoadingScreen';
 
 const ArtVerse = () => {
-  const [characters, setCharacters] = useState([]);
+  const [artworks, setArtworks] = useState([]);
+
+  const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
 
   useEffect(() => {
-    fetch("https://rickandmortyapi.com/api/character/")
-      .then((response) => response.json())
-      .then((data) => setCharacters(data.results))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+    getUserArtworks();
+}, []);
+
+  useEffect(() => {
+      if (userArtworksData && userArtworksData.getUserArtworks) {
+          setArtworks(userArtworksData.getUserArtworks)
+      }
+  }, [userArtworksData]);
+
+  if(userArtworksLoading) return <LoadignScreen/>
 
   return (
     <Box mx={5}>
-      <ArtVerseGrid items={characters}/>
+      <ArtVerseGrid artworks={artworks} columns={7}/>
     </Box>
   );
 };

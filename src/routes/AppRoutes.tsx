@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import ArtVerse from '@/pages/Home/ArtVerse';
-import ArtEspecifications from '@/pages/Artwork/ArtEspecifications';
+import ArtEspecifications from '@/pages/Artwork/ArtSpecifications';
 import SignIn from '@/pages/Authentication/SignIn';
 import SignUp from '@/pages/Authentication/SignUp';
 //import Favorites from './pages/User/Favorites';

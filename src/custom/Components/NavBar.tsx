@@ -1,6 +1,6 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Button, Flex, Icon, IconButton, Input, InputGroup, ProgressCircle } from "@chakra-ui/react"
+import { Avatar, Box, Button, Flex, Icon, IconButton, Input, InputGroup, ProgressCircle } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { BsFillPersonVcardFill, BsPencilSquare, BsSearch } from "react-icons/bs";
 import { VscAccount } from "react-icons/vsc";
@@ -58,22 +58,32 @@ const NavBar = () => {
         );
     }else if(isAuthenticated && user){
         authButtons = (
-            <IconButton
-                aria-label="Personal Profile"
-                rounded="full"
-                size="md"
+            <Avatar.Root 
+                key={"subtle"} 
+                variant={"subtle"}
                 onClick={() => navigate(`/Profile/${user.username}`)}
-                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                cursor={"pointer"}
             >
-                <Icon 
-                    size="xl"
-                    color={colorMode === "light" ? "white":"black"}
-                >
-                    <VscAccount />
-                </Icon>
-            </IconButton>
+                <Avatar.Fallback name={user?.username} />
+                <Avatar.Image src={user?.avatar} />
+            </Avatar.Root>
         );
     }
+
+    <IconButton
+        aria-label="Personal Profile"
+        rounded="full"
+        size="md"
+        onClick={() => navigate(`/Profile/${user.username}`)}
+        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+    >
+        <Icon 
+            size="xl"
+            color={colorMode === "light" ? "white":"black"}
+        >
+            <VscAccount />
+        </Icon>
+    </IconButton>
 
     return (
         <Box 

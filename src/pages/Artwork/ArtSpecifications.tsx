@@ -5,12 +5,12 @@ import { Box, Grid, GridItem } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const ArtEspecifications = () => {
+const ArtSpecifications = () => {
     const location = useLocation();
-    const { item } = location.state || {};
+    const { artwork } = location.state || {};
     const [characters, setCharacters] = useState([]);
 
-    if (!item) {
+    if (!artwork) {
         useEffect(() => {
             fetch("https://rickandmortyapi.com/api/character/")
                 .then((response) => response.json())
@@ -21,7 +21,7 @@ const ArtEspecifications = () => {
         return (
             <>
                 <Empty />
-                <ArtVerseGrid items={characters} />
+                <ArtVerseGrid artworks={characters} />
             </>
         );
     }
@@ -76,4 +76,4 @@ const ArtEspecifications = () => {
     );
 };
 
-export default ArtEspecifications;
+export default ArtSpecifications;

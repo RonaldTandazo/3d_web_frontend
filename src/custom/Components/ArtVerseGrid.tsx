@@ -1,16 +1,25 @@
-import { Grid } from "@chakra-ui/react"
+import { For, Grid } from "@chakra-ui/react"
 import ArtVerseGridItem from "./ArtVerseGridItem"
 
-const ArtVerseGrid = ({ items }: { items: any[] }) => {
+interface ArtVerseGridProps {
+    artworks: any[];
+    columns?: number;
+}
+
+const ArtVerseGrid = ({ artworks, columns = 7 }: ArtVerseGridProps) => {
+    const templateColumns = `repeat(${columns}, auto)`;
+
     return (
         <Grid
             templateRows="repeat(auto, auto)"
-            templateColumns="repeat(8, auto)"
+            templateColumns={templateColumns}
             gap={1}
         >
-            {items.map((item: any) => (
-                <ArtVerseGridItem item={item} key={item.id} />
-            ))}
+            <For each={artworks}>
+                {(artwork) => (
+                    <ArtVerseGridItem artwork={artwork} key={artwork.artworkId} />
+                )}
+            </For>
         </Grid>
     )
 }
