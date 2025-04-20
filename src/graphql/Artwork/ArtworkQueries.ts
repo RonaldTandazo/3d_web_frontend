@@ -6,7 +6,9 @@ export const GET_USER_ARTWORKS = gql`
             artworkId,
             title,
             thumbnail,
-            owner
+            publishingId,
+            owner,
+            createdAt
         }
     }
 `;

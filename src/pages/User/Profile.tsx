@@ -13,12 +13,15 @@ import IconsSocialMedia from "@/custom/Components/IconsSocialMedia";
 import { useGetUserSocialMedia } from "@/services/UserSocialNetwork/UserSocialNetworkService";
 import LoadignScreen from "@/custom/Templates/LoadingScreen";
 import { useGetUserArtworks } from "@/services/Artwork/ArtworkService";
-import ArtVerseGrid from "@/custom/Components/ArtVerseGrid";
+import ArtworkItem from "@/custom/Components/ArtworkItem";
 
 interface Artwork {
     artworkId: number,
     title: string,
-    thumbnail: string
+    thumbnail: string,
+    publishingId: number,
+    createdAt: string,
+    owner: string
 }
 
 interface UserSocialNetwork {
@@ -26,8 +29,6 @@ interface UserSocialNetwork {
     network: string,
     link: string
 }
-
-const backendUrl = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
     const { colorMode } = useColorMode();
@@ -37,6 +38,7 @@ const Profile = () => {
     const navigate = useNavigate();
     const [userSocialMedia, setUserSocialMedia] = useState([]);
     const [artworks, setArtworks] = useState([])
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     
     const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
     const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
@@ -74,12 +76,16 @@ const Profile = () => {
     }
 
     const handleNavigateNewArt = () => {
-        navigate(`/NewArt`)
+        navigate(`/ArtWorks/New`)
     }
 
     if (userSocialMediaLoading || userArtworksLoading) {
         return <LoadignScreen />
     }
+
+    const handleMenuOpen = (id: number | null) => {
+        setOpenMenuId(id);
+    };
 
     return (
         <Box w={"auto"} h={"auto"} mx={5}>
@@ -113,7 +119,7 @@ const Profile = () => {
                                         onClick={() => setIsUserInfoVisible(false)}
                                         borderRadius="full"
                                         colorScheme="black"
-                                        size="sm"
+                                        size="md"
                                         bg={"transparent"}
                                         color={colorMode === "light" ? "cyan.500" : "pink.500"}
                                         position="absolute"
@@ -125,7 +131,7 @@ const Profile = () => {
                                     <IconButton
                                         borderRadius="full"
                                         colorScheme="black"
-                                        size="sm"
+                                        size="md"
                                         bg={"transparent"}
                                         color={colorMode === "light" ? "cyan.500" : "pink.500"}
                                         position="absolute"
@@ -294,7 +300,22 @@ const Profile = () => {
                                     </EmptyState.Root>
                                 }
                             >
-                               <ArtVerseGrid artworks={artworks} columns={6}/>
+                                <Grid 
+                                    templateRows="repeat(auto, auto)"
+                                    templateColumns="repeat(7, 1fr)" 
+                                    gap={1}
+                                >
+                                    <For each={artworks}>
+                                        {(artwork: Artwork) => (
+                                            <ArtworkItem 
+                                                key={artwork.artworkId}
+                                                artwork={artwork}
+                                                isOpen={openMenuId === artwork.artworkId}
+                                                onMenuToggle={handleMenuOpen}
+                                            />
+                                        )}
+                                    </For>
+                                </Grid>
                             </Show>
                         </Box>
                     </Stack>

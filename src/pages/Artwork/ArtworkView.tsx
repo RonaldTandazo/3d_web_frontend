@@ -5,10 +5,12 @@ import { Box, Grid, GridItem } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const ArtSpecifications = () => {
+const ArtworkView = () => {
     const location = useLocation();
     const { artwork } = location.state || {};
     const [characters, setCharacters] = useState([]);
+
+    console.log(artwork)
 
     if (!artwork) {
         useEffect(() => {
@@ -76,4 +78,4 @@ const ArtSpecifications = () => {
     );
 };
 
-export default ArtSpecifications;
+export default ArtworkView;

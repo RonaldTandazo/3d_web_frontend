@@ -3,10 +3,11 @@ import ArtVerseGridItem from "./ArtVerseGridItem"
 
 interface ArtVerseGridProps {
     artworks: any[];
-    columns?: number;
 }
 
-const ArtVerseGrid = ({ artworks, columns = 7 }: ArtVerseGridProps) => {
+const ArtVerseGrid = ({ artworks }: ArtVerseGridProps) => {
+    const max = 9
+    const columns = artworks.length > max ? max:artworks.length
     const templateColumns = `repeat(${columns}, auto)`;
 
     return (
@@ -14,6 +15,7 @@ const ArtVerseGrid = ({ artworks, columns = 7 }: ArtVerseGridProps) => {
             templateRows="repeat(auto, auto)"
             templateColumns={templateColumns}
             gap={1}
+            w={"full"}
         >
             <For each={artworks}>
                 {(artwork) => (

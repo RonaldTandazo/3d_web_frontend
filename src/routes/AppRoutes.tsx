@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import ArtVerse from '@/pages/Home/ArtVerse';
-import ArtEspecifications from '@/pages/Artwork/ArtSpecifications';
+import ArtworkView from '@/pages/Artwork/ArtworkView';
 import SignIn from '@/pages/Authentication/SignIn';
 import SignUp from '@/pages/Authentication/SignUp';
 //import Favorites from './pages/User/Favorites';
@@ -12,7 +12,8 @@ import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
 import ProfileSettings from '@/pages/User/ProfileSettings';
-import ArtStore from '@/pages/Artwork/ArtStore';
+import ArtworkStore from '@/pages/Artwork/NewArtwork';
+import ArtworkEdit from '@/pages/Artwork/ArtworkEdit';
 import Viewer from '@/pages/Artwork/Viewer';
 
 const AppRoutes = () => {
@@ -21,7 +22,7 @@ const AppRoutes = () => {
             {/* Rutas públicas */}
             <Route element={<MainLayout />}>
                 <Route path="/" element={<ArtVerse />} />
-                <Route path="/Specifications/:id" element={<ArtEspecifications />} />
+                <Route path="/Artworks/:title/View" element={<ArtworkView />} />
                 <Route path="/Viewer" element={<Viewer/>}></Route>
             </Route>
 
@@ -30,7 +31,8 @@ const AppRoutes = () => {
                 <Route element={<MainLayout />}>
                     <Route path="/Profile/:username" element={<Profile />} />
                     <Route path="/ProfileSettings/:username" element={<ProfileSettings />} />
-                    <Route path="/NewArt" element={<ArtStore />} />
+                    <Route path="/Artworks/New" element={<ArtworkStore />} />
+                    <Route path="/Artworks/:title/Edit" element={<ArtworkEdit />} />
                     {/*<Route path="/favorites" element={<Favorites />} />*/}
                 </Route>
             </Route>

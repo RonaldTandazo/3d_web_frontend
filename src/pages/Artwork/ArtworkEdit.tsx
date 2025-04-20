@@ -6,9 +6,10 @@ import { useGetCategory } from "@/services/Category/CategoryService";
 import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FaArchive, FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+import { IoIosSave } from 'react-icons/io';
 import { LuUpload } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ReactCrop, { centerCrop, Crop, makeAspectCrop, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { getCroppedImg } from "@/utils/CanvasCrop";
@@ -40,7 +41,12 @@ interface SoftwareOptions {
     label: string;
 }
 
-const ArtStore = () => {
+const backendUrl = import.meta.env.VITE_API_URL;
+
+const ArtworkEdit = () => {
+    const location = useLocation();
+    const { artwork } = location.state || {};
+    
     const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
     const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
     const { getSoftware, data: softwareData, loading: softwareLoading } = useGetSoftware();
@@ -53,7 +59,7 @@ const ArtStore = () => {
     const [categories, setCategories] = useState<CategoryOption[]>([]);
     const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
     const [software, setSoftware] = useState<SoftwareOptions[]>([]);
-    const [title, setTitle] = useState<string>('ArtWork');
+    const [title, setTitle] = useState<string>(artwork?.title || 'ArtWork');
     const [description, setDescription] = useState<string | null>(null);
     const [matureContent, setMatureContent] = useState<boolean>(false);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
@@ -62,7 +68,7 @@ const ArtStore = () => {
     const [crop, setCrop] = useState<Crop>()
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
     const [imgURL, setImgURL] = useState<string | null>(null)
-    const [preview, setPreview] = useState<string | null>(null);
+    const [preview, setPreview] = useState<string | null>(artwork.thumbnail ? `${backendUrl}/thumbnails/${artwork.thumbnail}`:null);
     const [aspect, setAspect] = useState<number | undefined>(1 / 1)
     const [scale, setScale] = useState<number>(1)
     const [rotate, setRotate] = useState<number>(0)
@@ -95,7 +101,8 @@ const ArtStore = () => {
 
     useEffect(() => {
         if (publishing.length <= 0 && publishingData && publishingData.getPublishing) {
-            const formattedPublishing: PublishingOptions[] = publishingData.getPublishing.map((state: any) => ({
+            const formattedPublishing: PublishingOptions[] = publishingData.getPublishing.filter((item: any) => item.publishingId !== 3)
+            .map((state: any) => ({
                 value: state.publishingId,
                 label: state.name,
             }));
@@ -292,7 +299,11 @@ const ArtStore = () => {
                         </Breadcrumb.Item>
                         <Breadcrumb.Separator />
                         <Breadcrumb.Item>
-                            <Breadcrumb.CurrentLink>New ArtWork</Breadcrumb.CurrentLink>
+                            <Breadcrumb.CurrentLink>Artworks</Breadcrumb.CurrentLink>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Separator />
+                        <Breadcrumb.Item>
+                            <Breadcrumb.CurrentLink>{artwork?.title}</Breadcrumb.CurrentLink>
                         </Breadcrumb.Item>
                     </Breadcrumb.List>
                 </Breadcrumb.Root>
@@ -312,7 +323,7 @@ const ArtStore = () => {
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10}>
                                         <Field.Root>
-                                            <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle(e.target.value)} />
+                                            <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle(e.target.value)} defaultValue={artwork.title}/>
                                         </Field.Root>
                                     </Stack>
                                 </Box>
@@ -464,12 +475,14 @@ const ArtStore = () => {
                                                         accept="image/jpeg, image/png, image/gif, image/webp"
                                                     />
                                                 </Box>
-                                                <Box w={"full"} h={"full"} display={"flex"} justifyContent={"space-between"}  alignItems={"center"} mt={3}>
-                                                    <Button
-                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                    >
-                                                        <FaCropSimple /> Crop
-                                                    </Button>
+                                                <Box w={"full"} h={"full"} display={"flex"} justifyContent={imgURL ? "space-between":"flex-end"}  alignItems={"center"} mt={3}>
+                                                    <Show when={imgURL}>
+                                                        <Button
+                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                        >
+                                                            <FaCropSimple /> Crop
+                                                        </Button>
+                                                    </Show>
                                                     <Button 
                                                         bg={colorMode === "light" ? "cyan.500":"pink.500"}
                                                         onClick={resetThumbnail}
@@ -551,21 +564,35 @@ const ArtStore = () => {
                                                 <Field.ErrorText>{errors.status?.message}</Field.ErrorText>
                                             </Field.Root>
                                         </Show>
-                                        <Box display={"flex"} justifyContent={"space-between"} mt={3}>
-                                            <Show when={publishing.length > 0}>
+                                        <Box display={"flex"} justifyContent={artwork.publishingId !== 3 ? "flex-end":publishing.length > 0 ? "space-between":"flex-end"} mt={3}>
+                                            <Show 
+                                                when={artwork.publishingId === 3}
+                                                fallback={
+                                                    <Show when={publishing.length > 0}>
+                                                        <Button
+                                                            type="submit"
+                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                        >
+                                                            <FaNewspaper /> Save
+                                                        </Button>                                                
+                                                    </Show>
+                                                }
+                                            >
+                                                <Show when={publishing.length > 0}>
+                                                    <Button
+                                                        type="submit"
+                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                    >
+                                                        <FaNewspaper /> Publish
+                                                    </Button>                                               
+                                                </Show>
                                                 <Button
                                                     type="submit"
                                                     bg={colorMode === "light" ? "cyan.500":"pink.500"}
                                                 >
-                                                    <FaNewspaper /> Publish
-                                                </Button>                                                
+                                                    <IoIosSave /> Save
+                                                </Button> 
                                             </Show>
-                                            <Button
-                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                onClick={handleSaveDraft}
-                                            >
-                                                <FaArchive /> Archive
-                                            </Button>
                                         </Box>
                                     </Stack>
                                 </Box>
@@ -586,4 +613,4 @@ const ArtStore = () => {
     )
 }
 
-export default ArtStore;
+export default ArtworkEdit;

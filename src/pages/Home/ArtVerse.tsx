@@ -23,7 +23,7 @@ const ArtVerse = () => {
 
   return (
     <Box mx={5}>
-      <ArtVerseGrid artworks={artworks} columns={7}/>
+      <ArtVerseGrid artworks={artworks}/>
     </Box>
   );
 };

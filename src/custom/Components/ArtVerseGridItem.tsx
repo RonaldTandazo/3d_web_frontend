@@ -1,10 +1,9 @@
-import { GridItem, Box, Image, Text, Grid, Show, Avatar } from "@chakra-ui/react";
+import { GridItem, Box, Image, Text, Grid, Avatar } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Indicator3D from "../FloatingIcons/3dIndicator";
 import VideoIndicator from "../FloatingIcons/VideoIndicator";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -12,10 +11,9 @@ const backendUrl = import.meta.env.VITE_API_URL;
 const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
     const [isHovered, setIsHovered] = useState(false);
     const navigate = useNavigate();
-    const { user } = useAuth();
 
     const handleNavigate = (artwork: any) => {
-        navigate(`/Specifications/${artwork.artworkId}`, { state: { artwork } });
+        navigate(`/ArtWorks/${artwork.title}/View`, { state: { artwork } });
     }
 
     return (
@@ -26,13 +24,14 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
             overflow="hidden" 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            cursor={"pointer"}
+            onClick={() => handleNavigate(artwork)}
+            key={artwork.artworkId} 
         >
             <Box 
                 position="relative" 
-                w="100%" 
-                h="100%"
-                onClick={() => handleNavigate(artwork)}
-                cursor={"pointer"}
+                w="full" 
+                h="full"
             >
                 <Image
                     src={`${backendUrl}/thumbnails/${artwork.thumbnail}`}
@@ -42,7 +41,6 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                     objectFit="cover"
                     aspectRatio={1}
                     borderRadius={"sm"}
-                    //cursor={"pointer"}
                 />
 
                 <MotionBox

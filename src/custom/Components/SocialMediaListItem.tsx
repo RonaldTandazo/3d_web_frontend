@@ -1,5 +1,4 @@
-// SocialMediaItem.tsx
-import React, { useState, useRef, use, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Flex, Grid, GridItem, Text, Button, Menu, Portal, Icon, Separator, Popover, Group, Input, Field, Box } from '@chakra-ui/react';
 import { GrMenu } from 'react-icons/gr';
 import { AiFillEdit } from 'react-icons/ai';
@@ -56,8 +55,10 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
     }
 
     const onSubmitUpdateSocialMedia = handleUpdateSocialMedia(async (data: any) => {
-        await UpdateUserNetwork(editingId, data.socialMediaId[0], data.link);
-        handleClose();
+        if(editingId){
+            await UpdateUserNetwork(editingId, data.socialMediaId[0], data.link);
+            handleClose();
+        }
     });
 
     useEffect(() => {
