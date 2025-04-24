@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
+import { ApolloError, useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import { STORE_ARTWORK } from '@/graphql/Artwork/ArtworkMutations';
 import { GET_USER_ARTWORKS } from '@/graphql/Artwork/ArtworkQueries';
 
@@ -7,18 +7,7 @@ interface GetUserArtworksData {
 }
   
 export const useStoreArtwork = () => {
-    const [storeArtwork, { loading, data, error }] = useMutation(STORE_ARTWORK, {
-        update(cache, { data: { storeArtwork: newArtwork } }) {
-            const existingArtworks = cache.readQuery<GetUserArtworksData>({ query: GET_USER_ARTWORKS });
-
-            if (existingArtworks?.getUserArtworks) {
-                cache.writeQuery({
-                    query: GET_USER_ARTWORKS,
-                    data: { getUserArtworks: [...existingArtworks.getUserArtworks, newArtwork] },
-                });
-            }
-        },
-    });
+    const [storeArtwork, { loading, data, error }] = useMutation(STORE_ARTWORK);
 
     const StoreArtwork = async (artworkData: any) => {
         try {
@@ -42,7 +31,9 @@ export const useStoreArtwork = () => {
 };
 
 export const useGetUserArtworks = () => {
-    const [getUserArtworks, { loading, data, error }] = useLazyQuery(GET_USER_ARTWORKS)
+    const [getUserArtworks, { loading, data, error }] = useLazyQuery(GET_USER_ARTWORKS, {
+        fetchPolicy: 'cache-and-network'
+    })
 
     const GetUserArtworks = async () => {
         try {

@@ -57,6 +57,7 @@ const IconsSocialMedia = ({socialNetwork, link, size}: UserSocialNetworkProps) =
             contentProps={{ 
                 css: { 
                     "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                    'color': 'white'
                 }
             }}
         >    

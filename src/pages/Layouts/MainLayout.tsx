@@ -14,7 +14,7 @@ const MainLayout = () => {
 
     return (
         <Box 
-            h={"100vh"}
+            h={"100dvh"}
             w={"100vw"}
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
             color={colorMode === "light" ? "black" : "white"}

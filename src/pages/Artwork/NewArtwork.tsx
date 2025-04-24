@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
 import { useGetCategory } from "@/services/Category/CategoryService";
-import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaArchive, FaCheckCircle } from "react-icons/fa";
@@ -17,9 +17,10 @@ import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import { useGetPublishing } from "@/services/Publishing/PublishingService";
-import { useGetSoftware } from "@/services/Software/PublishingService";
+import { useGetSoftware } from "@/services/Software/SoftwareService";
 import SearchableInput from "@/custom/Components/SearchableInput";
 import { useStoreArtwork } from "@/services/Artwork/ArtworkService";
+import { useGetTopic } from "@/services/Topic/TopicService";
 
 interface ArtWorkForm {
     status: number[];
@@ -40,10 +41,16 @@ interface SoftwareOptions {
     label: string;
 }
 
+interface TopicOptions {
+    value: number;
+    label: string;
+}
+
 const NewArtwork = () => {
     const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
     const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
-    const { getSoftware, data: softwareData, loading: softwareLoading } = useGetSoftware();
+    const { getSoftwares, data: softwareData, loading: softwareLoading } = useGetSoftware();
+    const { getTopics, data: topicData, loading: topicLoading } = useGetTopic();
 
     const { storeArtwork: StoreArtwork, data: storeArtworkData, loading: storeArtworkLoading, error: storeArtworkError } = useStoreArtwork();
 
@@ -52,12 +59,14 @@ const NewArtwork = () => {
     const { colorMode } = useColorMode();
     const [categories, setCategories] = useState<CategoryOption[]>([]);
     const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
-    const [software, setSoftware] = useState<SoftwareOptions[]>([]);
+    const [softwares, setSoftwares] = useState<SoftwareOptions[]>([]);
+    const [topics, setTopics] = useState<TopicOptions[]>([]);
     const [title, setTitle] = useState<string>('ArtWork');
     const [description, setDescription] = useState<string | null>(null);
     const [matureContent, setMatureContent] = useState<boolean>(false);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
     const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
+    const [selectedTopic, setSelectedTopic] = useState<TopicOptions[]>([]);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [crop, setCrop] = useState<Crop>()
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
@@ -79,7 +88,8 @@ const NewArtwork = () => {
     useEffect(() => {
         getPublishing();
         getCategories();
-        getSoftware();
+        getSoftwares();
+        getTopics();
     }, []);
 
     useEffect(() => {
@@ -105,15 +115,26 @@ const NewArtwork = () => {
     }, [publishingData]);
 
     useEffect(() => {
-        if (software.length <= 0 && softwareData && softwareData.getSoftware) {
+        if (softwares.length <= 0 && softwareData && softwareData.getSoftware) {
             const formattedSoftware: SoftwareOptions[] = softwareData.getSoftware.map((software: any) => ({
                 value: software.softwareId,
                 label: software.name,
             }));
 
-            setSoftware(formattedSoftware);
+            setSoftwares(formattedSoftware);
         }
     }, [softwareData]);
+
+    useEffect(() => {
+        if (topics.length <= 0 && topicData && topicData.getTopics) {
+            const formattedTopic: TopicOptions[] = topicData.getTopics.map((topic: any) => ({
+                value: topic.topicId,
+                label: topic.name,
+            }));
+
+            setTopics(formattedTopic);
+        }
+    }, [topicData]);
 
     useEffect(() => {
         if (storeArtworkData && storeArtworkData.storeArtwork) {
@@ -153,6 +174,20 @@ const NewArtwork = () => {
         if(action === "add"){
             if (!selectedSoftware.find((software) => item.value == software.value)) {
                 setSelectedSoftware([...selectedSoftware, item]);
+            }
+        }
+    };
+
+    const handleTopicChange = (item: TopicOptions, action: string) => {
+        if(action === "remove"){
+            if (selectedTopic.find((topic) => item.value === topic.value)) {
+                setSelectedTopic(selectedTopic.filter((topic) => item.value !== topic.value));
+            }
+        }
+
+        if(action === "add"){
+            if (!selectedTopic.find((topic) => item.value == topic.value)) {
+                setSelectedTopic([...selectedTopic, item]);
             }
         }
     };
@@ -231,11 +266,17 @@ const NewArtwork = () => {
     };
 
     const onSubmit = handleSubmit(async (data: any) => {
+        setError(null);
+        const softwareIds = selectedSoftware.map(({ value }) => value);
+        const topicIds = selectedTopic.map(({ value }) => value);
+        
         const formData = {
             title: title,
             description: description,
             matureContent: matureContent,
             categories: selectedCategories,
+            softwares: softwareIds,
+            topics: topicIds,
             thumbnail: preview,
             status: data.status[0],
         }
@@ -244,18 +285,21 @@ const NewArtwork = () => {
     });
 
     const handleSaveDraft = async() => {
+        setError(null);
         const softwareIds = selectedSoftware.map(({ value }) => value);
-        
+        const topicIds = selectedTopic.map(({ value }) => value);
+
         const artworkData = {
             title: title,
             description: description,
             matureContent: matureContent,
             categories: selectedCategories,
             softwares: softwareIds,
+            topics: topicIds,
             thumbnail: preview,
             publishing: 3,
         }
-
+        
         await StoreArtwork(artworkData)
     };
 
@@ -380,12 +424,51 @@ const NewArtwork = () => {
                                         <Box w={"full"}>
                                             <Field.Root>
                                                 <Field.Label fontSize={"lg"}>Topics</Field.Label>
+                                                <SearchableInput options={topics} placeholder="Choose topics related..." onSelect={handleTopicChange}/>
                                             </Field.Root>
+                                            <Show
+                                                when={selectedTopic.length > 0}
+                                            >
+                                                <Flex
+                                                    gap={4}
+                                                    display="grid"
+                                                    gridTemplateColumns="repeat(8, 1fr)"
+                                                    gridAutoRows="auto"
+                                                    borderRadius={"sm"}
+                                                    p={5}
+                                                    mt={5}
+                                                    shadow={"inner"}
+                                                >
+                                                    <For each={selectedTopic}>
+                                                        {(item) => (
+                                                            <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                <Card.Body display={"flex"} justifyContent={"center"}>
+                                                                    <Flex justifyContent={"space-between"} alignItems={"center"}>
+                                                                        <Heading size="sm">{item.label}</Heading>
+                                                                        <IconButton 
+                                                                            onClick={() => handleTopicChange(item, "remove")} 
+                                                                            size={"2xs"} 
+                                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                            color={"white"} 
+                                                                            justifyContent={"center"}
+                                                                            alignItems={"center"}
+                                                                            fontSize={"sm"}
+                                                                            borderRadius={"sm"}
+                                                                        >
+                                                                            X
+                                                                        </IconButton>
+                                                                    </Flex>
+                                                                </Card.Body>
+                                                            </Card.Root>
+                                                        )}
+                                                    </For>
+                                                </Flex>
+                                            </Show>
                                         </Box>
                                         <Box w={"full"}>
                                             <Field.Root>
                                                 <Field.Label fontSize={"lg"}>Software Used</Field.Label>
-                                                <SearchableInput options={software} placeholder="Choose software used..." onSelect={handleSoftwareChange}/>
+                                                <SearchableInput options={softwares} placeholder="Choose software used..." onSelect={handleSoftwareChange}/>
                                             </Field.Root>
                                             <Show
                                                 when={selectedSoftware.length > 0}
@@ -405,10 +488,19 @@ const NewArtwork = () => {
                                                             <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
                                                                 <Card.Body display={"flex"} justifyContent={"center"}>
                                                                     <Flex justifyContent={"space-between"} alignItems={"center"}>
-                                                                        <Heading size="md">{item.label}</Heading>
-                                                                        <Button onClick={() => handleSoftwareChange(item, "remove")} size={"xs"} bg={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                        <Heading size="sm">{item.label}</Heading>
+                                                                        <IconButton 
+                                                                            onClick={() => handleSoftwareChange(item, "remove")} 
+                                                                            size={"2xs"} 
+                                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                            color={"white"} 
+                                                                            justifyContent={"center"}
+                                                                            alignItems={"center"}
+                                                                            fontSize={"sm"}
+                                                                            borderRadius={"sm"}
+                                                                        >
                                                                             X
-                                                                        </Button>
+                                                                        </IconButton>
                                                                     </Flex>
                                                                 </Card.Body>
                                                             </Card.Root>
@@ -564,7 +656,7 @@ const NewArtwork = () => {
                                                 bg={colorMode === "light" ? "cyan.500":"pink.500"}
                                                 onClick={handleSaveDraft}
                                             >
-                                                <FaArchive /> Archive
+                                                <FaArchive /> Draft
                                             </Button>
                                         </Box>
                                     </Stack>

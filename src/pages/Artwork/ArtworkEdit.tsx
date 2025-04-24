@@ -18,7 +18,7 @@ import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import { useGetPublishing } from "@/services/Publishing/PublishingService";
-import { useGetSoftware } from "@/services/Software/PublishingService";
+import { useGetSoftware } from "@/services/Software/SoftwareService";
 import SearchableInput from "@/custom/Components/SearchableInput";
 import { useStoreArtwork } from "@/services/Artwork/ArtworkService";
 
@@ -49,7 +49,7 @@ const ArtworkEdit = () => {
     
     const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
     const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
-    const { getSoftware, data: softwareData, loading: softwareLoading } = useGetSoftware();
+    const { getSoftwares, data: softwareData, loading: softwareLoading } = useGetSoftware();
 
     const { storeArtwork: StoreArtwork, data: storeArtworkData, loading: storeArtworkLoading, error: storeArtworkError } = useStoreArtwork();
 
@@ -85,7 +85,7 @@ const ArtworkEdit = () => {
     useEffect(() => {
         getPublishing();
         getCategories();
-        getSoftware();
+        getSoftwares();
     }, []);
 
     useEffect(() => {

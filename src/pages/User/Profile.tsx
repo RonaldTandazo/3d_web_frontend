@@ -14,6 +14,8 @@ import { useGetUserSocialMedia } from "@/services/UserSocialNetwork/UserSocialNe
 import LoadignScreen from "@/custom/Templates/LoadingScreen";
 import { useGetUserArtworks } from "@/services/Artwork/ArtworkService";
 import ArtworkItem from "@/custom/Components/ArtworkItem";
+import { useSubscription } from "@apollo/client";
+import { NEW_ARTWORK_SUBSCRIPTION } from "@/graphql/Artwork/ArtworkSubscription";
 
 interface Artwork {
     artworkId: number,
@@ -42,6 +44,7 @@ const Profile = () => {
     
     const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
     const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
+    const { data, loading, error } = useSubscription(NEW_ARTWORK_SUBSCRIPTION);
     
     const charsPerLine = 50;
     const maxLines = 2;
@@ -68,6 +71,13 @@ const Profile = () => {
             setArtworks(userArtworksData.getUserArtworks)
         }
     }, [userArtworksData]);
+
+    useEffect(() => {
+        if (data && data.newArtwork) {
+            const newArtwork: Artwork = data.newArtwork.artwork;
+            setArtworks((prevArtworks) => [...prevArtworks, newArtwork]);
+        }
+    }, [data]);
 
     const handleNavigateSettings = () => {
         if (user && user?.username) {
@@ -294,7 +304,7 @@ const Profile = () => {
                                                     <MdHideSource />
                                                 </Icon>
                                             <VStack textAlign="center">
-                                                <EmptyState.Title>Oooh no!... You don't have any artowkr created yet 😢</EmptyState.Title>
+                                                <EmptyState.Title>Oooh no!... You don't have any ArtWork created yet 😢</EmptyState.Title>
                                             </VStack>
                                         </EmptyState.Content>
                                     </EmptyState.Root>

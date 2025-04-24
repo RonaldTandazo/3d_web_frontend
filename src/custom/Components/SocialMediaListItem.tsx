@@ -136,6 +136,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
                                                     contentProps={{
                                                         css: {
                                                             '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                            'color': 'white'
                                                         },
                                                     }}
                                                 >
@@ -157,6 +158,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
                                                     contentProps={{
                                                         css: {
                                                             '--tooltip-bg': 'tomato',
+                                                            'color': 'white',
                                                         },
                                                     }}
                                                 >

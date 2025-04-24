@@ -2,11 +2,11 @@ import { ApolloError, useLazyQuery } from '@apollo/client';
 import { GET_SOFTWARE } from '@/graphql/Software/SoftwareQueries';
 
 export const useGetSoftware = () => {
-    const [getSoftware, { data, loading, error }] = useLazyQuery(GET_SOFTWARE);
+    const [getSoftwares, { data, loading, error }] = useLazyQuery(GET_SOFTWARE);
 
-    const GetSoftware = async () => {
+    const GetSoftwares = async () => {
         try {
-            await getSoftware({ 
+            await getSoftwares({ 
                 context: { requireAuth: true }
             });
         } catch (err) {
@@ -17,7 +17,7 @@ export const useGetSoftware = () => {
     };
 
     return {
-        getSoftware: GetSoftware,
+        getSoftwares: GetSoftwares,
         data,
         loading,
         error,

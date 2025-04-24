@@ -27,7 +27,6 @@ interface ArtworkMenuItemProps {
 const backendUrl = import.meta.env.VITE_API_URL;
 
 const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) => {
-    console.log(artwork)
     const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
     const { colorMode }  = useColorMode();
     const navigate = useNavigate();
@@ -37,7 +36,6 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
     }
 
     const handleNavigateArtworkView = (artwork: Artwork) => {
-        console.log(artwork)
         navigate(`/ArtWorks/${artwork.title}/View`, { state: { artwork } });
     }
 
@@ -92,6 +90,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                             contentProps={{ 
                                 css: { 
                                     "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                    'color': 'white'
                                 }
                             }}
                         >    
@@ -118,6 +117,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                             contentProps={{ 
                                 css: { 
                                     "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                    'color': 'white'
                                 }
                             }}
                         >    
@@ -148,6 +148,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                                             contentProps={{
                                                 css: {
                                                     '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                    'color': 'white',
                                                 },
                                             }}
                                         >
@@ -169,6 +170,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                                             contentProps={{
                                                 css: {
                                                     '--tooltip-bg': 'tomato',
+                                                    'color': 'white'
                                                 },
                                             }}
                                         >

@@ -9,8 +9,8 @@ const AuthLayout = () => {
 
     return (
         <Box 
-            h="100vh"
-            w="100vw"
+            h={"100dvh"}
+            w={"100vw"}
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
         >
             <ThemeButton />
