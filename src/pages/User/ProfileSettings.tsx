@@ -772,12 +772,12 @@ const ProfileSettings = () => {
                             onClick={handleImageClick}
                         >
                             <Show
-                                when={!storeUserPictureLoading}
+                                when={user && !storeUserPictureLoading}
                                 fallback={
                                     <LoadingProgress/>
                                 }
                             >
-                                {user.avatar ? (
+                                {user && user.avatar ? (
                                     <Image
                                         src={`${backendUrl}/avatars/${user.avatar}`}
                                         alt="Stored Image"
