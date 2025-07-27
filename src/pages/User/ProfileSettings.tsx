@@ -771,42 +771,32 @@ const ProfileSettings = () => {
                             alignItems="center"
                             onClick={handleImageClick}
                         >
-                            {user.avatar ? (
-                                <Show
-                                    when={!storeUserPictureLoading}
-                                    fallback={
-                                        <LoadingProgress/>
-                                    }
-                                >
-
+                            <Show
+                                when={!storeUserPictureLoading}
+                                fallback={
+                                    <LoadingProgress/>
+                                }
+                            >
+                                {user.avatar ? (
                                     <Image
                                         src={`${backendUrl}/avatars/${user.avatar}`}
-                                        alt="Stored Imssssge"
+                                        alt="Stored Image"
                                         boxSize="200px"
                                         borderRadius="full"
                                         fit="cover"
                                         cursor="pointer"
                                     />
-                                </Show>
-                            ) : selectedImage ? (
-                                <Image
-                                    src={selectedImage}
-                                    alt="Selected Image"
-                                    boxSize="200px"
-                                    borderRadius="full"
-                                    fit="cover"
-                                    cursor="pointer"
-                                />
-                            ) : (
-                                <Icon
-                                    as={ImUser}
-                                    boxSize="200px"
-                                    color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
-                                    bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
-                                    rounded={'full'}
-                                    cursor="pointer"
-                                />
-                            )}
+                                ) : (
+                                    <Icon
+                                        as={ImUser}
+                                        boxSize="200px"
+                                        color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
+                                        bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                                        rounded={'full'}
+                                        cursor="pointer"
+                                    />
+                                )}
+                            </Show>
                         </Box>
                         <input
                             type="file"
