@@ -14,3 +14,11 @@ export const SIGNUP_MUTATION = gql`
         registerUser(userData: $userData)
     }
 `;
+
+export const VALIDATE_USER_ACCESS = gql`
+    query ValidateUserAccess($targetValue: String!, $module: String!) {
+        validateUserAccess(targetValue: $targetValue, module: $module) {
+            validate
+        }
+    }
+`;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Indicator3D from "../FloatingIcons/3dIndicator";
 import VideoIndicator from "../FloatingIcons/VideoIndicator";
 import { useNavigate } from "react-router-dom";
+import { encodeToBase64 } from "@/utils/Helpers";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -13,7 +14,8 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
     const navigate = useNavigate();
 
     const handleNavigate = (artwork: any) => {
-        navigate(`/ArtWorks/${artwork.title}/View`, { state: { artwork } });
+        const encodedArtworkId = encodeToBase64(artwork.artworkId);
+        navigate(`/ArtWorks/${artwork.title}/${encodedArtworkId}/View`, { state: { artwork } });
     }
 
     return (

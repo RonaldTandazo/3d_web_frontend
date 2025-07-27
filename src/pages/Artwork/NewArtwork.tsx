@@ -2,7 +2,6 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
-import { useGetCategory } from "@/services/Category/CategoryService";
 import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -16,11 +15,8 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
-import { useGetPublishing } from "@/services/Publishing/PublishingService";
-import { useGetSoftware } from "@/services/Software/SoftwareService";
 import SearchableInput from "@/custom/Components/SearchableInput";
-import { useStoreArtwork } from "@/services/Artwork/ArtworkService";
-import { useGetTopic } from "@/services/Topic/TopicService";
+import { useGetArtworkFormData, useStoreArtwork } from "@/services/Artwork/ArtworkService";
 
 interface ArtWorkForm {
     status: number[];
@@ -47,37 +43,36 @@ interface TopicOptions {
 }
 
 const NewArtwork = () => {
-    const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
-    const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
-    const { getSoftwares, data: softwareData, loading: softwareLoading } = useGetSoftware();
-    const { getTopics, data: topicData, loading: topicLoading } = useGetTopic();
-
     const { storeArtwork: StoreArtwork, data: storeArtworkData, loading: storeArtworkLoading, error: storeArtworkError } = useStoreArtwork();
+    const { getArtworkFormData: GetArtworkFormData, data: formDataData, loading: formDataLoading } = useGetArtworkFormData();
 
     const navigate = useNavigate();
     const { user } = useAuth();
     const { colorMode } = useColorMode();
+
     const [categories, setCategories] = useState<CategoryOption[]>([]);
-    const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
-    const [softwares, setSoftwares] = useState<SoftwareOptions[]>([]);
     const [topics, setTopics] = useState<TopicOptions[]>([]);
+    const [softwares, setSoftwares] = useState<SoftwareOptions[]>([]);
+    const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
+    
     const [title, setTitle] = useState<string>('ArtWork');
-    const [description, setDescription] = useState<string | null>(null);
+    const [description, setDescription] = useState<string | undefined>(undefined);
     const [matureContent, setMatureContent] = useState<boolean>(false);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-    const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
     const [selectedTopic, setSelectedTopic] = useState<TopicOptions[]>([]);
+    const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
+    
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [crop, setCrop] = useState<Crop>()
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
-    const [imgURL, setImgURL] = useState<string | null>(null)
-    const [preview, setPreview] = useState<string | null>(null);
+    const [imgURL, setImgURL] = useState<string | undefined>(undefined)
+    const [preview, setPreview] = useState<string | undefined>(undefined);
     const [aspect, setAspect] = useState<number | undefined>(1 / 1)
     const [scale, setScale] = useState<number>(1)
     const [rotate, setRotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | undefined>(undefined);
 
     const {
         handleSubmit,
@@ -86,55 +81,43 @@ const NewArtwork = () => {
     } = useForm<ArtWorkForm>();
 
     useEffect(() => {
-        getPublishing();
-        getCategories();
-        getSoftwares();
-        getTopics();
+        GetArtworkFormData();
     }, []);
 
     useEffect(() => {
-        if (categories.length <= 0 && categoriesData && categoriesData.getCategories) {
-            const formattedCategories: CategoryOption[] = categoriesData.getCategories.map((category: any) => ({
+        if (formDataData && formDataData.getArtworkFormData) {
+            const { categories, publishing, softwares, topics } = formDataData.getArtworkFormData;
+
+            const formattedCategories: CategoryOption[] = categories.map((category: any) => ({
                 value: category.categoryId,
                 label: category.name,
             }));
 
             setCategories(formattedCategories);
-        }
-    }, [categoriesData]);
 
-    useEffect(() => {
-        if (publishing.length <= 0 && publishingData && publishingData.getPublishing) {
-            const formattedPublishing: PublishingOptions[] = publishingData.getPublishing.map((state: any) => ({
+            const formattedPublishing: PublishingOptions[] = publishing.filter((item: any) => item.publishingId !== 3)
+            .map((state: any) => ({
                 value: state.publishingId,
                 label: state.name,
             }));
 
             setPublishing(formattedPublishing);
-        }
-    }, [publishingData]);
 
-    useEffect(() => {
-        if (softwares.length <= 0 && softwareData && softwareData.getSoftware) {
-            const formattedSoftware: SoftwareOptions[] = softwareData.getSoftware.map((software: any) => ({
+            const formattedSoftware: SoftwareOptions[] = softwares.map((software: any) => ({
                 value: software.softwareId,
                 label: software.name,
             }));
 
             setSoftwares(formattedSoftware);
-        }
-    }, [softwareData]);
 
-    useEffect(() => {
-        if (topics.length <= 0 && topicData && topicData.getTopics) {
-            const formattedTopic: TopicOptions[] = topicData.getTopics.map((topic: any) => ({
+            const formattedTopic: TopicOptions[] = topics.map((topic: any) => ({
                 value: topic.topicId,
                 label: topic.name,
             }));
 
             setTopics(formattedTopic);
         }
-    }, [topicData]);
+    }, [formDataData]);
 
     useEffect(() => {
         if (storeArtworkData && storeArtworkData.storeArtwork) {
@@ -148,7 +131,7 @@ const NewArtwork = () => {
         }
     }, [storeArtworkError]);
 
-    if (categoriesLoading || publishingLoading || softwareLoading) return <LoadingProgress />
+    if (formDataLoading) return <LoadingProgress />
 
     const handleNavigate = () => {
         if(user){
@@ -213,7 +196,7 @@ const NewArtwork = () => {
             return;
         }
         
-        setError(null);
+        setError(undefined);
         setCrop(undefined)
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -259,14 +242,14 @@ const NewArtwork = () => {
     const onComplete = async (crop:any) => {
         setCompletedCrop(crop);
         if (imgRef.current && completedCrop) {
-            const croppedImageUrl = await getCroppedImg(imgRef.current, completedCrop, rotate, scale);
+            const croppedImageUrl = getCroppedImg(imgRef.current, completedCrop, rotate, scale);
             setPreview(croppedImageUrl);
             setIsModalOpen(false);
         }
     };
 
     const onSubmit = handleSubmit(async (data: any) => {
-        setError(null);
+        setError(undefined);
         const softwareIds = selectedSoftware.map(({ value }) => value);
         const topicIds = selectedTopic.map(({ value }) => value);
         
@@ -280,12 +263,10 @@ const NewArtwork = () => {
             thumbnail: preview,
             status: data.status[0],
         }
-
-        console.log(formData)
     });
 
     const handleSaveDraft = async() => {
-        setError(null);
+        setError(undefined);
         const softwareIds = selectedSoftware.map(({ value }) => value);
         const topicIds = selectedTopic.map(({ value }) => value);
 
@@ -304,14 +285,14 @@ const NewArtwork = () => {
     };
 
     const resetThumbnail = () => {
-        setImgURL(null)
+        setImgURL(undefined)
         setCompletedCrop(null)
-        setPreview(null)
-        setError(null)
+        setPreview(undefined)
+        setError(undefined)
     }
 
     return (
-        <Box w={"auto"} h={"auto"} mx={5}>
+        <Box w={"auto"} h={"auto"}>
             <Show when={storeArtworkLoading}>
                 <Box
                     position="fixed"
@@ -671,7 +652,7 @@ const NewArtwork = () => {
                     title="New ArtWork"
                     message={error}
                     type="error"
-                    onClose={() => setError(null)}
+                    onClose={() => setError(undefined)}
                 />
             </Show>
         </Box>

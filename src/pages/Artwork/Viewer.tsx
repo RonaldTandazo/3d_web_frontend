@@ -74,7 +74,7 @@ const Viewer = () => {
     };
 
     return (
-        <Box w={"auto"} h={"auto"} mx={5}>
+        <Box w={"auto"} h={"auto"}>
             <Heading mb={4}>Visualización de Modelo 3D Cargado por el Usuario</Heading>
             <Box display={"flex"} w={"full"} justifyContent={"space-around"}>
                 <FileUpload.Root maxW="xl" alignItems="stretch" maxFiles={1}>

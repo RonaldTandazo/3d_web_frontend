@@ -6,8 +6,8 @@ const LoadignScreen = () => {
     
     return (
         <Flex 
-            w={"full"}
-            h={"inherit"}
+            w={"99dvw"}
+            h={"full"}
             align="center" 
             justify="center"
         >

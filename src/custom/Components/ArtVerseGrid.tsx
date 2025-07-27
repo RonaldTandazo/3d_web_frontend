@@ -6,8 +6,8 @@ interface ArtVerseGridProps {
 }
 
 const ArtVerseGrid = ({ artworks }: ArtVerseGridProps) => {
-    const max = 9
-    const columns = artworks.length > max ? max:artworks.length
+    const max = 9;
+    const columns = artworks.length > max ? max:artworks.length;
     const templateColumns = `repeat(${columns}, auto)`;
 
     return (

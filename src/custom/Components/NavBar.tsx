@@ -1,15 +1,18 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Avatar, Box, Button, Flex, Icon, IconButton, Input, InputGroup, ProgressCircle } from "@chakra-ui/react"
+import { Avatar, Box, Button, Flex, HStack, Icon, Input, InputGroup, Menu, Portal, ProgressCircle } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { BsFillPersonVcardFill, BsPencilSquare, BsSearch } from "react-icons/bs";
-import { VscAccount } from "react-icons/vsc";
+import { CiLogout } from "react-icons/ci";
+import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
+const backendUrl = import.meta.env.VITE_API_URL;
 
 const NavBar = () => {
     const { colorMode } = useColorMode();
     const [isScrolled, setIsScrolled] = useState(false);
-    const { user, isAuthenticated, loading  } = useAuth();
+    const { user, isAuthenticated, loading, logout  } = useAuth();
     const navigate = useNavigate();
 
     const handleScroll = () => {
@@ -58,37 +61,51 @@ const NavBar = () => {
         );
     }else if(isAuthenticated && user){
         authButtons = (
-            <Avatar.Root 
-                key={"subtle"} 
-                variant={"subtle"}
-                onClick={() => navigate(`/Profile/${user.username}`)}
-                cursor={"pointer"}
-            >
-                <Avatar.Fallback name={user?.username} />
-                <Avatar.Image src={user?.avatar} />
-            </Avatar.Root>
-        );
+            <Menu.Root lazyMount>
+                <Menu.Trigger asChild>
+                    <Button bg={"transparent"} color={"transparent"} borderRadius={"full"} width={"0px"}>
+                        <Avatar.Root
+                            key={"subtle"} 
+                            variant={"subtle"}
+                            cursor={"pointer"}
+                        >
+                            <Avatar.Fallback name={user?.username} />
+                            <Avatar.Image src={`${backendUrl}/avatars/${user.avatar}`} />
+                        </Avatar.Root>
+                    </Button>
+                </Menu.Trigger>
+                <Portal>
+                    <Menu.Positioner>
+                        <Menu.Content zIndex={"toast"}>
+                            <Menu.Item 
+                                value="edit-profile" 
+                                onClick={() => navigate(`/Profile/${user.username}`)} 
+                                cursor={"pointer"}
+                            >
+                                <FaUser />
+                                View Profile
+                            </Menu.Item>
+                            <Menu.Item 
+                                value="sign-out" 
+                                onClick={() => logout()} 
+                                cursor={"pointer"}
+                                color="fg.error"
+                                _hover={{ bg: "bg.error", color: "fg.error" }}
+                            >
+                                <CiLogout />
+                                Sign Out
+                            </Menu.Item>
+                        </Menu.Content>
+                    </Menu.Positioner>
+                </Portal>
+            </Menu.Root>
+        )
     }
-
-    <IconButton
-        aria-label="Personal Profile"
-        rounded="full"
-        size="md"
-        onClick={() => navigate(`/Profile/${user.username}`)}
-        bg={colorMode === "light" ? "cyan.500":"pink.500"}
-    >
-        <Icon 
-            size="xl"
-            color={colorMode === "light" ? "white":"black"}
-        >
-            <VscAccount />
-        </Icon>
-    </IconButton>
 
     return (
         <Box 
             as="nav" 
-            bg={colorMode === "light" ? "gray.100" : "gray.950"}
+            bg={colorMode === "light" ? "cyan.500" : "pink.500"}
             position="sticky" 
             top="0" 
             p={5}
@@ -96,22 +113,31 @@ const NavBar = () => {
             shadow={isScrolled ? "md" : "none"}
             transition="box-shadow 0.3s ease"
         >
-            <Flex align="center" mx="auto" justifyContent="space-between">
+            <HStack align="center" mx="auto" justifyContent="space-between">
                 <Box fontSize="xl" fontWeight="bold">Mi Logo</Box>
 
                 <Box flex="1" maxW="60vw" mx={4}>
-                    <InputGroup flex="1" startElement={<BsSearch />}>
+                    <InputGroup 
+                        flex="1" 
+                        startElement={
+                            <Icon color={"whiteAlpha.950"}>
+                                <BsSearch />
+                            </Icon>
+                        }
+                        color={"whiteAlpha.950"}
+                    >
                         <Input 
-                            placeholder="What are you looking for?..." 
+                            placeholder="What are you looking for?..."
+                            _placeholder={{ color: "whiteAlpha.950" }} 
                             borderRadius="full" 
                             size="lg" 
-                            borderColor={colorMode === 'light' ? "blackAlpha.700":"whiteAlpha.700"}
+                            borderColor={"whiteAlpha.950"}
                         />
                     </InputGroup>
                 </Box>
 
                 <Flex>{authButtons}</Flex>
-            </Flex>
+            </HStack>
         </Box>
     )
 }

@@ -1,11 +1,55 @@
-import { ApolloError, useLazyQuery, useMutation, useSubscription } from '@apollo/client';
+import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { STORE_ARTWORK } from '@/graphql/Artwork/ArtworkMutations';
-import { GET_USER_ARTWORKS } from '@/graphql/Artwork/ArtworkQueries';
+import { GET_ARTWORK_DETAILS, GET_ARTWORK_FORM_DATA, GET_USER_ARTWORKS } from '@/graphql/Artwork/ArtworkQueries';
 
-interface GetUserArtworksData {
-    getUserArtworks?: any[];
+export const useGetUserArtworks = () => {
+    const [getUserArtworks, { loading, data, error }] = useLazyQuery(GET_USER_ARTWORKS, {
+        fetchPolicy: 'cache-and-network'
+    })
+
+    const GetUserArtworks = async () => {
+        try {
+            await getUserArtworks({ 
+                context: { requireAuth: true }
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        getUserArtworks: GetUserArtworks,
+        data,
+        loading,
+        error,
+    };
+};
+
+export const useGetArtworkFormData = () => {
+    const [getArtworkFormData, { loading, data, error }] = useLazyQuery(GET_ARTWORK_FORM_DATA)
+
+    const GetArtworkFormData = async () => {
+        try {
+            await getArtworkFormData({ 
+                context: { requireAuth: true }
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        getArtworkFormData: GetArtworkFormData,
+        data,
+        loading,
+        error,
+    };
 }
-  
+
 export const useStoreArtwork = () => {
     const [storeArtwork, { loading, data, error }] = useMutation(STORE_ARTWORK);
 
@@ -30,14 +74,13 @@ export const useStoreArtwork = () => {
     };
 };
 
-export const useGetUserArtworks = () => {
-    const [getUserArtworks, { loading, data, error }] = useLazyQuery(GET_USER_ARTWORKS, {
-        fetchPolicy: 'cache-and-network'
-    })
+export const useGetArtworkDetails = () => {
+    const [getArtworkDetails, { loading, data, error }] = useLazyQuery(GET_ARTWORK_DETAILS)
 
-    const GetUserArtworks = async () => {
+    const GetArtworkDetails = async (artworkId: number) => {
         try {
-            await getUserArtworks({ 
+            await getArtworkDetails({ 
+                variables: { artworkId },
                 context: { requireAuth: true }
             });
         } catch (err) {
@@ -48,7 +91,7 @@ export const useGetUserArtworks = () => {
     };
 
     return {
-        getUserArtworks: GetUserArtworks,
+        getArtworkDetails: GetArtworkDetails,
         data,
         loading,
         error,

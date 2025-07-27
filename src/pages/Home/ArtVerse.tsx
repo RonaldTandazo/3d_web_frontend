@@ -14,15 +14,15 @@ const ArtVerse = () => {
 }, []);
 
   useEffect(() => {
-      if (userArtworksData && userArtworksData.getUserArtworks) {
-          setArtworks(userArtworksData.getUserArtworks)
-      }
+    if (userArtworksData && userArtworksData.getUserArtworks) {
+      setArtworks(userArtworksData.getUserArtworks)
+    }
   }, [userArtworksData]);
 
   if(userArtworksLoading) return <LoadignScreen/>
 
   return (
-    <Box mx={5}>
+    <Box>
       <ArtVerseGrid artworks={artworks}/>
     </Box>
   );

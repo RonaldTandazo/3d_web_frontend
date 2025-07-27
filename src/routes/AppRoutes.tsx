@@ -15,6 +15,7 @@ import ProfileSettings from '@/pages/User/ProfileSettings';
 import ArtworkStore from '@/pages/Artwork/NewArtwork';
 import ArtworkEdit from '@/pages/Artwork/ArtworkEdit';
 import Viewer from '@/pages/Artwork/Viewer';
+import ProfileOwnerRoute from '@/utils/ProfileOwnerRoute';
 
 const AppRoutes = () => {
     return (
@@ -22,7 +23,7 @@ const AppRoutes = () => {
             {/* Rutas públicas */}
             <Route element={<MainLayout />}>
                 <Route path="/" element={<ArtVerse />} />
-                <Route path="/Artworks/:title/View" element={<ArtworkView />} />
+                <Route path="/Artworks/:title/:artworkId/View" element={<ArtworkView />} />
                 <Route path="/Viewer" element={<Viewer/>}></Route>
             </Route>
 
@@ -30,10 +31,15 @@ const AppRoutes = () => {
             <Route element={<PrivateRoute />}>
                 <Route element={<MainLayout />}>
                     <Route path="/Profile/:username" element={<Profile />} />
-                    <Route path="/ProfileSettings/:username" element={<ProfileSettings />} />
                     <Route path="/Artworks/New" element={<ArtworkStore />} />
-                    <Route path="/Artworks/:title/Edit" element={<ArtworkEdit />} />
                     {/*<Route path="/favorites" element={<Favorites />} />*/}
+                </Route>
+            </Route>
+
+            <Route element={<ProfileOwnerRoute />}>
+                <Route element={<MainLayout />}>
+                    <Route path="/ProfileSettings/:username" element={<ProfileSettings />} />
+                    <Route path="/Artworks/:title/:artworkId/Edit" element={<ArtworkEdit />} />
                 </Route>
             </Route>
 

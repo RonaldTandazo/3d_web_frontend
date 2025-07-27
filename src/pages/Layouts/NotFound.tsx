@@ -1,8 +1,10 @@
+import { useColorMode } from "@/components/ui/color-mode";
 import { Box, Heading, Text, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 const NotFoundPage = () => {
     const navigate = useNavigate();
+    const { colorMode } = useColorMode()
 
     return (
         <Box 
@@ -13,6 +15,7 @@ const NotFoundPage = () => {
             justifyContent="center"
             textAlign="center"
             p={10}
+            color={colorMode == 'light' ? 'cyan.500':'pink.500'}
         >
             <Heading fontSize="6xl">404</Heading>
             <Text fontSize="xl" mt={4}>Oops...Page Not Found. It looks like you’re lost!</Text>

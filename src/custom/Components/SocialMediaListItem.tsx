@@ -62,7 +62,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
     });
 
     useEffect(() => {
-
+        
     }, [updateUserNetworkError, removeUserNetworkError])
 
     if (removeUserNetworkData) return null;
@@ -71,7 +71,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
         <React.Fragment key={item.userSocialNetworkId}>
             <Separator size="sm" />
             <Flex direction={'row'} key={item.userSocialNetworkId} justifyContent={'space-between'} alignItems={'center'} px={5} w={'full'}>
-                <Grid w="full" templateColumns={editingId ? '30% 60% 10%' : '10% 80% 10%'} gap={4}>
+                <Grid w="full" templateColumns={updateUserNetworkLoading || removeUserNetworkLoading ? '100% 0% 0%' : (editingId ? '30% 60% 10%' : '10% 80% 10%')} gap={4}>
                     {editingId === item.userSocialNetworkId ? (
                         <>
                             {updateUserNetworkLoading || removeUserNetworkLoading ? (

@@ -2,14 +2,13 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
-import { useGetCategory } from "@/services/Category/CategoryService";
-import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoIosSave } from 'react-icons/io';
 import { LuUpload } from "react-icons/lu";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ReactCrop, { centerCrop, Crop, makeAspectCrop, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { getCroppedImg } from "@/utils/CanvasCrop";
@@ -17,10 +16,9 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
-import { useGetPublishing } from "@/services/Publishing/PublishingService";
-import { useGetSoftware } from "@/services/Software/SoftwareService";
 import SearchableInput from "@/custom/Components/SearchableInput";
-import { useStoreArtwork } from "@/services/Artwork/ArtworkService";
+import { useGetArtworkDetails, useGetArtworkFormData, useStoreArtwork } from "@/services/Artwork/ArtworkService";
+import { decodeFromBase64 } from "@/utils/Helpers";
 
 interface ArtWorkForm {
     status: number[];
@@ -41,40 +39,48 @@ interface SoftwareOptions {
     label: string;
 }
 
+interface TopicOptions {
+    value: number;
+    label: string;
+}
+
 const backendUrl = import.meta.env.VITE_API_URL;
 
 const ArtworkEdit = () => {
-    const location = useLocation();
-    const { artwork } = location.state || {};
-    
-    const { getCategories, data: categoriesData, loading: categoriesLoading } = useGetCategory();
-    const { getPublishing, data: publishingData, loading: publishingLoading } = useGetPublishing();
-    const { getSoftwares, data: softwareData, loading: softwareLoading } = useGetSoftware();
+    const { artworkId } = useParams();
 
     const { storeArtwork: StoreArtwork, data: storeArtworkData, loading: storeArtworkLoading, error: storeArtworkError } = useStoreArtwork();
+    const { getArtworkDetails: GetArtworkDetails, data: artworkDetailsData, loading: artworkDetailsLoading } = useGetArtworkDetails();
+    const { getArtworkFormData: GetArtworkFormData, data: formDataData, loading: formDataLoading } = useGetArtworkFormData();
 
     const navigate = useNavigate();
     const { user } = useAuth();
     const { colorMode } = useColorMode();
+    
     const [categories, setCategories] = useState<CategoryOption[]>([]);
+    const [topics, setTopics] = useState<TopicOptions[]>([]);
+    const [softwares, setSoftwares] = useState<SoftwareOptions[]>([]);
     const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
-    const [software, setSoftware] = useState<SoftwareOptions[]>([]);
-    const [title, setTitle] = useState<string>(artwork?.title || 'ArtWork');
-    const [description, setDescription] = useState<string | null>(null);
+    
+    const [title, setTitle] = useState<string | undefined>(undefined);
+    const [description, setDescription] = useState<string | undefined>(undefined);
     const [matureContent, setMatureContent] = useState<boolean>(false);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [selectedTopic, setSelectedTopic] = useState<TopicOptions[]>([]);
     const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
+    const [selectedPublishing, setSelectedPublishing] = useState<number | undefined>(undefined);
+
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [crop, setCrop] = useState<Crop>()
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
-    const [imgURL, setImgURL] = useState<string | null>(null)
-    const [preview, setPreview] = useState<string | null>(artwork.thumbnail ? `${backendUrl}/thumbnails/${artwork.thumbnail}`:null);
+    const [imgURL, setImgURL] = useState<string | undefined>(undefined)
+    const [preview, setPreview] = useState<string | undefined>(undefined);
     const [aspect, setAspect] = useState<number | undefined>(1 / 1)
     const [scale, setScale] = useState<number>(1)
     const [rotate, setRotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | undefined>(undefined);
 
     const {
         handleSubmit,
@@ -83,44 +89,59 @@ const ArtworkEdit = () => {
     } = useForm<ArtWorkForm>();
 
     useEffect(() => {
-        getPublishing();
-        getCategories();
-        getSoftwares();
+        const artworkDecodedId = parseInt(decodeFromBase64(artworkId));
+        
+        GetArtworkFormData();
+        GetArtworkDetails(artworkDecodedId)
     }, []);
 
     useEffect(() => {
-        if (categories.length <= 0 && categoriesData && categoriesData.getCategories) {
-            const formattedCategories: CategoryOption[] = categoriesData.getCategories.map((category: any) => ({
+        if (formDataData && formDataData.getArtworkFormData) {
+            const { categories, publishing, softwares, topics } = formDataData.getArtworkFormData;
+
+            const formattedCategories: CategoryOption[] = categories.map((category: any) => ({
                 value: category.categoryId,
                 label: category.name,
             }));
 
             setCategories(formattedCategories);
-        }
-    }, [categoriesData]);
 
-    useEffect(() => {
-        if (publishing.length <= 0 && publishingData && publishingData.getPublishing) {
-            const formattedPublishing: PublishingOptions[] = publishingData.getPublishing.filter((item: any) => item.publishingId !== 3)
+            const formattedPublishing: PublishingOptions[] = publishing.filter((item: any) => item.name != 'Draft')
             .map((state: any) => ({
                 value: state.publishingId,
                 label: state.name,
             }));
 
             setPublishing(formattedPublishing);
-        }
-    }, [publishingData]);
 
-    useEffect(() => {
-        if (software.length <= 0 && softwareData && softwareData.getSoftware) {
-            const formattedSoftware: SoftwareOptions[] = softwareData.getSoftware.map((software: any) => ({
+            const formattedSoftware: SoftwareOptions[] = softwares.map((software: any) => ({
                 value: software.softwareId,
                 label: software.name,
             }));
 
-            setSoftware(formattedSoftware);
+            setSoftwares(formattedSoftware);
+
+            const formattedTopic: TopicOptions[] = topics.map((topic: any) => ({
+                value: topic.topicId,
+                label: topic.name,
+            }));
+
+            setTopics(formattedTopic);
         }
-    }, [softwareData]);
+    }, [formDataData]);
+
+    useEffect(() => {
+        if(artworkDetailsData && artworkDetailsData.getArtworkDetails){
+            setTitle(artworkDetailsData.getArtworkDetails.title)
+            setDescription(artworkDetailsData.getArtworkDetails.description)
+            setMatureContent(artworkDetailsData.getArtworkDetails.matureContent)
+            setSelectedCategories(artworkDetailsData.getArtworkDetails.categories)
+            setSelectedTopic(artworkDetailsData.getArtworkDetails.topics)
+            setSelectedSoftware(artworkDetailsData.getArtworkDetails.softwares)
+            setSelectedPublishing(artworkDetailsData.getArtworkDetails.publishingId)
+            artworkDetailsData.getArtworkDetails.thumbnail ? setPreview(`${backendUrl}/thumbnails/${artworkDetailsData.getArtworkDetails.thumbnail}`):null
+        }
+    }, [artworkDetailsData])
 
     useEffect(() => {
         if (storeArtworkData && storeArtworkData.storeArtwork) {
@@ -134,7 +155,7 @@ const ArtworkEdit = () => {
         }
     }, [storeArtworkError]);
 
-    if (categoriesLoading || publishingLoading || softwareLoading) return <LoadingProgress />
+    if (formDataLoading || artworkDetailsLoading) return <LoadingProgress />
 
     const handleNavigate = () => {
         if(user){
@@ -147,6 +168,20 @@ const ArtworkEdit = () => {
             setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
         } else {
             setSelectedCategories([...selectedCategories, categoryId]);
+        }
+    };
+
+    const handleTopicChange = (item: TopicOptions, action: string) => {
+        if(action === "remove"){
+            if (selectedTopic.find((topic) => item.value === topic.value)) {
+                setSelectedTopic(selectedTopic.filter((topic) => item.value !== topic.value));
+            }
+        }
+
+        if(action === "add"){
+            if (!selectedTopic.find((topic) => item.value == topic.value)) {
+                setSelectedTopic([...selectedTopic, item]);
+            }
         }
     };
 
@@ -185,7 +220,7 @@ const ArtworkEdit = () => {
             return;
         }
         
-        setError(null);
+        setError(undefined);
         setCrop(undefined)
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -246,8 +281,6 @@ const ArtworkEdit = () => {
             thumbnail: preview,
             status: data.status[0],
         }
-
-        console.log(formData)
     });
 
     const handleSaveDraft = async() => {
@@ -267,14 +300,14 @@ const ArtworkEdit = () => {
     };
 
     const resetThumbnail = () => {
-        setImgURL(null)
+        setImgURL(undefined)
         setCompletedCrop(null)
-        setPreview(null)
-        setError(null)
+        setPreview(undefined)
+        setError(undefined)
     }
 
     return (
-        <Box w={"auto"} h={"auto"} mx={5}>
+        <Box w={"auto"} h={"auto"}>
             <Show when={storeArtworkLoading}>
                 <Box
                     position="fixed"
@@ -303,7 +336,7 @@ const ArtworkEdit = () => {
                         </Breadcrumb.Item>
                         <Breadcrumb.Separator />
                         <Breadcrumb.Item>
-                            <Breadcrumb.CurrentLink>{artwork?.title}</Breadcrumb.CurrentLink>
+                            <Breadcrumb.CurrentLink>{title}</Breadcrumb.CurrentLink>
                         </Breadcrumb.Item>
                     </Breadcrumb.List>
                 </Breadcrumb.Root>
@@ -323,7 +356,7 @@ const ArtworkEdit = () => {
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10}>
                                         <Field.Root>
-                                            <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle(e.target.value)} defaultValue={artwork.title}/>
+                                            <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle(e.target.value)} defaultValue={title}/>
                                         </Field.Root>
                                     </Stack>
                                 </Box>
@@ -334,7 +367,7 @@ const ArtworkEdit = () => {
                                     <Stack mx={10} mt={5} mb={10} gap={10}>
                                         <Field.Root>
                                             <Field.Label fontSize={"lg"}>Description</Field.Label>
-                                            <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." onChange={(e) => setDescription(e.target.value)} />
+                                            <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." onChange={(e) => setDescription(e.target.value)} defaultValue={description}/>
                                         </Field.Root>
                                         <Field.Root>
                                             <Field.Label fontSize={"lg"}>Mature Content</Field.Label>
@@ -351,83 +384,137 @@ const ArtworkEdit = () => {
                                             </Checkbox.Root>
                                         </Field.Root>
                                     </Stack>
-                                </Box>
+                                </Box>  
                                 <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
                                     <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                         <Heading fontSize={"lg"} color={"white"}>Categoritzation</Heading>
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10} gap={10}>
-                                        <Box w={"full"}>
-                                            <Field.Root>
-                                                <Field.Label fontSize={"lg"}>Categories</Field.Label>
-                                            </Field.Root>
-                                            <Flex
-                                                gap={4}
-                                                display="grid"
-                                                gridTemplateColumns="repeat(6, 1fr)"
-                                                gridAutoRows="auto"
-                                                mt={3}
-                                            >
-                                                <For each={categories}>
-                                                    {(item) => (
-                                                        <CheckboxCard.Root
-                                                            key={item.value}
-                                                            variant={"outline"}
-                                                            colorPalette={colorMode === "light" ? "cyan" : "pink"}
-                                                            onCheckedChange={() => handleCategoryChange(item.value)}
-                                                            checked={selectedCategories.includes(item.value)}
-                                                            cursor="pointer"
-                                                        >
-                                                            <CheckboxCard.HiddenInput />
-                                                            <CheckboxCard.Control>
-                                                                <CheckboxCard.Label>{item.label}</CheckboxCard.Label>
-                                                                <CheckboxCard.Indicator />
-                                                            </CheckboxCard.Control>
-                                                        </CheckboxCard.Root>
-                                                    )}
-                                                </For>
-                                            </Flex>
-                                        </Box>
-                                        <Box w={"full"}>
-                                            <Field.Root>
-                                                <Field.Label fontSize={"lg"}>Topics</Field.Label>
-                                            </Field.Root>
-                                        </Box>
-                                        <Box w={"full"}>
-                                            <Field.Root>
-                                                <Field.Label fontSize={"lg"}>Software Used</Field.Label>
-                                                <SearchableInput options={software} placeholder="Choose software used..." onSelect={handleSoftwareChange}/>
-                                            </Field.Root>
-                                            <Show
-                                                when={selectedSoftware.length > 0}
-                                            >
+                                        <Show when={categories.length > 0}>
+                                            <Box w={"full"}>
+                                                <Field.Root>
+                                                    <Field.Label fontSize={"lg"}>Categories</Field.Label>
+                                                </Field.Root>
                                                 <Flex
                                                     gap={4}
                                                     display="grid"
-                                                    gridTemplateColumns="repeat(8, 1fr)"
+                                                    gridTemplateColumns="repeat(6, 1fr)"
                                                     gridAutoRows="auto"
-                                                    borderRadius={"sm"}
-                                                    p={5}
-                                                    mt={5}
-                                                    shadow={"inner"}
+                                                    mt={3}
                                                 >
-                                                    <For each={selectedSoftware}>
+                                                    <For each={categories}>
                                                         {(item) => (
-                                                            <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
-                                                                <Card.Body display={"flex"} justifyContent={"center"}>
-                                                                    <Flex justifyContent={"space-between"} alignItems={"center"}>
-                                                                        <Heading size="md">{item.label}</Heading>
-                                                                        <Button onClick={() => handleSoftwareChange(item, "remove")} size={"xs"} bg={colorMode === "light" ? "cyan.600":"pink.600"}>
-                                                                            X
-                                                                        </Button>
-                                                                    </Flex>
-                                                                </Card.Body>
-                                                            </Card.Root>
+                                                            <CheckboxCard.Root
+                                                                key={item.value}
+                                                                variant={"outline"}
+                                                                colorPalette={colorMode === "light" ? "cyan" : "pink"}
+                                                                onCheckedChange={() => handleCategoryChange(item.value)}
+                                                                checked={selectedCategories.includes(item.value)}
+                                                                cursor="pointer"
+                                                            >
+                                                                <CheckboxCard.HiddenInput />
+                                                                <CheckboxCard.Control>
+                                                                    <CheckboxCard.Label>{item.label}</CheckboxCard.Label>
+                                                                    <CheckboxCard.Indicator />
+                                                                </CheckboxCard.Control>
+                                                            </CheckboxCard.Root>
                                                         )}
                                                     </For>
                                                 </Flex>
-                                            </Show>
-                                        </Box>
+                                            </Box>
+                                        </Show>
+                                        <Show when={topics.length > 0}>
+                                            <Box w={"full"}>
+                                                <Field.Root>
+                                                    <Field.Label fontSize={"lg"}>Topics</Field.Label>
+                                                    <SearchableInput options={topics} placeholder="Choose related topics..." onSelect={handleTopicChange}/>
+                                                </Field.Root>
+                                                <Show
+                                                    when={selectedTopic.length > 0}
+                                                >
+                                                    <Flex
+                                                        gap={4}
+                                                        display="grid"
+                                                        gridTemplateColumns="repeat(8, 1fr)"
+                                                        gridAutoRows="auto"
+                                                        borderRadius={"sm"}
+                                                        p={5}
+                                                        mt={5}
+                                                        shadow={"inner"}
+                                                    >
+                                                        <For each={selectedTopic}>
+                                                            {(item) => (
+                                                                <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                    <Card.Body display={"flex"} justifyContent={"center"}>
+                                                                        <Flex justifyContent={"space-between"} alignItems={"center"}>
+                                                                            <Heading size="sm">{item.label}</Heading>
+                                                                            <IconButton
+                                                                                onClick={() => handleTopicChange(item, "remove")} 
+                                                                                size={"2xs"} 
+                                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                color={"white"} 
+                                                                                justifyContent={"center"}
+                                                                                alignItems={"center"}
+                                                                                fontSize={"sm"}
+                                                                                borderRadius={"sm"}
+                                                                            >
+                                                                                X
+                                                                            </IconButton>
+                                                                        </Flex>
+                                                                    </Card.Body>
+                                                                </Card.Root>
+                                                            )}
+                                                        </For>
+                                                    </Flex>
+                                                </Show>
+                                            </Box>
+                                        </Show>
+                                        <Show when={softwares.length > 0}>
+                                            <Box w={"full"}>
+                                                <Field.Root>
+                                                    <Field.Label fontSize={"lg"}>Software Used</Field.Label>
+                                                    <SearchableInput options={softwares} placeholder="Choose software used..." onSelect={handleSoftwareChange}/>
+                                                </Field.Root>
+                                                <Show
+                                                    when={selectedSoftware.length > 0}
+                                                >
+                                                    <Flex
+                                                        gap={4}
+                                                        display="grid"
+                                                        gridTemplateColumns="repeat(8, 1fr)"
+                                                        gridAutoRows="auto"
+                                                        borderRadius={"sm"}
+                                                        p={5}
+                                                        mt={5}
+                                                        shadow={"inner"}
+                                                    >
+                                                        <For each={selectedSoftware}>
+                                                            {(item) => (
+                                                                <Card.Root size="sm" key={item.value} borderWidth={"2px"} borderColor={colorMode === "light" ? "cyan.600":"pink.600"}>
+                                                                    <Card.Body display={"flex"} justifyContent={"center"}>
+                                                                        <Flex justifyContent={"space-between"} alignItems={"center"}>
+                                                                            <Heading size="md">{item.label}</Heading>
+                                                                            <IconButton
+                                                                                onClick={() => handleSoftwareChange(item, "remove")} 
+                                                                                size={"2xs"} 
+                                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                color={"white"} 
+                                                                                justifyContent={"center"}
+                                                                                alignItems={"center"}
+                                                                                fontSize={"sm"}
+                                                                                borderRadius={"sm"}
+                                                                            >
+                                                                                X
+                                                                            </IconButton>
+                                                                        </Flex>
+                                                                    </Card.Body>
+                                                                </Card.Root>
+                                                            )}
+                                                        </For>
+                                                    </Flex>
+                                                </Show>
+                                            </Box>
+                                        </Show>
                                     </Stack>
                                 </Box>
                             </Stack>
@@ -550,7 +637,7 @@ const ArtworkEdit = () => {
                                         <Heading fontSize={"lg"} color={"white"}>Publishing</Heading>
                                     </Box>
                                     <Stack mx={10} mt={5} mb={10}>
-                                        <Show when={publishing.length > 0}>
+                                        <Show when={publishing.length > 0}>  
                                             <Field.Root invalid={!!errors.status}>
                                                 <Field.Label fontSize={"lg"}>Status</Field.Label>
                                                 <Controller
@@ -558,15 +645,15 @@ const ArtworkEdit = () => {
                                                     name="status"
                                                     rules={{ required: "Status is required" }}
                                                     render={({ field }) => (
-                                                        <SearchableSelect options={publishing} field={field} defaultValue={null} />
+                                                        <SearchableSelect options={publishing} field={field} defaultValue={publishing.find((item) => item.value === selectedPublishing) ? selectedPublishing:null} />
                                                     )}
                                                 />
                                                 <Field.ErrorText>{errors.status?.message}</Field.ErrorText>
                                             </Field.Root>
                                         </Show>
-                                        <Box display={"flex"} justifyContent={artwork.publishingId !== 3 ? "flex-end":publishing.length > 0 ? "space-between":"flex-end"} mt={3}>
+                                        <Box display={"flex"} justifyContent={selectedPublishing !== 3 ? "flex-end":publishing.length > 0 ? "space-between":"flex-end"} mt={3}>
                                             <Show 
-                                                when={artwork.publishingId === 3}
+                                                when={selectedPublishing === 3}
                                                 fallback={
                                                     <Show when={publishing.length > 0}>
                                                         <Button
@@ -606,7 +693,7 @@ const ArtworkEdit = () => {
                     title="New ArtWork"
                     message={error}
                     type="error"
-                    onClose={() => setError(null)}
+                    onClose={() => setError(undefined)}
                 />
             </Show>
         </Box>

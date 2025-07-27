@@ -1,5 +1,6 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { Tooltip } from "@/components/ui/tooltip";
+import { encodeToBase64 } from "@/utils/Helpers";
 import { Box, Button, Grid, GridItem, Group, Icon, Image, Menu, Popover, Portal, Separator, Show, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
@@ -32,11 +33,13 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
     const navigate = useNavigate();
 
     const handleNavigateEditArtwork = (artwork: Artwork) => {
-        navigate(`/ArtWorks/${artwork.title}/Edit`, { state: { artwork } });
+        const encodedArtworkId = encodeToBase64(artwork.artworkId);
+        navigate(`/ArtWorks/${artwork.title}/${encodedArtworkId}/Edit`, { state: { artwork } });
     }
 
     const handleNavigateArtworkView = (artwork: Artwork) => {
-        navigate(`/ArtWorks/${artwork.title}/View`, { state: { artwork } });
+        const encodedArtworkId = encodeToBase64(artwork.artworkId);
+        navigate(`/ArtWorks/${artwork.title}/${encodedArtworkId}/View`, { state: { artwork } });
     }
 
     const handleClose = () => {

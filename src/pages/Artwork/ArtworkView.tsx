@@ -10,8 +10,6 @@ const ArtworkView = () => {
     const { artwork } = location.state || {};
     const [characters, setCharacters] = useState([]);
 
-    console.log(artwork)
-
     if (!artwork) {
         useEffect(() => {
             fetch("https://rickandmortyapi.com/api/character/")

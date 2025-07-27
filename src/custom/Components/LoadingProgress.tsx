@@ -5,7 +5,7 @@ const LoadingProgress = () => {
     const { colorMode } = useColorMode()
 
     return (
-        <Box w={"full"} display={"flex"} h={"full"} justifyContent={"center"} alignItems={"center"}>
+        <Box w="full" display={"flex"} h={"full"} justifyContent={"center"} alignItems={"center"} >
             <ProgressCircle.Root size={"xl"} value={null}>
                 <ProgressCircle.Circle>
                     <ProgressCircle.Track />

@@ -1,6 +1,7 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
 import { Box, Button, EmptyState, Flex, For, Grid, GridItem, Icon, IconButton, Image, Separator, Show, Stack, Text, VStack } from "@chakra-ui/react";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
 import { MdEmail, MdHideSource } from "react-icons/md";
@@ -16,6 +17,7 @@ import { useGetUserArtworks } from "@/services/Artwork/ArtworkService";
 import ArtworkItem from "@/custom/Components/ArtworkItem";
 import { useSubscription } from "@apollo/client";
 import { NEW_ARTWORK_SUBSCRIPTION } from "@/graphql/Artwork/ArtworkSubscription";
+import { ImUser } from "react-icons/im";
 
 interface Artwork {
     artworkId: number,
@@ -32,6 +34,8 @@ interface UserSocialNetwork {
     link: string
 }
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 const Profile = () => {
     const { colorMode } = useColorMode();
     const { user } = useAuth();
@@ -45,7 +49,7 @@ const Profile = () => {
     const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
     const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
     const { data, loading, error } = useSubscription(NEW_ARTWORK_SUBSCRIPTION);
-    
+
     const charsPerLine = 50;
     const maxLines = 2;
     const estimatedLines = user?.summary && user.summary !== '' ? Math.ceil(user?.summary.length / charsPerLine) : 0;
@@ -98,11 +102,11 @@ const Profile = () => {
     };
 
     return (
-        <Box w={"auto"} h={"auto"} mx={5}>
+        <Box w={"auto"} h={"auto"}>
             <Grid
                 templateColumns={isUserInfoVisible ? "1fr 4fr" : "1fr"}
                 w={"full"}
-                gap={10}
+                gap={5}
                 alignItems={"start"}
             >
                 <AnimatePresence>
@@ -125,32 +129,64 @@ const Profile = () => {
                                 maxW={"20vW"}
                             >
                                 <Box position="relative" width={"100%"}>
-                                    <IconButton
-                                        onClick={() => setIsUserInfoVisible(false)}
-                                        borderRadius="full"
-                                        colorScheme="black"
-                                        size="md"
-                                        bg={"transparent"}
-                                        color={colorMode === "light" ? "cyan.500" : "pink.500"}
-                                        position="absolute"
-                                        top="-20px"
-                                        left="-20px"
+                                    <Tooltip
+                                        content="Hide Profile"
+                                        openDelay={500}
+                                        closeDelay={100}
+                                        unmountOnExit={true}
+                                        lazyMount={true}
+                                        positioning={{ placement: 'top' }}
+                                        showArrow
+                                        contentProps={{
+                                            css: {
+                                                '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                'color': 'white',
+                                            },
+                                        }}
                                     >
-                                        <IoEyeOff />
-                                    </IconButton>
-                                    <IconButton
-                                        borderRadius="full"
-                                        colorScheme="black"
-                                        size="md"
-                                        bg={"transparent"}
-                                        color={colorMode === "light" ? "cyan.500" : "pink.500"}
-                                        position="absolute"
-                                        top="-20px"
-                                        right="-20px"
-                                        onClick={handleNavigateSettings}
+                                        <IconButton
+                                            onClick={() => setIsUserInfoVisible(false)}
+                                            borderRadius="full"
+                                            colorScheme="black"
+                                            size="md"
+                                            bg={"transparent"}
+                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                            position="absolute"
+                                            top="-20px"
+                                            left="-20px"
+                                        >
+                                            <IoEyeOff />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip
+                                        content="Edit Profile"
+                                        openDelay={500}
+                                        closeDelay={100}
+                                        unmountOnExit={true}
+                                        lazyMount={true}
+                                        positioning={{ placement: 'top' }}
+                                        showArrow
+                                        contentProps={{
+                                            css: {
+                                                '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                'color': 'white',
+                                            },
+                                        }}
                                     >
-                                        <FaUserEdit />
-                                    </IconButton>
+                                        <IconButton
+                                            borderRadius="full"
+                                            colorScheme="black"
+                                            size="md"
+                                            bg={"transparent"}
+                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                            position="absolute"
+                                            top="-20px"
+                                            right="-20px"
+                                            onClick={handleNavigateSettings}
+                                        >
+                                            <FaUserEdit />
+                                        </IconButton>
+                                    </Tooltip>
                                     <Stack>
                                         <Box
                                             w="100%"
@@ -158,13 +194,25 @@ const Profile = () => {
                                             justifyContent="center"
                                             alignItems="center"
                                         >
-                                            <Image
-                                                src="https://bit.ly/naruto-sage"
-                                                boxSize="175px"
-                                                borderRadius="full"
-                                                fit="cover"
-                                                alt="Naruto Uzumaki"
-                                            />
+                                            {user?.avatar ? (
+                                                <Image
+                                                    src={`${backendUrl}/avatars/${user.avatar}`}
+                                                    alt="Stored Image"
+                                                    boxSize="200px"
+                                                    borderRadius="full"
+                                                    fit="cover"
+                                                    cursor="pointer"
+                                                />
+                                            ) : (
+                                                <Icon
+                                                    as={ImUser}
+                                                    boxSize="200px"
+                                                    color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
+                                                    bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                                                    rounded={'full'}
+                                                    cursor="pointer"
+                                                />
+                                            )}
                                         </Box>
                                         <Box
                                             w="100%"
@@ -281,6 +329,7 @@ const Profile = () => {
                                 color={"white"}
                                 shadow={"lg"}
                                 onClick={handleNavigateNewArt}
+                                borderRadius={"md"}
                             >
                                 <FaPlusSquare /> New ArtWork
                             </Button>
@@ -291,6 +340,7 @@ const Profile = () => {
                             shadow={"lg"}
                             p={7}
                             w={"full"}
+                            overflowY={"clip"}
                         >
                             <Show 
                                 when={artworks && artworks.length > 0} 
@@ -333,22 +383,38 @@ const Profile = () => {
             </Grid>
             <Flex>
                 <Show when={!isUserInfoVisible}>
-                    <IconButton
-                        position="fixed"
-                        aria-label="Show Info"
-                        onClick={() => setIsUserInfoVisible(true)}
-                        size="lg"
-                        colorScheme="black"
-                        shadow="md"
-                        borderRadius="full"
-                        bg={colorMode === "light" ? "black" : "white"}
-                        color={colorMode === "light" ? "pink.500" : "cyan.500"}
-                        left="20px"
-                        bottom="75px"
-                        zIndex="tooltip"
+                    <Tooltip
+                        content="Unhide Profile"
+                        openDelay={500}
+                        closeDelay={100}
+                        unmountOnExit={true}
+                        lazyMount={true}
+                        positioning={{ placement: 'top-end' }}
+                        showArrow
+                        contentProps={{
+                            css: {
+                                '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                'color': 'white',
+                            },
+                        }}
                     >
-                        <IoEye />
-                    </IconButton>
+                        <IconButton
+                            position="fixed"
+                            aria-label="Show Info"
+                            onClick={() => setIsUserInfoVisible(true)}
+                            size="lg"
+                            colorScheme="black"
+                            shadow="md"
+                            borderRadius="full"
+                            bg={colorMode === "light" ? "black" : "white"}
+                            color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                            left="20px"
+                            bottom="75px"
+                            zIndex="tooltip"
+                        >
+                            <IoEye />
+                        </IconButton>
+                    </Tooltip>
                 </Show>
             </Flex>
         </Box>

@@ -15,7 +15,7 @@ const MainLayout = () => {
     return (
         <Box 
             h={"100dvh"}
-            w={"100vw"}
+            w={"100dvw"}
             bg={colorMode === "light" ? "gray.100" : "gray.950"}
             color={colorMode === "light" ? "black" : "white"}
             overflowY="auto"
@@ -25,7 +25,9 @@ const MainLayout = () => {
             <ThemeButton />
             {shouldShowButton && <ArtVerseButton />}
 
-            <Outlet />
+            <Box mt={5} mx={5} h={"90dvh"}>
+                <Outlet />
+            </Box>
         </Box>
     );
 };
