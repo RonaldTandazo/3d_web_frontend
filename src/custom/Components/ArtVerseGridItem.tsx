@@ -5,8 +5,8 @@ import Indicator3D from "../FloatingIcons/3dIndicator";
 import VideoIndicator from "../FloatingIcons/VideoIndicator";
 import { useNavigate } from "react-router-dom";
 import { encodeToBase64 } from "@/utils/Helpers";
-import { IoImageSharp } from "react-icons/io5";
 import { useColorMode } from "@/components/ui/color-mode";
+import { MdHideImage } from "react-icons/md";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -52,7 +52,7 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                             borderRadius={"sm"}
                         >
                             <Icon
-                                as={IoImageSharp}
+                                as={MdHideImage}
                                 cursor="pointer"
                                 size={"2xl"}
                             />

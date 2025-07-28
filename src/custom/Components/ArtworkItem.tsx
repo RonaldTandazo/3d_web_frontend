@@ -1,7 +1,7 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { Tooltip } from "@/components/ui/tooltip";
 import { encodeToBase64 } from "@/utils/Helpers";
-import { Box, Button, Flex, Grid, GridItem, Group, Icon, Image, Menu, Popover, Portal, Separator, Show, Text } from "@chakra-ui/react";
+import { Box, Button, Grid, GridItem, Group, Icon, Image, Menu, Popover, Portal, Separator, Show, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { BiSolidLike } from "react-icons/bi";
@@ -9,7 +9,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoEye } from "react-icons/io5";
 import { TiDelete } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
-import { IoImageSharp } from "react-icons/io5";
+import { MdHideImage } from "react-icons/md";
 
 interface Artwork {
     artworkId: number;
@@ -74,7 +74,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                     when={artwork.thumbnail}
                     fallback={
                         <Icon
-                            as={IoImageSharp}
+                            as={MdHideImage}
                             cursor="pointer"
                             size={"2xl"}
                         />
