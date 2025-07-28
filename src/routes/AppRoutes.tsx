@@ -15,7 +15,7 @@ import ProfileSettings from '@/pages/User/ProfileSettings';
 import ArtworkStore from '@/pages/Artwork/NewArtwork';
 import ArtworkEdit from '@/pages/Artwork/ArtworkEdit';
 import Viewer from '@/pages/Artwork/Viewer';
-import ProfileOwnerRoute from '@/utils/ProfileOwnerRoute';
+import OwnerRoute from '@/utils/OwnerRoute';
 
 const AppRoutes = () => {
     return (
@@ -36,7 +36,7 @@ const AppRoutes = () => {
                 </Route>
             </Route>
 
-            <Route element={<ProfileOwnerRoute />}>
+            <Route element={<OwnerRoute />}>
                 <Route element={<MainLayout />}>
                     <Route path="/ProfileSettings/:username" element={<ProfileSettings />} />
                     <Route path="/Artworks/:title/:artworkId/Edit" element={<ArtworkEdit />} />

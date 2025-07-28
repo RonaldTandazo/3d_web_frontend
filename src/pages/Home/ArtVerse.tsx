@@ -1,25 +1,25 @@
 import { Box } from '@chakra-ui/react';
 import ArtVerseGrid from '@/custom/Components/ArtVerseGrid';
 import { useEffect, useState } from 'react';
-import { useGetUserArtworks } from '@/services/Artwork/ArtworkService';
+import { useGetArtVerseArtworks } from '@/services/Artwork/ArtworkService';
 import LoadignScreen from '@/custom/Templates/LoadingScreen';
 
 const ArtVerse = () => {
   const [artworks, setArtworks] = useState([]);
 
-  const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
+  const { getArtVerseArtworks, data: artVerseArtworksData, loading: artVerseArtworksLoading } = useGetArtVerseArtworks();
 
   useEffect(() => {
-    getUserArtworks();
-}, []);
+    getArtVerseArtworks();
+  }, []);
 
   useEffect(() => {
-    if (userArtworksData && userArtworksData.getUserArtworks) {
-      setArtworks(userArtworksData.getUserArtworks)
+    if (artVerseArtworksData?.getArtVerseArtworks) {
+      setArtworks(artVerseArtworksData.getArtVerseArtworks)
     }
-  }, [userArtworksData]);
+  }, [artVerseArtworksData]);
 
-  if(userArtworksLoading) return <LoadignScreen/>
+  if(artVerseArtworksLoading) return <LoadignScreen/>
 
   return (
     <Box>

@@ -51,7 +51,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
         <GridItem 
             key={artwork.artworkId} 
             w="full" 
-            h="auto" 
+            h="full" 
             colSpan={1}
             overflow="hidden"
             borderRadius={"sm"}
@@ -62,6 +62,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                 w="full" 
                 h="auto" 
                 cursor={"pointer"}
+                objectFit="cover"
                 onClick={() => handleNavigateArtworkView(artwork)}
             />
             <Box 

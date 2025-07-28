@@ -84,7 +84,6 @@ const ProfileSettings = () => {
     const [activeTab, setActiveTab] = useState<string | null>("1");
     const [since, setSince] = useState<string | null>(null);
     const { colorMode } = useColorMode();
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
@@ -109,7 +108,6 @@ const ProfileSettings = () => {
             reader.onloadend = async () => {
                 const picture = reader.result?.toString() || '';
                 await storeUserPicture(picture)
-                setSelectedImage(picture);
             };
             reader.readAsDataURL(file);
         }
@@ -144,7 +142,7 @@ const ProfileSettings = () => {
     }, [activeTab]);
 
     useEffect(() => {
-        if (countries.length <= 0 && countryData && countryData.getCountries) {
+        if (countryData?.getCountries) {
             const formattedCountries = countryData.getCountries.map((country: any) => ({
                 value: country.countryId,
                 label: country.name,
@@ -154,7 +152,7 @@ const ProfileSettings = () => {
     }, [countryData]);
 
     useEffect(() => {
-        if (skillsData && skillsData.getSkillsData) {
+        if (skillsData?.getSkillsData) {
             const { categories, softwares, topics } = skillsData.getSkillsData;
 
             const formattedTopics = topics.map((topic: any) => ({
@@ -176,13 +174,37 @@ const ProfileSettings = () => {
             setSoftwares(formattedSoftwares);
         }
 
-        if(userSkillsData && userSkillsData.getUserSkillsData){
-            const { userCategories, userSoftwares, userTopics } = userSkillsData.getUserSkillsData;
+        if(userSkillsData?.getUserSkills){
+            const { userCategories, userSoftwares, userTopics } = userSkillsData.getUserSkills;
+            
+            if(userCategories && userCategories.length > 0){
+                setSelectedCategories(userCategories.map((item) => {
+                    return item.categoryId
+                }))
+            }
+
+            if(userSoftwares && userSoftwares.length > 0){
+                setSelectedSoftware(userSoftwares.map((item) => {
+                    return {
+                        value: item.softwareId,
+                        label: item.software
+                    }
+                }))
+            }
+
+            if(userTopics && userTopics.length > 0){
+                setSelectedTopic(userTopics.map((item) => {
+                    return {
+                        value: item.topicId,
+                        label: item.topic
+                    }
+                }))
+            }
         }
     }, [skillsData, userSkillsData]);
 
     useEffect(() => {
-        if (socialMedia.length <= 0 && socialMediaData && socialMediaData.getSocialMedia) {
+        if (socialMediaData?.getSocialMedia) {
             const formattedSocialMedia = socialMediaData.getSocialMedia.map((network: any) => ({
                 value: network.socialMediaId,
                 label: network.name,
@@ -190,13 +212,13 @@ const ProfileSettings = () => {
             setSocialMedia(formattedSocialMedia);
         }
 
-        if(userSocialMediaData && userSocialMediaData.getUserSocialMedia){
+        if(userSocialMediaData?.getUserSocialMedia){
             setUserSocialMedia(userSocialMediaData.getUserSocialMedia)
         }
     }, [socialMediaData, userSocialMediaData]);
 
     useEffect(() => {
-        if (user && user.since) {
+        if (user?.since) {
             const fecha = new Date(user.since);
             setSince(fecha.toLocaleDateString('en-US', opciones));
         } else {
@@ -313,6 +335,9 @@ const ProfileSettings = () => {
         }else if (userSkillsError?.message) {
             setShowAlert(true);
             setMessage({message: userSkillsError?.message, type:"error"});
+        }else if (storeUserSkillsError?.message) {
+            setShowAlert(true);
+            setMessage({message: storeUserSkillsError?.message, type:"error"});
         }else if(socialMediaError?.message){
             setShowAlert(true);
             setMessage({message: socialMediaError?.message, type:"error"});
@@ -326,7 +351,7 @@ const ProfileSettings = () => {
             setShowAlert(true);
             setMessage({message: passwordError?.message, type:"error"});
         }
-    }, [storeUserPictureError, profileError, countryError, skillsError, userSkillsError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
+    }, [storeUserPictureError, profileError, countryError, skillsError, userSkillsError, storeUserSkillsError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
 
     useEffect(() => {
         if(storeUserPictureData){
@@ -450,7 +475,7 @@ const ProfileSettings = () => {
             icon: <GrNodes />,
             content: (
                 <Show
-                    when={!skillsLoading}
+                    when={!skillsLoading && !userSkillsLoading}
                     fallback={
                         <LoadingProgress/>
                     }

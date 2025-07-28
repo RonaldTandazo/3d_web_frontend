@@ -1,6 +1,31 @@
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
 import { STORE_ARTWORK } from '@/graphql/Artwork/ArtworkMutations';
-import { GET_ARTWORK_DETAILS, GET_ARTWORK_FORM_DATA, GET_USER_ARTWORKS } from '@/graphql/Artwork/ArtworkQueries';
+import { GET_ARTVERSE_ARTWORKS, GET_USER_ARTWORKS, GET_ARTWORK_DETAILS, GET_ARTWORK_FORM_DATA } from '@/graphql/Artwork/ArtworkQueries';
+
+export const useGetArtVerseArtworks = () => {
+    const [getArtVerseArtworks, { loading, data, error }] = useLazyQuery(GET_ARTVERSE_ARTWORKS, {
+        fetchPolicy: 'cache-and-network'
+    })
+
+    const GetArtVerseArtworks = async () => {
+        try {
+            await getArtVerseArtworks({ 
+                context: { requireAuth: true }
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        getArtVerseArtworks: GetArtVerseArtworks,
+        data,
+        loading,
+        error,
+    };
+};
 
 export const useGetUserArtworks = () => {
     const [getUserArtworks, { loading, data, error }] = useLazyQuery(GET_USER_ARTWORKS, {

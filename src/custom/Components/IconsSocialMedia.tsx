@@ -2,6 +2,7 @@ import { Icon, Link } from "@chakra-ui/react";
 import { FaDiscord, FaFacebook, FaInstagram, FaLink, FaLinkedin, FaPinterest, FaReddit, FaSnapchat, FaTiktok, FaTumblr, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/tooltip"
 import { useColorMode } from "@/components/ui/color-mode";
+import { useState } from "react";
 
 interface UserSocialNetworkProps {
     socialNetwork: string;
@@ -11,6 +12,20 @@ interface UserSocialNetworkProps {
 
 const IconsSocialMedia = ({socialNetwork, link, size}: UserSocialNetworkProps) => {
     const { colorMode } = useColorMode()
+    const prefixes = ['http://', 'https://'];
+    let finalLink = String(link || '');
+    let linkHasPrefix = false;
+
+    for (const prefix of prefixes) {
+        if (finalLink.toLowerCase().startsWith(prefix)) {
+            linkHasPrefix = true;
+            break;
+        }
+    }
+
+    if (!linkHasPrefix && finalLink !== '') {
+        finalLink = 'https://' + finalLink;
+    }
 
     const getSocialNetworkIcon = (socialNetwork: string) => {
         switch (socialNetwork.toLowerCase()) {
@@ -61,7 +76,7 @@ const IconsSocialMedia = ({socialNetwork, link, size}: UserSocialNetworkProps) =
                 }
             }}
         >    
-            <Link href={link} target="_blank" rel="noopener noreferrer" borderRadius={"full"}>
+            <Link href={finalLink} target="_blank" rel="noopener noreferrer" borderRadius={"full"}>
                 <Icon size={size} color={colorMode === "light" ? "cyan.500":"pink.500"}>
                     {icono}
                 </Icon>

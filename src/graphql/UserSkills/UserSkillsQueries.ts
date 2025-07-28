@@ -25,14 +25,17 @@ export const GET_USER_SKILLS = gql`
             userCategories{
                 userId
                 categoryId
+                category
             }
             userTopics{
                 userId
                 topicId
+                topic
             }
             userSoftwares{
                 userId
                 softwareId
+                software
             }
         }
     }

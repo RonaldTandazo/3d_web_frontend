@@ -1,5 +1,32 @@
 import { gql } from '@apollo/client';
 
+export const GET_ARTVERSE_ARTWORKS = gql`    
+    query GetArtVerseArtworks{ 
+        getArtVerseArtworks{
+            artworkId
+            title
+            thumbnail
+            publishingId
+            owner
+            avatar
+            createdAt
+        }
+    }
+`;
+
+export const GET_USER_ARTWORKS = gql`    
+    query GetUserArtworks{ 
+        getUserArtworks{
+            artworkId
+            title
+            thumbnail
+            publishingId
+            owner
+            createdAt
+        }
+    }
+`;
+
 export const GET_ARTWORK_FORM_DATA = gql`    
     query GetArtworkFormData{ 
         getArtworkFormData{
@@ -19,19 +46,6 @@ export const GET_ARTWORK_FORM_DATA = gql`
                 softwareId
                 name
             }
-        }
-    }
-`;
-
-export const GET_USER_ARTWORKS = gql`    
-    query GetUserArtworks{ 
-        getUserArtworks{
-            artworkId
-            title
-            thumbnail
-            publishingId
-            owner
-            createdAt
         }
     }
 `;

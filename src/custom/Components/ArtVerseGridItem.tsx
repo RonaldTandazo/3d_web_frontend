@@ -84,7 +84,7 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                         >
                             <Avatar.Root key={"subtle"} variant={"subtle"}>
                                 <Avatar.Fallback name={artwork.owner} />
-                                <Avatar.Image src={artwork.avatar} />
+                                <Avatar.Image src={`${backendUrl}/avatars/${artwork.avatar}`} />
                             </Avatar.Root>
                         </GridItem>
                         <GridItem 
