@@ -1,7 +1,7 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { Tooltip } from "@/components/ui/tooltip";
 import { encodeToBase64 } from "@/utils/Helpers";
-import { Box, Button, Grid, GridItem, Group, Icon, Image, Menu, Popover, Portal, Separator, Show, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, GridItem, Group, Icon, Image, Menu, Popover, Portal, Separator, Show, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { BiSolidLike } from "react-icons/bi";
@@ -9,14 +9,15 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoEye } from "react-icons/io5";
 import { TiDelete } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
+import { IoImageSharp } from "react-icons/io5";
 
 interface Artwork {
-    artworkId: number,
-    title: string,
-    thumbnail: string
-    publishingId: number,
-    owner: string,
-    createdAt: string
+    artworkId: number;
+    title: string;
+    thumbnail: string | null;
+    publishingId: number;
+    owner: string;
+    createdAt: string;
 }
 
 interface ArtworkMenuItemProps {
@@ -55,16 +56,38 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
             colSpan={1}
             overflow="hidden"
             borderRadius={"sm"}
+            display="flex"
+            flexDirection="column"
         >
-            <Image 
-                src={`${backendUrl}/thumbnails/${artwork.thumbnail}`} 
-                alt={`${artwork.title}`} 
-                w="full" 
-                h="auto" 
+            <Box
+                w={"full"}
+                h={"full"}
                 cursor={"pointer"}
-                objectFit="cover"
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"center"}
+                bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                color={'whiteAlpha.950'}
                 onClick={() => handleNavigateArtworkView(artwork)}
-            />
+            >
+                <Show
+                    when={artwork.thumbnail}
+                    fallback={
+                        <Icon
+                            as={IoImageSharp}
+                            cursor="pointer"
+                            size={"2xl"}
+                        />
+                    }
+                >
+                    <Image
+                        src={`${backendUrl}/thumbnails/${artwork.thumbnail}`} 
+                        alt={`${artwork.title}`} 
+                        cursor={"pointer"}
+                        objectFit="cover"
+                    />
+                </Show>
+            </Box>
             <Box 
                 p={2} 
                 bg={colorMode === "light" ? "blackAlpha.300":"blackAlpha.950"}

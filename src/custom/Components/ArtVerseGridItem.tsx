@@ -1,16 +1,19 @@
-import { GridItem, Box, Image, Text, Grid, Avatar } from "@chakra-ui/react";
+import { GridItem, Box, Image, Text, Grid, Avatar, Show, Icon } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Indicator3D from "../FloatingIcons/3dIndicator";
 import VideoIndicator from "../FloatingIcons/VideoIndicator";
 import { useNavigate } from "react-router-dom";
 import { encodeToBase64 } from "@/utils/Helpers";
+import { IoImageSharp } from "react-icons/io5";
+import { useColorMode } from "@/components/ui/color-mode";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
 
 const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const { colorMode }  = useColorMode();
     const navigate = useNavigate();
 
     const handleNavigate = (artwork: any) => {
@@ -35,15 +38,37 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                 w="full" 
                 h="full"
             >
-                <Image
-                    src={`${backendUrl}/thumbnails/${artwork.thumbnail}`}
-                    alt={artwork.title}
-                    w="100%"
-                    h="100%"
-                    objectFit="cover"
-                    aspectRatio={1}
-                    borderRadius={"sm"}
-                />
+                <Show
+                    when={artwork.thumbnail}
+                    fallback={
+                        <Box
+                            w={"full"}
+                            h={"full"}
+                            display={"flex"}
+                            alignItems={"center"}
+                            justifyContent={"center"}
+                            bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                            color={'whiteAlpha.950'}
+                            borderRadius={"sm"}
+                        >
+                            <Icon
+                                as={IoImageSharp}
+                                cursor="pointer"
+                                size={"2xl"}
+                            />
+                        </Box>
+                    }
+                >
+                    <Image
+                        src={`${backendUrl}/thumbnails/${artwork.thumbnail}`}
+                        alt={artwork.title}
+                        w="100%"
+                        h="100%"
+                        objectFit="cover"
+                        aspectRatio={1}
+                        borderRadius={"sm"}
+                    />
+                </Show>
 
                 <MotionBox
                     position="absolute"
