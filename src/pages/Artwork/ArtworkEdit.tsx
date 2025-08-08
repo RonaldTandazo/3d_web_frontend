@@ -155,8 +155,6 @@ const ArtworkEdit = () => {
         }
     }, [storeArtworkError]);
 
-    if (formDataLoading || artworkDetailsLoading) return <LoadingProgress />
-
     const handleNavigate = () => {
         if(user){
             navigate(`/Profile/${user.username}`)
