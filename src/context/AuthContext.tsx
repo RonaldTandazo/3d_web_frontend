@@ -1,7 +1,9 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useLogin, useSignUp } from '../services/Authentication/AuthenticationService';
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { useLogin, useSignUp, useRefreshToken, useRevokeToken } from '../services/Authentication/AuthenticationService';
 import { useNavigate } from 'react-router-dom';
 import { ApolloError } from '@apollo/client';
+import { set } from 'react-hook-form';
+import { setAuthCallbacks } from '@/utils/ApolloClient';
 
 interface User {
     userId: number
@@ -22,7 +24,7 @@ interface User {
 interface AuthContextType {
     isAuthenticated: boolean;
     signup: (firstName: string, lastName: string, email: string, username: string, password: string) => Promise<void>;
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string, rememberMe: boolean) => Promise<void>;
     logout: () => void;
     updateUser: (newUser: User) => void;
     token: string | null;
@@ -37,40 +39,122 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refreshToken'));
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<null | ApolloError>(null);
-    const { login: loginUser, data: signInData, error: signInError} = useLogin();
     const { signUp: SignUp, data: singUpData, error: signUpError } = useSignUp();
+    const { login: loginUser, data: signInData, error: signInError} = useLogin();
+    const { refreshToken: refreshTokenProcess } = useRefreshToken();
+    const { revokeToken: RevokeToken } = useRevokeToken();
+    const didMountRef = useRef(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
-    
-        if (storedUser && storedToken) {
-            if (!isTokenExpired(storedToken)) {
-                setUser(JSON.parse(storedUser));
-                setToken(storedToken);
-                setIsAuthenticated(true);
-            } else {
+    const getAccessTokenRef = useRef(() => accessToken);
+    const getRefreshTokenRef = useRef(() => refreshToken);
+    const performLogoutRef = useRef(() => logout());
+
+    const callRefreshTokenRef = useRef(async (token: string) => {
+        try {
+            const { data } = await refreshTokenProcess(token);
+            if (data && data.refreshToken) {
+                setAccessToken(data.refreshToken.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken.refreshToken);
+                setRefreshToken(data.refreshToken.refreshToken);
+                return data.refreshToken;
+            }
+            return null;
+        } catch (err) {
+            console.error("Error al refrescar el token:", err);
+            throw err;
+        }
+    });
+
+    const logout = async (token = refreshToken) => {
+        if(token){
+            setLoading(true)
+            try {
+                await RevokeToken(token);
+            } catch (error) {
+                console.error("Sign In Error:", error);
+            }finally{
                 localStorage.removeItem("user");
-                localStorage.removeItem("token");
+                localStorage.removeItem("refreshToken");
+                
+                setUser(null);
+                setAccessToken(null);
+                setRefreshToken(null);
+                setIsAuthenticated(false);
+
+                setLoading(false);
+                navigate('/signin');
             }
         }
+    };
 
-        setLoading(false);
-    }, []);
+    useEffect(() => {
+        getAccessTokenRef.current = () => accessToken;
+        getRefreshTokenRef.current = () => refreshToken;
+        performLogoutRef.current = () => logout();
+
+        setAuthCallbacks(
+            getAccessTokenRef.current,
+            getRefreshTokenRef.current,
+            callRefreshTokenRef.current,
+            performLogoutRef.current
+        );
+    }, [accessToken, refreshToken, logout, callRefreshTokenRef]);
+
+    useEffect(() => {
+        if (didMountRef.current) {
+            return;
+        }
+        didMountRef.current = true;
+
+        getAccessTokenRef.current = () => accessToken;
+        getRefreshTokenRef.current = () => refreshToken;
+        performLogoutRef.current = () => logout();
+
+        const storedUser = localStorage.getItem("user");
+        const storedRefreshToken = localStorage.getItem("refreshToken");
+
+        if (storedUser && storedRefreshToken) {
+            const tryRefreshOnLoad = async () => {
+                try {
+                    if (isTokenExpired(storedRefreshToken)) {
+                        logout(storedRefreshToken);
+                    } else {
+                        const newTokens = await callRefreshTokenRef.current(storedRefreshToken);
+                        if (newTokens) {
+                            setAccessToken(newTokens.accessToken);
+                            setUser(JSON.parse(storedUser));
+                            setIsAuthenticated(true);
+                        } else {
+                            logout();
+                        }
+                    }
+                } catch (err) {
+                    logout(storedRefreshToken);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            tryRefreshOnLoad();
+        } else {
+            setLoading(false);
+        }
+    }, []); 
 
     useEffect(() => {
         if (signInData && signInData.login) {
             try {
                 const decodedToken = decodeToken(signInData.login.accessToken);
 
-                localStorage.setItem('token', signInData.login.accessToken);
+                localStorage.setItem('refreshToken', signInData.login.refreshToken);
                 localStorage.setItem('user', JSON.stringify(decodedToken));
+                setRefreshToken(signInData.login.refreshToken);
+                setAccessToken(signInData.login.accessToken);
 
-                setToken(signInData.login.accessToken);
                 setUser(decodedToken);
                 setIsAuthenticated(true);
                 navigate('/');
@@ -83,6 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (singUpData && singUpData.registerUser) {
             navigate('/signin');
+            setIsAuthenticated(true)
         }
     }, [singUpData]);
 
@@ -98,11 +183,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [signInError]);
 
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string, rememberMe: boolean) => {
         try {
             clearError()
             setLoading(true);
-            await loginUser(username, password);
+            await loginUser(username, password, rememberMe);
         } catch (error) {
             console.error("Sign In Error:", error);
         } finally {          
@@ -122,15 +207,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        
-        setUser(null);
-        setToken(null);
-        setIsAuthenticated(false);
-    };
-
     const updateUser = (newUser: User) => {
         localStorage.setItem('user', JSON.stringify(newUser));
         setUser(newUser);
@@ -141,7 +217,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, signup, login, logout, token, user, loading, error: errorMessage, clearError, updateUser }}>
+        <AuthContext.Provider value={{ isAuthenticated, signup, login, logout, token: accessToken, user, loading, error: errorMessage, clearError, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,23 +1,33 @@
 import { useColorMode } from "@/components/ui/color-mode";
+import { useAuth } from "@/context/AuthContext";
 import ArtVerseButton from "@/custom/FloatingButtons/ArtVerseButton";
 import ThemeButton from "@/custom/FloatingButtons/ThemeButton";
-import { Box } from "@chakra-ui/react";
+import LoadingScreen from "@/custom/Templates/LoadingScreen";
+import { Box, Show } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
+    const { loading } = useAuth();
     const { colorMode } = useColorMode();
 
     return (
-        <Box 
-            h={"100dvh"}
-            w={"100vw"}
-            bg={colorMode === "light" ? "gray.100" : "gray.950"}
+        <Show
+            when={!loading}
+            fallback={
+                <LoadingScreen />
+            }
         >
-            <ThemeButton />
-            <ArtVerseButton />
+            <Box 
+                h={"100dvh"}
+                w={"100dvw"}
+                bg={colorMode === "light" ? "gray.100" : "gray.950"}
+            >
+                <ThemeButton />
+                <ArtVerseButton />
 
-            <Outlet />
-        </Box>
+                <Outlet />
+            </Box>
+        </Show>
     );
 };
 

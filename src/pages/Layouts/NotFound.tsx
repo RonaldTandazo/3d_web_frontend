@@ -8,7 +8,8 @@ const NotFoundPage = () => {
 
     return (
         <Box 
-            minH="100vh" 
+            minH="100dvh"
+            minW="100dvw"
             display="flex" 
             flexDirection="column" 
             alignItems="center" 
@@ -16,6 +17,7 @@ const NotFoundPage = () => {
             textAlign="center"
             p={10}
             color={colorMode == 'light' ? 'cyan.500':'pink.500'}
+            bg={colorMode === "light" ? "gray.100" : "gray.950"}
         >
             <Heading fontSize="6xl">404</Heading>
             <Text fontSize="xl" mt={4}>Oops...Page Not Found. It looks like you’re lost!</Text>

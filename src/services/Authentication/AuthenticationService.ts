@@ -1,30 +1,6 @@
 import { ApolloError, useLazyQuery, useMutation } from '@apollo/client';
-import { SIGNIN_MUTATION, SIGNUP_MUTATION} from '@/graphql/Authentication/AuthenticationMutations';
+import { REFRESH_TOKEN_MUTATION, REVOKE_TOKEN_MUTATION, SIGNIN_MUTATION, SIGNUP_MUTATION} from '@/graphql/Authentication/AuthenticationMutations';
 import { VALIDATE_USER_ACCESS } from '@/graphql/Authentication/AuthenticationQueries';
-
-export const useLogin = () => {
-    const [loginMutation, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
-
-    const login = async (username: string, password: string) => {
-        try {
-            await loginMutation({ 
-                variables: { username, password },
-                context: { requireAuth: false }
-            });
-        } catch (err) {
-            if (err instanceof ApolloError) {
-                console.error(err.message);
-            }
-        }
-    };
-
-    return {
-        login,
-        data,
-        loading,
-        error,
-    };
-};
 
 export const useSignUp = () => {
     const [signUpMutation, { loading, data, error }] = useMutation(SIGNUP_MUTATION);
@@ -48,6 +24,77 @@ export const useSignUp = () => {
         data,
         loading,
         error,
+    };
+};
+
+export const useLogin = () => {
+    const [loginMutation, { data, loading, error }] = useMutation(SIGNIN_MUTATION);
+
+    const login = async (username: string, password: string, rememberMe: boolean) => {
+        try {
+            await loginMutation({ 
+                variables: { username, password, rememberMe },
+                context: { requireAuth: false }
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        login,
+        data,
+        loading,
+        error,
+    };
+};
+
+export const useRefreshToken = () => {
+    const [refreshTokenMutation, { data, loading, error }] = useMutation(REFRESH_TOKEN_MUTATION);
+
+    const refreshToken = async (token: string) => {
+        try {
+            const response = await refreshTokenMutation({ 
+                variables: { refreshToken: token } 
+            });
+            return response;
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        refreshToken, 
+        data, 
+        loading, 
+        error
+    };
+};
+
+export const useRevokeToken = () => {
+    const [revokeTokenMutation, { data, loading, error }] = useMutation(REVOKE_TOKEN_MUTATION);
+
+    const revokeToken = async (token: string) => {
+        try {
+            await revokeTokenMutation({ 
+                variables: { refreshToken: token } 
+            });
+        } catch (err) {
+            if (err instanceof ApolloError) {
+                console.error(err.message);
+            }
+        }
+    };
+
+    return {
+        revokeToken,
+        data, 
+        loading, 
+        error
     };
 };
 

@@ -1,8 +1,8 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Show } from '@chakra-ui/react';
 import ArtVerseGrid from '@/custom/Components/ArtVerseGrid';
 import { useEffect, useState } from 'react';
 import { useGetArtVerseArtworks } from '@/services/Artwork/ArtworkService';
-import LoadignScreen from '@/custom/Templates/LoadingScreen';
+import LoadingProgress from '@/custom/Components/LoadingProgress';
 
 const ArtVerse = () => {
   const [artworks, setArtworks] = useState([]);
@@ -19,12 +19,17 @@ const ArtVerse = () => {
     }
   }, [artVerseArtworksData]);
 
-  if(artVerseArtworksLoading) return <LoadignScreen/>
-
   return (
-    <Box>
-      <ArtVerseGrid artworks={artworks}/>
-    </Box>
+    <Show
+      when={!artVerseArtworksLoading}
+      fallback={
+        <LoadingProgress />
+      }
+    >
+      <Box>
+        <ArtVerseGrid artworks={artworks}/>
+      </Box>
+    </Show>
   );
 };
 

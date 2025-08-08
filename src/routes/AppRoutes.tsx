@@ -7,7 +7,7 @@ import SignUp from '@/pages/Authentication/SignUp';
 import PrivateRoute from '../utils/PrivateRoute';
 import MainLayout from '@/pages/Layouts/MainLayout';
 import AuthLayout from '@/pages/Layouts/AuthLayout';
-import LoadignScreen from '@/custom/Templates/LoadingScreen';
+import LoadingScreen from '@/custom/Templates/LoadingScreen';
 import NotFoundPage from '@/pages/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
 import Profile from '@/pages/User/Profile';
@@ -47,10 +47,10 @@ const AppRoutes = () => {
             <Route element={<AuthLayout />}>
                 <Route path="/SignIn" element={<SignIn />} />
                 <Route path="/SignUp" element={<SignUp />} />
-                <Route path="/Loading" element={<LoadignScreen />} />
-                <Route path="/NotFound" element={<NotFoundPage />} />
             </Route>
 
+            <Route path="/Loading" element={<LoadingScreen />} />
+            <Route path="/NotFound" element={<NotFoundPage />} />
             <Route path="*" element={<RedirectToNotFound />} />
         </Routes>
     );

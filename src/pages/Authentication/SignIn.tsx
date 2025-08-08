@@ -1,17 +1,17 @@
-import { Flex, Card, Button, Field, Input, Stack } from "@chakra-ui/react";
+import { Flex, Card, Button, Field, Input, Stack, Checkbox } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiLogIn } from "react-icons/bi";
 import { useColorMode } from "@/components/ui/color-mode";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
-import LoadignScreen from "@/custom/Templates/LoadingScreen";
 
 interface FormValues {
     username: string;
     password: string;
+    rememberMe: boolean;
 }
 
 const SignIn = () => {
@@ -19,7 +19,6 @@ const SignIn = () => {
     const { colorMode } = useColorMode();
     const [showAlert, setShowAlert] = useState(false);
     const navigate = useNavigate();
-
     
     useEffect(() => {
         if (isAuthenticated) {
@@ -37,10 +36,15 @@ const SignIn = () => {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormValues>();
+        control
+    } = useForm<FormValues>({
+        defaultValues: {
+            rememberMe: false
+        }
+    });
 
-    const onSubmit = handleSubmit(async (data: any) => {
-        await login(data.username, data.password);
+    const onSubmit = handleSubmit(async (data: FormValues) => {
+        await login(data.username, data.password, data.rememberMe);
     });
 
     return (
@@ -76,17 +80,40 @@ const SignIn = () => {
                                 <PasswordInput {...register("password", { required: "Password is required" })} />
                                 <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
                             </Field.Root>
-
-                            <Button 
-                                type="submit" 
-                                alignSelf={"flex-end"} 
-                                bg={"cyan.600"} 
-                                color={"white"}
-                                loading={loading}
-                                disabled={loading}
+                            
+                            <Stack
+                                w={"full"}
+                                direction={"row"} 
+                                justifyContent={"space-between"}
+                                alignItems={"center"}
                             >
-                                <BiLogIn />Sign In
-                            </Button>
+                                <Controller
+                                    control={control}
+                                    name="rememberMe"
+                                    render={({ field }) => (
+                                        <Field.Root>
+                                            <Checkbox.Root
+                                                checked={field.value}
+                                                onCheckedChange={({ checked }) => field.onChange(checked)}
+                                            >
+                                                <Checkbox.HiddenInput />
+                                                <Checkbox.Control />
+                                                <Checkbox.Label>Keep Sign In</Checkbox.Label>
+                                            </Checkbox.Root>
+                                        </Field.Root>
+                                    )}
+                                />
+
+                                <Button 
+                                    type="submit" 
+                                    bg={"cyan.600"} 
+                                    color={"white"}
+                                    loading={loading}
+                                    disabled={loading}
+                                >
+                                    <BiLogIn />Sign In
+                                </Button>
+                            </Stack>
                         </Stack>
                     </form>
                 </Card.Body>

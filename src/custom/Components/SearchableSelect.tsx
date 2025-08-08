@@ -1,5 +1,5 @@
 import { useColorMode } from "@/components/ui/color-mode";
-import { Select, Input, Box, Portal } from "@chakra-ui/react";
+import { Select, Input, Box, Portal, Show } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 
 const SearchableSelect = ({ disabled=false, placeholder = "Select Options", options, field, multiple = false, defaultValue, ...rest }: any) => {
@@ -95,7 +95,13 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
             <Select.Control>
                 <Select.Trigger onClick={() => {setIsOpen(true)}} bg={"transparent"} border={"solid thin"} borderColor={colorMode === "light" ? "gray.200" : "whiteAlpha.300"} rounded={"sm"}>
                     <Select.ValueText>
-                        {selectedOptions ?  selectedOptions:placeholder}
+                        {/* {selectedOptions ?  selectedOptions:placeholder} */}
+                        <Show
+                            when={selectedOptions}
+                            fallback={placeholder}
+                        >
+                            {selectedOptions}
+                        </Show>
                     </Select.ValueText>
                 </Select.Trigger>
                 <Select.IndicatorGroup>
@@ -105,8 +111,8 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
             </Select.Control>
             <Portal>
                 <Select.Positioner>
-                    <Select.Content ref={ref} display={isOpen ? "block":(multiple ? "block":"none")}>
-                        <Box p={2}>
+                    <Select.Content ref={ref} display={isOpen ? "block":(multiple ? "block":"none")} position={"relative"}>
+                        <Box p={2} position="sticky" top="0" zIndex="sticky" bg={colorMode == 'light' ? "white":"gray.950"}>
                             <Input
                                 placeholder="Search..."
                                 value={searchTerm}

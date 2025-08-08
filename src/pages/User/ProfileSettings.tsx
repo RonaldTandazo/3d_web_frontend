@@ -391,83 +391,92 @@ const ProfileSettings = () => {
             index: "1",
             title: "Profile Information",
             icon: <ImProfile />,
-            content: (countryData ? (
-                <Stack p={7}>
-                    <Box w={"full"}>
-                        <Box w={"full"} mb={3}>
-                            <Heading size="3xl">Profile Information</Heading>
+            content: (
+                <Show
+                    when={!countryLoading}
+                    fallback={
+                        <LoadingProgress />
+                    }
+                >
+                    <Stack p={7}>
+                        <Box w={"full"}>
+                            <Box w={"full"} mb={3}>
+                                <Heading size="3xl">Profile Information</Heading>
+                            </Box>
+                            <Box w={"full"} mb={10}>
+                                <Heading size="lg">Fill in your basic information</Heading>
+                            </Box>
                         </Box>
-                        <Box w={"full"} mb={10}>
-                            <Heading size="lg">Fill in your basic information</Heading>
-                        </Box>
-                    </Box>
-                    <form onSubmit={onSubmitProfile}>
-                        <Stack gap={5}>
-                            <Flex direction={"row"} gap={5}>
-                                <Field.Root invalid={!!errorsProfile.firstName}>
-                                    <Field.Label>First Name</Field.Label>
-                                    <Input {...registerProfile("firstName", { required: "First Name is required" })} defaultValue={user?.firstName ?? undefined}/>
-                                    <Field.ErrorText>{errorsProfile.firstName?.message}</Field.ErrorText>
-                                </Field.Root>
-                                <Field.Root invalid={!!errorsProfile.lastName}>
-                                    <Field.Label>Last Name</Field.Label>
-                                    <Input {...registerProfile("lastName", { required: "Last Name is required" })} defaultValue={user?.lastName ?? undefined}/>
-                                    <Field.ErrorText>{errorsProfile.lastName?.message}</Field.ErrorText>
-                                </Field.Root>
-                            </Flex>
+                        <form onSubmit={onSubmitProfile}>
+                            <Stack gap={5}>
+                                <Flex direction={"row"} gap={5}>
+                                    <Field.Root invalid={!!errorsProfile.firstName}>
+                                        <Field.Label>First Name</Field.Label>
+                                        <Input {...registerProfile("firstName", { required: "First Name is required" })} defaultValue={user?.firstName ?? undefined}/>
+                                        <Field.ErrorText>{errorsProfile.firstName?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                    <Field.Root invalid={!!errorsProfile.lastName}>
+                                        <Field.Label>Last Name</Field.Label>
+                                        <Input {...registerProfile("lastName", { required: "Last Name is required" })} defaultValue={user?.lastName ?? undefined}/>
+                                        <Field.ErrorText>{errorsProfile.lastName?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                </Flex>
 
-                            <Flex direction={"row"}>
-                                <Field.Root invalid={!!errorsProfile.professionalHeadline}>
-                                    <Field.Label>Professional Headline</Field.Label>
-                                    <Input {...registerProfile("professionalHeadline", { required: "Professional Headline is required" })} defaultValue={user?.professionalHeadline ?? undefined}/>
-                                    <Field.ErrorText>{errorsProfile.professionalHeadline?.message}</Field.ErrorText>
-                                </Field.Root>
-                            </Flex>
+                                <Flex direction={"row"}>
+                                    <Field.Root invalid={!!errorsProfile.professionalHeadline}>
+                                        <Field.Label>Professional Headline</Field.Label>
+                                        <Input {...registerProfile("professionalHeadline", { required: "Professional Headline is required" })} defaultValue={user?.professionalHeadline ?? undefined}/>
+                                        <Field.ErrorText>{errorsProfile.professionalHeadline?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                </Flex>
 
-                            <Flex direction={"row"}>
-                                <Field.Root invalid={!!errorsProfile.summary}>
-                                    <Field.Label>Summary</Field.Label>
-                                    <Textarea {...registerProfile("summary")} defaultValue={user?.summary ?? undefined} h={"3lh"}/>
-                                    <Field.ErrorText>{errorsProfile.summary?.message}</Field.ErrorText>
-                                </Field.Root>
-                            </Flex>
+                                <Flex direction={"row"}>
+                                    <Field.Root invalid={!!errorsProfile.summary}>
+                                        <Field.Label>Summary</Field.Label>
+                                        <Textarea {...registerProfile("summary")} defaultValue={user?.summary ?? undefined} h={"3lh"}/>
+                                        <Field.ErrorText>{errorsProfile.summary?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                </Flex>
 
-                            <Flex direction={"row"} gap={5}>
-                                <Field.Root invalid={!!errorsProfile.countryId}>
-                                    <Field.Label>Country</Field.Label>
-                                    <Controller
-                                        control={profileControl}
-                                        name="countryId"
-                                        rules={{ required: "Country is required" }}
-                                        render={({ field }) => (
-                                            <SearchableSelect disabled={countryLoading} placeholder={"Select your Country"} options={countries} field={field} multiple={false} defaultValue={user?.countryId ?? null}/>
-                                        )}
-                                    />
-                                    <Field.ErrorText>{errorsProfile.countryId?.message}</Field.ErrorText>
-                                </Field.Root>
-                                <Field.Root invalid={!!errorsProfile.city}>
-                                    <Field.Label>City</Field.Label>
-                                    <Input {...registerProfile("city", { required: "City is required" })} defaultValue={user?.city ?? undefined}/>
-                                    <Field.ErrorText>{errorsProfile.city?.message}</Field.ErrorText>
-                                </Field.Root>
-                            </Flex>
+                                <Show
+                                    when={countryData}
+                                >
+                                    <Flex direction={"row"} gap={5}>
+                                        <Field.Root invalid={!!errorsProfile.countryId}>
+                                            <Field.Label>Country</Field.Label>
+                                            <Controller
+                                                control={profileControl}
+                                                name="countryId"
+                                                // rules={{ required: "Country is required" }}
+                                                render={({ field }) => (
+                                                    <SearchableSelect disabled={countryLoading} placeholder={"Select your Country"} options={countries} field={field} multiple={false} defaultValue={user?.countryId ?? null}/>
+                                                )}
+                                            />
+                                            <Field.ErrorText>{errorsProfile.countryId?.message}</Field.ErrorText>
+                                        </Field.Root>
+                                        <Field.Root invalid={!!errorsProfile.city}>
+                                            <Field.Label>City</Field.Label>
+                                            <Input {...registerProfile("city"/*, { required: "City is required" }*/)} defaultValue={user?.city ?? undefined}/>
+                                            <Field.ErrorText>{errorsProfile.city?.message}</Field.ErrorText>
+                                        </Field.Root>
+                                    </Flex>
+                                </Show>
 
-                            <Button 
-                                type="submit" 
-                                alignSelf={"flex-end"} 
-                                bg={"cyan.600"} 
-                                color={"white"}
-                                loading={profileLoading}
-                                disabled={profileLoading}
-                            >
-                                <IoIosSave />Save
-                            </Button>
-                        </Stack>
-                    </form>
-                </Stack>
-            ):(
-                <LoadingProgress/>
-            ))
+                                <Button 
+                                    type="submit" 
+                                    alignSelf={"flex-end"} 
+                                    bg={"cyan.600"} 
+                                    color={"white"}
+                                    loading={profileLoading}
+                                    disabled={profileLoading}
+                                >
+                                    <IoIosSave />Save
+                                </Button>
+                            </Stack>
+                        </form>
+                    </Stack>
+                </Show>
+            )
         },
         {
             index: "2",
@@ -642,78 +651,92 @@ const ProfileSettings = () => {
             index: "3",
             title: "Social Media",
             icon: <PiShareNetworkFill />,
-            content: (socialMediaData && userSocialMediaData ? (
-                <Stack p={7}>
-                    <Box w={"full"}>
-                        <Box w={"full"} mb={3}>
-                            <Heading size="3xl">Social Media</Heading>
-                        </Box>
-                        <Box w={"full"} mb={10}>
-                            <Heading size="lg">Share your Contact & Social Media links</Heading>
-                        </Box>
-                    </Box>
-                    <form onSubmit={onSubmitSocialMedia}>
-                        <Stack gap={5}>
-                            <Flex direction={"row"} gap={5} w={"full"} alignItems={"center"}>
-                                <Field.Root invalid={!!errorsSocialeMedia.socialMediaId} w={"15vw"}>
-                                    <Field.Label>Social Network</Field.Label>
-                                    <Controller
-                                        control={socialMediaControl}
-                                        name="socialMediaId"
-                                        rules={{ required: "Social Network is required" }}
-                                        render={({ field }) => (
-                                            <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false} defaultValue={null}/>
-                                        )}
-                                    />
-                                    <Field.ErrorText>{errorsSocialeMedia.socialMediaId?.message}</Field.ErrorText>
-                                </Field.Root>
-                                <Field.Root invalid={!!errorsSocialeMedia.link}>
-                                    <Field.Label>Link</Field.Label>
-                                    <Input {...registerSocialMedia("link", { required: "Link is required" })}/>
-                                    <Field.ErrorText>{errorsSocialeMedia.link?.message}</Field.ErrorText>
-                                </Field.Root>
-                            </Flex>
-                            
-                            <Button
-                                type="submit" 
-                                alignSelf={"flex-end"} 
-                                bg={"cyan.600"} 
-                                color={"white"}
-                                loading={storeUserNetworkLoading}
-                                disabled={storeUserNetworkLoading}
-                            >
-                                <IoIosSave />Save
-                            </Button>
-
-                            <Box w={"full"} display={userSocialMediaLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading  ? "center":"start"}>
-                                {userSocialMediaLoading || storeUserNetworkLoading ? (
-                                    <LoadingProgress />
-                                ):userSocialMedia.length > 0 && (
-                                    <Stack gap={5}>
-                                        <Text fontSize={"2xl"} fontWeight="bold" my={5}>Aggregated Social Media</Text>
-                                        <For
-                                            each={userSocialMedia}
-                                        >
-                                            {(item) => {
-                                                return (
-                                                    <SocialMediaListItem 
-                                                        key={item.userSocialNetworkId}
-                                                        item={item} 
-                                                        socialMedia={socialMedia}
-                                                        socialMediaLoading={socialMediaLoading}
-                                                    />
-                                                )
-                                            }}
-                                        </For>
-                                    </Stack>
-                                )}
+            content: (
+                <Show
+                    when={!socialMediaLoading && !userSocialMediaLoading}
+                    fallback={
+                        <LoadingProgress/>
+                    }
+                >
+                    <Stack p={7}>
+                        <Box w={"full"}>
+                            <Box w={"full"} mb={3}>
+                                <Heading size="3xl">Social Media</Heading>
                             </Box>
-                        </Stack>
-                    </form>
-                </Stack>
-            ):(
-                <LoadingProgress/>
-            ))
+                            <Box w={"full"} mb={10}>
+                                <Heading size="lg">Share your Contact & Social Media links</Heading>
+                            </Box>
+                        </Box>
+                        <Show 
+                            when={socialMediaData && userSocialMediaData}
+                            fallback={
+                                <label>
+                                    Ooops...Please try it later!
+                                </label>
+                            }
+                        >
+                            <form onSubmit={onSubmitSocialMedia}>
+                                <Stack gap={5}>
+                                    <Flex direction={"row"} gap={5} w={"full"} alignItems={"center"}>
+                                        <Field.Root invalid={!!errorsSocialeMedia.socialMediaId} w={"15vw"}>
+                                            <Field.Label>Social Network</Field.Label>
+                                            <Controller
+                                                control={socialMediaControl}
+                                                name="socialMediaId"
+                                                rules={{ required: "Social Network is required" }}
+                                                render={({ field }) => (
+                                                    <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false} defaultValue={null}/>
+                                                )}
+                                            />
+                                            <Field.ErrorText>{errorsSocialeMedia.socialMediaId?.message}</Field.ErrorText>
+                                        </Field.Root>
+                                        <Field.Root invalid={!!errorsSocialeMedia.link}>
+                                            <Field.Label>Link</Field.Label>
+                                            <Input {...registerSocialMedia("link", { required: "Link is required" })}/>
+                                            <Field.ErrorText>{errorsSocialeMedia.link?.message}</Field.ErrorText>
+                                        </Field.Root>
+                                    </Flex>
+                                    
+                                    <Button
+                                        type="submit" 
+                                        alignSelf={"flex-end"} 
+                                        bg={"cyan.600"} 
+                                        color={"white"}
+                                        loading={storeUserNetworkLoading}
+                                        disabled={storeUserNetworkLoading}
+                                    >
+                                        <IoIosSave />Save
+                                    </Button>
+
+                                    <Box w={"full"} display={userSocialMediaLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading  ? "center":"start"}>
+                                        {userSocialMediaLoading || storeUserNetworkLoading ? (
+                                            <LoadingProgress />
+                                        ):userSocialMedia.length > 0 && (
+                                            <Stack gap={5}>
+                                                <Text fontSize={"2xl"} fontWeight="bold" my={5}>Aggregated Social Media</Text>
+                                                <For
+                                                    each={userSocialMedia}
+                                                >
+                                                    {(item) => {
+                                                        return (
+                                                            <SocialMediaListItem 
+                                                                key={item.userSocialNetworkId}
+                                                                item={item} 
+                                                                socialMedia={socialMedia}
+                                                                socialMediaLoading={socialMediaLoading}
+                                                            />
+                                                        )
+                                                    }}
+                                                </For>
+                                            </Stack>
+                                        )}
+                                    </Box>
+                                </Stack>
+                            </form>
+                        </Show>
+                    </Stack>
+                </Show>
+            )
         },
         {
             index: "4",

@@ -1,24 +1,21 @@
+import { Flex } from "@chakra-ui/react";
+import LoadingProgress from "../Components/LoadingProgress";
 import { useColorMode } from "@/components/ui/color-mode";
-import { Flex, ProgressCircle } from "@chakra-ui/react";
 
-const LoadignScreen = () => {
+const LoadingScreen = () => {
     const { colorMode } = useColorMode();
-    
+     
     return (
         <Flex 
-            w={"99dvw"}
-            h={"full"}
+            w={"100dvw"}
+            h={"100dvh"}
             align="center" 
             justify="center"
+            bg={colorMode === "light" ? "gray.100" : "gray.950"}
         >
-            <ProgressCircle.Root value={null} size="xl">
-                <ProgressCircle.Circle>
-                    <ProgressCircle.Track />
-                    <ProgressCircle.Range strokeLinecap="round" stroke={colorMode === "light" ? "cyan.500":"pink.500"}/>
-                </ProgressCircle.Circle>
-            </ProgressCircle.Root>
+            <LoadingProgress />
         </Flex>
     );
 }
 
-export default LoadignScreen;
+export default LoadingScreen;
