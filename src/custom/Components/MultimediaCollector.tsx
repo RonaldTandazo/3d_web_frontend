@@ -128,9 +128,9 @@ const MultimediaCollector = () => {
         }
     };
 
-    const handleRemoveFile = (file: string) => {
-        const newFiles = files.filter((url) => url.crop != file)
-        setFiles(newFiles)
+    const handleRemoveFile = (indexToRemove: number) => {
+        const newFiles = files.filter((_, index) => index !== indexToRemove);
+        setFiles(newFiles);
     }
 
     const handleCrop = (index: number) => {
@@ -242,7 +242,7 @@ const MultimediaCollector = () => {
                                             size={"md"}
                                             color={"tomato"}
                                             onClick={() => {
-                                                handleRemoveFile(file.crop)
+                                                handleRemoveFile(index)
                                             }}
                                         />
                                     </GridItem>
