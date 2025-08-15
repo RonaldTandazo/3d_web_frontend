@@ -7,9 +7,7 @@ export const useGetSkillsData = () => {
 
     const GetSkillsData = async () => {
         try {
-            await getSkillsData({ 
-                context: { requireAuth: true }
-            });
+            await getSkillsData();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -30,9 +28,7 @@ export const useGetUserSkills = () => {
 
     const GetUserSkills = async () => {
         try {
-            await getUserSkills({ 
-                context: { requireAuth: true }
-            });
+            await getUserSkills();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -56,8 +52,7 @@ export const useStoreUserSkills= () => {
     const storeUserSkills = async (userSkillsData: any) => {
         try {
             await storeUserSkillsMutation({ 
-                variables: { userSkillsData },
-                context: { requireAuth: true }
+                variables: { userSkillsData }
             });
         } catch (err) {
             if (err instanceof ApolloError) {

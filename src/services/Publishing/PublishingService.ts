@@ -6,9 +6,7 @@ export const useGetPublishing = () => {
 
     const GetPublishing = async () => {
         try {
-            await getPublishing({ 
-                context: { requireAuth: true }
-            });
+            await getPublishing();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

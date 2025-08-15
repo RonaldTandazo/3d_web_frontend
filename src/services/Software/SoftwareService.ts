@@ -6,9 +6,7 @@ export const useGetSoftware = () => {
 
     const GetSoftwares = async () => {
         try {
-            await getSoftwares({ 
-                context: { requireAuth: true }
-            });
+            await getSoftwares();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

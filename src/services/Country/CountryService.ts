@@ -6,9 +6,7 @@ export const useGetCountry = () => {
 
     const GetCountries = async () => {
         try {
-            await getCountries({ 
-                context: { requireAuth: true }
-            });
+            await getCountries();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

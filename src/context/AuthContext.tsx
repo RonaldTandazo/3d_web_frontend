@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { signUp: SignUp, data: singUpData, error: signUpError } = useSignUp();
     const { login: loginUser, data: signInData, error: signInError} = useLogin();
     const { refreshToken: refreshTokenProcess } = useRefreshToken();
-    const { revokeToken: RevokeToken } = useRevokeToken();
+    const { revokeToken: RevokeToken, data: revokeTokenData } = useRevokeToken();
     const didMountRef = useRef(false);
     const navigate = useNavigate();
 
@@ -72,8 +72,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async (token = refreshToken) => {
         if(token){
-            setLoading(true)
             try {
+                setLoading(true)
+                navigate('/signin');
+                
                 await RevokeToken(token);
             } catch (error) {
                 console.error("Sign In Error:", error);
@@ -85,12 +87,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setAccessToken(null);
                 setRefreshToken(null);
                 setIsAuthenticated(false);
-
-                setLoading(false);
-                navigate('/signin');
             }
         }
     };
+
+    useEffect(() => {
+        if(revokeTokenData?.revokeToken){
+            setLoading(false)
+        }
+    }, [revokeTokenData])
 
     useEffect(() => {
         getAccessTokenRef.current = () => accessToken;
@@ -121,7 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (storedUser && storedRefreshToken) {
             const tryRefreshOnLoad = async () => {
                 try {
-                    if (isTokenExpired(storedRefreshToken)) {
+                    if (!hasRememberMe(storedRefreshToken) || isTokenExpired(storedRefreshToken)) {
                         logout(storedRefreshToken);
                     } else {
                         const newTokens = await callRefreshTokenRef.current(storedRefreshToken);
@@ -129,14 +134,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             setAccessToken(newTokens.accessToken);
                             setUser(JSON.parse(storedUser));
                             setIsAuthenticated(true);
+                            setLoading(false)
                         } else {
-                            logout();
+                            logout(storedRefreshToken);
                         }
                     }
                 } catch (err) {
                     logout(storedRefreshToken);
-                } finally {
-                    setLoading(false);
                 }
             };
             tryRefreshOnLoad();
@@ -244,4 +248,13 @@ const decodeToken = (token: string) => {
 const isTokenExpired = (token: string) => {
     const decoded = decodeToken(token);
     return Date.now() >= decoded.exp * 1000;
+};
+
+const hasRememberMe = (token: string) => {
+    const decoded = decodeToken(token);
+    if(decoded.rememberMe){
+        return true;
+    }
+
+    return false;
 };

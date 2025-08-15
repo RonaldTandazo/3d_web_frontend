@@ -7,8 +7,7 @@ export const useStoreUserPicture = () => {
     const storeUserPicture = async (picture: string) => {
         try {
             await userPictureMutation({ 
-                variables: { picture },
-                context: { requireAuth: true }
+                variables: { picture }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -32,8 +31,7 @@ export const useProfileUpdate= () => {
         try {
             const profileUpdate = { firstName, lastName, professionalHeadline, summary, city, countryId };
             await profileMutation({ 
-                variables: { profileUpdate },
-                context: { requireAuth: true }
+                variables: { profileUpdate }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -56,8 +54,7 @@ export const useChangePassword = () => {
     const changePassword = async (currentPassword: string, newPassword: string) => {
         try {
             await passwordMutation({ 
-                variables: { currentPassword, newPassword },
-                context: { requireAuth: true }
+                variables: { currentPassword, newPassword }
             });
         } catch (err) {
             if (err instanceof ApolloError) {

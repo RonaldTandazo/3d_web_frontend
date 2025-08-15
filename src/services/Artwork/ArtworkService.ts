@@ -9,9 +9,7 @@ export const useGetArtVerseArtworks = () => {
 
     const GetArtVerseArtworks = async () => {
         try {
-            await getArtVerseArtworks({ 
-                context: { requireAuth: true }
-            });
+            await getArtVerseArtworks();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -34,9 +32,7 @@ export const useGetUserArtworks = () => {
 
     const GetUserArtworks = async () => {
         try {
-            await getUserArtworks({ 
-                context: { requireAuth: true }
-            });
+            await getUserArtworks();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -57,9 +53,7 @@ export const useGetArtworkFormData = () => {
 
     const GetArtworkFormData = async () => {
         try {
-            await getArtworkFormData({ 
-                context: { requireAuth: true }
-            });
+            await getArtworkFormData();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -81,8 +75,7 @@ export const useStoreArtwork = () => {
     const StoreArtwork = async (artworkData: any) => {
         try {
             await storeArtwork({ 
-                variables: { artworkData },
-                context: { requireAuth: true }
+                variables: { artworkData }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -105,8 +98,7 @@ export const useGetArtworkDetails = () => {
     const GetArtworkDetails = async (artworkId: number) => {
         try {
             await getArtworkDetails({ 
-                variables: { artworkId },
-                context: { requireAuth: true }
+                variables: { artworkId }
             });
         } catch (err) {
             if (err instanceof ApolloError) {

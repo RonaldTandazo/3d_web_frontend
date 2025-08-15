@@ -20,7 +20,10 @@ const ArtworkView = () => {
 
         return (
             <>
-                <Empty />
+                <Empty 
+                    title = "Oooh no!... There's no information about the Art you selected 😢"
+                    description = "Don't worry, there are many other amazing Arts for you to discover!"
+                />
                 <ArtVerseGrid artworks={characters} />
             </>
         );

@@ -19,6 +19,7 @@ import { useSubscription } from "@apollo/client";
 import { NEW_ARTWORK_SUBSCRIPTION } from "@/graphql/Artwork/ArtworkSubscription";
 import { ImUser } from "react-icons/im";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
+import Empty from "@/custom/Templates/Empty";
 
 interface Artwork {
     artworkId: number,
@@ -353,19 +354,10 @@ const Profile = () => {
                                 <Show 
                                     when={artworks && artworks.length > 0} 
                                     fallback={
-                                        <EmptyState.Root>
-                                            <EmptyState.Content>
-                                                    <Icon
-                                                        boxSize={"300px"}
-                                                        color={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                    >        
-                                                        <MdHideSource />
-                                                    </Icon>
-                                                <VStack textAlign="center">
-                                                    <EmptyState.Title>Oooh no!... You don't have any ArtWork created yet 😢</EmptyState.Title>
-                                                </VStack>
-                                            </EmptyState.Content>
-                                        </EmptyState.Root>
+                                        <Empty
+                                            title="Oooh no!... You don't have any ArtWork created yet 😢"
+                                            default_description={false}
+                                        />
                                     }
                                 >
                                     <Grid 

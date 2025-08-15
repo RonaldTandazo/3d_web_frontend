@@ -2,7 +2,7 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { Select, Input, Box, Portal, For } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 
-const SearchableInput = ({ disabled=false, placeholder = "Select Options", options, onSelect, ...rest }: any) => {
+const SearchableInput = ({ disabled = false, placeholder = "Select Options", options, onSelect, ...rest }: any) => {
     const [filteredOptions, setFilteredOptions] = useState([]);
     const { colorMode } = useColorMode();
     const [searchTerm, setSearchTerm] = useState("");

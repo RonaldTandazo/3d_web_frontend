@@ -33,8 +33,10 @@ const OwnerRoute = () => {
             targetValue = decodeFromBase64(params.artworkId).toString()
         }
 
-        validateUserAccess(targetValue, module);
-        setValidationChecked(true);
+        if(module && targetValue){
+            validateUserAccess(targetValue, module);
+            setValidationChecked(true);
+        }
     }
 
     if (validateUserAccessData && !validateUserAccessData.validateUserAccess.validate) {

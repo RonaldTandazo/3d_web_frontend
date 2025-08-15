@@ -2,7 +2,7 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
-import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Textarea } from "@chakra-ui/react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Tabs, Text, Textarea } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaArchive, FaCheckCircle } from "react-icons/fa";
@@ -13,10 +13,12 @@ import 'react-image-crop/dist/ReactCrop.css'
 import { getCroppedImg } from "@/utils/CanvasCrop";
 import { GrPowerReset } from "react-icons/gr";
 import { FaCropSimple, FaNewspaper } from "react-icons/fa6";
-import { MdCancel } from "react-icons/md";
+import { Md3dRotation, MdCancel, MdSlowMotionVideo } from "react-icons/md";
 import NotificationAlert from "@/custom/Components/NotificationAlert";
 import SearchableInput from "@/custom/Components/SearchableInput";
 import { useGetArtworkFormData, useStoreArtwork } from "@/services/Artwork/ArtworkService";
+import { IoMdImages } from "react-icons/io";
+import MultimediaCollector from "@/custom/Components/MultimediaCollector";
 
 interface ArtWorkForm {
     status: number[];
@@ -73,6 +75,7 @@ const NewArtwork = () => {
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState<string | undefined>(undefined);
+    const [activeTab, setActiveTab] = useState<string | null>("1");
 
     const {
         handleSubmit,
@@ -289,6 +292,47 @@ const NewArtwork = () => {
         setError(undefined)
     }
 
+    const handleTab = (e) => {
+        setActiveTab(e.value);
+    };
+
+    const images = [
+        { type: 'image', url: 'https://tse1.mm.bing.net/th/id/OIP.Z0FlCPCvgwT_99_fQ8NeSgHaEJ?rs=1&pid=ImgDetMain&o=7&rm=3', caption: "El Test" },
+        { type: 'image', url: 'https://images.pexels.com/photos/2280549/pexels-photo-2280549.jpeg?cs=srgb&dl=pexels-chokniti-khongchum-1197604-2280549.jpg&fm=jpg', caption: "" },
+        { type: 'image', url: 'https://www.infoescola.com/wp-content/uploads/2010/06/tigre-de-bengala-60322900-1000x664.jpg', caption: "El tigre" },
+    ];
+
+    const videos = [
+        { type: 'video', url: 'https://www.tiktok.com/@rolitas_clow05/video/7506954742346681656?is_from_webapp=1&sender_device=pc' },
+    ];
+
+    const items = [
+        {
+            index: "1",
+            title: "Images",
+            icon: <IoMdImages />,
+            content: (
+                <MultimediaCollector/>
+            )
+        },
+        {
+            index: "2",
+            title: "Videos",
+            icon: <MdSlowMotionVideo />,
+            content: (
+                <>Videos</>
+            )
+        },
+        {
+            index: "3",
+            title: "3D Viewer",
+            icon: <Md3dRotation />,
+            content: (
+                <>3D</>
+            )
+        }
+    ];
+
     return (
         <Show
             when={!formDataLoading}
@@ -296,7 +340,7 @@ const NewArtwork = () => {
                 <LoadingProgress />
             }
         >
-            <Box w={"auto"} h={"auto"}>
+            <Box w={"auto"} h={"auto"} pb={5}>
                 <Show when={storeArtworkLoading}>
                     <Box
                         position="fixed"
@@ -313,7 +357,7 @@ const NewArtwork = () => {
                         <Spinner size="xl" color={colorMode === "light" ? "cyan.500":"pink.500"} borderWidth="5px"/>
                     </Box>
                 </Show>
-                <Box mt={5}>
+                <Box mt={0}>
                     <Breadcrumb.Root size={"lg"}>
                         <Breadcrumb.List>
                             <Breadcrumb.Item>
@@ -494,6 +538,92 @@ const NewArtwork = () => {
                                                     </Flex>
                                                 </Show>
                                             </Box>
+                                        </Stack>
+                                    </Box>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                            <Heading fontSize={"lg"} color={"white"}>Multimedia</Heading>
+                                        </Box>
+                                        <Stack mx={10} mt={5} mb={10} gap={10}>
+                                            <Tabs.Root
+                                                lazyMount
+                                                unmountOnExit
+                                                defaultValue="1"
+                                                orientation="horizontal"
+                                                onValueChange={handleTab}
+                                                value={activeTab}
+                                                w={"full"}
+                                                variant="plain"
+                                            >
+                                                <Tabs.List p={1} gap={3} overflowX="hidden" w={"auto"} bg={colorMode == 'light' ? "white":"black"}>
+                                                    {items.map((item) => (
+                                                        <Tabs.Trigger
+                                                            key={item.index}
+                                                            value={item.index}
+                                                            _selected={{
+                                                                borderLeft: "4px solid",
+                                                                borderLeftColor:
+                                                                    colorMode === "light" ? "cyan.500" : "pink.500",
+                                                                backgroundColor:
+                                                                    colorMode === "light" ? "cyan.50" : "pink.200",
+                                                                color: "black",
+                                                            }}
+                                                            rounded={"sm"}
+                                                            bg={"none"}
+                                                        >
+                                                            <Box
+                                                                position={"relative"}
+                                                                overflow={"hidden"}
+                                                                whiteSpace={"nowrap"}
+                                                                display={"flex"}
+                                                                direction={"row"}
+                                                                justifyContent={"flex-start"}
+                                                                alignItems={"center"}
+                                                                gap={2}
+                                                                w={"full"}
+                                                                cursor={"pointer"}
+                                                            >
+                                                                <Icon
+                                                                    size={"md"}
+                                                                    color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                                >
+                                                                    {item.icon}
+                                                                </Icon>
+                                                                <Text>
+                                                                    {item.title}
+                                                                </Text>
+                                                            </Box>
+                                                        </Tabs.Trigger>
+                                                    ))}
+                                                </Tabs.List>
+                                                <Box position={"relative"} w={"full"} h={"auto"}>
+                                                    {items.map((item) => (
+                                                        <Box
+                                                            key={item.index}
+                                                            inset="0"
+                                                            display={activeTab === item.index ? 'block' : 'none'}
+                                                            overflowY="auto"
+                                                            maxH="100%"
+                                                        >
+                                                            <Tabs.Content
+                                                                key={item.index}
+                                                                value={item.index}
+                                                                inset="0"
+                                                                _open={{
+                                                                    animationName: "fade-in, scale-in",
+                                                                    animationDuration: "300ms",
+                                                                }}
+                                                                _closed={{
+                                                                    animationName: "fade-out, scale-out",
+                                                                    animationDuration: "120ms",
+                                                                }}
+                                                            >
+                                                                {item.content}
+                                                            </Tabs.Content>
+                                                        </Box>
+                                                    ))}
+                                                </Box>
+                                            </Tabs.Root>
                                         </Stack>
                                     </Box>
                                 </Stack>

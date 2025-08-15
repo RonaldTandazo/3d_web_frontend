@@ -6,9 +6,7 @@ export const useGetCategory = () => {
 
     const GetCountries = async () => {
         try {
-            await getCategories({ 
-                context: { requireAuth: true }
-            });
+            await getCategories();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

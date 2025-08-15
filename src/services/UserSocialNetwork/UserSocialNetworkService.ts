@@ -7,9 +7,7 @@ export const useGetUserSocialMedia = () => {
 
     const GetUserSocialMedia = async () => {
         try {
-            await getUserSocialMedia({ 
-                context: { requireAuth: true }
-            });
+            await getUserSocialMedia();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
@@ -34,8 +32,7 @@ export const useStoreUserSocialNetowrk= () => {
         try {
             const storeUserNetwork = { socialMediaId, link };
             await socialNetowrkMutation({ 
-                variables: { storeUserNetwork },
-                context: { requireAuth: true }
+                variables: { storeUserNetwork }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -61,8 +58,7 @@ export const useUpdateUserSocialNetowrk= () => {
         try {
             const updateUserNetwork = { userSocialNetworkId, socialMediaId, link };
             await updateSocialNetowrkMutation({ 
-                variables: { updateUserNetwork },
-                context: { requireAuth: true }
+                variables: { updateUserNetwork }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -87,8 +83,7 @@ export const useRemoveUserSocialNetowrk= () => {
     const removeUserNetwork = async (userSocialNetworkId: number) => {
         try {
             await removeUserNetowrkMutation({ 
-                variables: { userSocialNetworkId },
-                context: { requireAuth: true }
+                variables: { userSocialNetworkId }
             });
         } catch (err) {
             if (err instanceof ApolloError) {

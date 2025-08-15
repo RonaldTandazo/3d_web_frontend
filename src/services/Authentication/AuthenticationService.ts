@@ -9,8 +9,7 @@ export const useSignUp = () => {
         try {
             const userData = { firstName, lastName, email, username, password };
             await signUpMutation({ 
-                variables: { userData },
-                context: { requireAuth: false }
+                variables: { userData }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -33,8 +32,7 @@ export const useLogin = () => {
     const login = async (username: string, password: string, rememberMe: boolean) => {
         try {
             await loginMutation({ 
-                variables: { username, password, rememberMe },
-                context: { requireAuth: false }
+                variables: { username, password, rememberMe }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -79,9 +77,10 @@ export const useRevokeToken = () => {
     const [revokeTokenMutation, { data, loading, error }] = useMutation(REVOKE_TOKEN_MUTATION);
 
     const revokeToken = async (token: string) => {
+        console.log(token)
         try {
             await revokeTokenMutation({ 
-                variables: { refreshToken: token } 
+                variables: { refreshToken: token }
             });
         } catch (err) {
             if (err instanceof ApolloError) {
@@ -99,13 +98,14 @@ export const useRevokeToken = () => {
 };
 
 export const useValidateUserAccess = () => {
-    const [validateUserAccess, { loading, data, error }] = useLazyQuery(VALIDATE_USER_ACCESS)
+    const [validateUserAccess, { loading, data, error }] = useLazyQuery(VALIDATE_USER_ACCESS, {
+        fetchPolicy: 'network-only'
+    })
     
     const ValidateUserAccess = async (targetValue: string, module: string) => {
         try {
             await validateUserAccess({
-                variables: { targetValue, module },
-                context: { requireAuth: true }
+                variables: { targetValue, module }
             });
         } catch (err) {
             if (err instanceof ApolloError) {

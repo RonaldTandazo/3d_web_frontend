@@ -6,9 +6,7 @@ export const useGetSocialMedia = () => {
 
     const GetSocialMedia = async () => {
         try {
-            await getSocialMedia({ 
-                context: { requireAuth: true }
-            });
+            await getSocialMedia();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);

@@ -6,9 +6,7 @@ export const useGetTopic = () => {
 
     const GetTopics = async () => {
         try {
-            await getTopics({ 
-                context: { requireAuth: true }
-            });
+            await getTopics();
         } catch (err) {
             if (err instanceof ApolloError) {
                 console.error(err.message);
