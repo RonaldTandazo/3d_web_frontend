@@ -1,9 +1,14 @@
 import { useColorMode } from "@/components/ui/color-mode";
-import { Select, Input, Box, Portal, Show } from "@chakra-ui/react";
+import { Select, Input, Box, Portal, Show, For } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 
-const SearchableSelect = ({ disabled=false, placeholder = "Select Options", options, field, multiple = false, defaultValue, ...rest }: any) => {
-    const [filteredOptions, setFilteredOptions] = useState(options);
+interface Option {
+    value: number,
+    label: string
+}
+
+const SearchableSelect = ({ disabled = false, placeholder = "Select Options", options, field, multiple = false, defaultValue = undefined, ...rest }: any) => {
+    const [filteredOptions, setFilteredOptions] = useState<Option[]>(options);
     const [selectedOptions, setSelectedOptions] = useState(null);
     const { colorMode } = useColorMode();
     const [searchTerm, setSearchTerm] = useState("");
@@ -74,6 +79,7 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
     };
 
     const handleClear = () => {
+        field.onChange(undefined)
         setSelectedOptions(null)
     }
 
@@ -82,12 +88,15 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
             multiple={multiple}
             name={field.name}
             value={field.value}
-            onValueChange={({ value }) => {
+            onValueChange={({ value }: {value: any}) => {
+                if(value && value.length <= 0){
+                    value = undefined
+                }
                 field.onChange(value);
                 field.value = value
                 handleClose();
             }}
-            defaultValue={defaultValue == null ? (multiple ? []:""):(multiple ? (Array.isArray(defaultValue) ? defaultValue:[defaultValue]):[defaultValue])}
+            defaultValue={!defaultValue ? defaultValue:(multiple ? (Array.isArray(defaultValue) ? defaultValue:[defaultValue]):[defaultValue])}
             disabled={disabled}
             lazyMount
         >
@@ -105,7 +114,7 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
                     </Select.ValueText>
                 </Select.Trigger>
                 <Select.IndicatorGroup>
-                    <Select.ClearTrigger onClick={handleClear} color={colorMode === "light" ? "cyan.500" : "pink.500"} bg={"transparent"}/>
+                    <Select.ClearTrigger onClick={handleClear} color={colorMode === "light" ? "cyan.600" : "pink.600"} bg={"transparent"}/>
                     <Select.Indicator />
                 </Select.IndicatorGroup>
             </Select.Control>
@@ -120,17 +129,19 @@ const SearchableSelect = ({ disabled=false, placeholder = "Select Options", opti
                                 color={colorMode === "light" ? "black":"white"}
                             />
                         </Box>
-                        {filteredOptions.map((option:any) => (
-                            <Select.Item 
-                                item={option}
-                                key={option.value}
-                                color={colorMode === "light" ? "black":"white"}
-                                cursor="pointer"
-                            >
-                                {option.label}
-                                <Select.ItemIndicator />
-                            </Select.Item>
-                        ))}
+                        <For each={filteredOptions} >
+                            {(option) => (
+                                <Select.Item 
+                                    item={option}
+                                    key={option.value}
+                                    color={colorMode === "light" ? "black":"white"}
+                                    cursor="pointer"
+                                >
+                                    {option.label}
+                                    <Select.ItemIndicator />
+                                </Select.Item>
+                            )}
+                        </For>
                     </Select.Content>
                 </Select.Positioner>
             </Portal>

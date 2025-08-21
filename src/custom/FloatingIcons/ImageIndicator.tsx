@@ -1,8 +1,8 @@
 import { Box, Icon } from "@chakra-ui/react";
 import { useColorMode } from "@/components/ui/color-mode";
-import { MdSlowMotionVideo } from "react-icons/md";
+import { IoMdImages } from "react-icons/io";
 
-const VideoIndicator = () => {
+const ImageIndicator = () => {
     const { colorMode } = useColorMode();
 
     return (
@@ -19,10 +19,10 @@ const VideoIndicator = () => {
                 size="md" 
                 color={colorMode === "light" ? "cyan.600" : "pink.600"}
             >
-                <MdSlowMotionVideo />
+                <IoMdImages />
             </Icon>
         </Box>
     );
 }
 
-export default VideoIndicator;
+export default ImageIndicator;

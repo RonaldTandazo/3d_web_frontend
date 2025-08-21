@@ -567,7 +567,7 @@ const ProfileSettings = () => {
                                                                     <IconButton
                                                                         onClick={() => handleTopicChange(item, "remove")} 
                                                                         size={"2xs"} 
-                                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                         color={"white"} 
                                                                         justifyContent={"center"}
                                                                         alignItems={"center"}
@@ -612,7 +612,7 @@ const ProfileSettings = () => {
                                                                     <IconButton
                                                                         onClick={() => handleSoftwareChange(item, "remove")} 
                                                                         size={"2xs"} 
-                                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                         color={"white"} 
                                                                         justifyContent={"center"}
                                                                         alignItems={"center"}
@@ -685,7 +685,7 @@ const ProfileSettings = () => {
                                                 name="socialMediaId"
                                                 rules={{ required: "Social Network is required" }}
                                                 render={({ field }) => (
-                                                    <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false} defaultValue={null}/>
+                                                    <SearchableSelect disabled={socialMediaLoading} placeholder={"Select Social Netowrk"} options={socialMedia} field={field} multiple={false}/>
                                                 )}
                                             />
                                             <Field.ErrorText>{errorsSocialeMedia.socialMediaId?.message}</Field.ErrorText>
@@ -839,7 +839,7 @@ const ProfileSettings = () => {
                                         as={ImUser}
                                         boxSize="200px"
                                         color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
-                                        bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                                        bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
                                         rounded={'full'}
                                         cursor="pointer"
                                     />
@@ -876,6 +876,7 @@ const ProfileSettings = () => {
                         onValueChange={handleTab}
                         value={activeTab}
                         w={"full"}
+                        variant={"plain"}
                     >
                         <Tabs.List p={1} gap={3} overflowX="hidden" w={"13vw"}>
                             {items.map((item) => (
@@ -885,7 +886,7 @@ const ProfileSettings = () => {
                                     _selected={{
                                         borderLeft: "4px solid",
                                         borderLeftColor:
-                                            colorMode === "light" ? "cyan.500" : "pink.500",
+                                            colorMode === "light" ? "cyan.600" : "pink.600",
                                         backgroundColor:
                                             colorMode === "light" ? "cyan.50" : "pink.200",
                                         color: "black",
@@ -906,7 +907,7 @@ const ProfileSettings = () => {
                                     >
                                         <Icon
                                             size={"md"}
-                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                            color={colorMode === "light" ? "cyan.600" : "pink.600"}
                                         >
                                             {item.icon}
                                         </Icon>

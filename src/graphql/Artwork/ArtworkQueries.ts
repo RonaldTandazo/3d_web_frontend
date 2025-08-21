@@ -7,6 +7,9 @@ export const GET_ARTVERSE_ARTWORKS = gql`
             title
             thumbnail
             publishingId
+            hasImages
+            hasVideos
+            has3DFile
             owner
             avatar
             createdAt

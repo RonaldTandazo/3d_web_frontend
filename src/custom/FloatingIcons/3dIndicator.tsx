@@ -17,7 +17,7 @@ const Indicator3D = () => {
         >
             <Icon
                 size="md" 
-                color={colorMode === "light" ? "cyan.500":"pink.500"}
+                color={colorMode === "light" ? "cyan.600":"pink.600"}
             >        
                 <Md3dRotation />
             </Icon>

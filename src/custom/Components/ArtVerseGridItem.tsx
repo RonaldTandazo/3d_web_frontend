@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { encodeToBase64 } from "@/utils/Helpers";
 import { useColorMode } from "@/components/ui/color-mode";
 import { MdHideImage } from "react-icons/md";
+import ImageIndicator from "../FloatingIcons/ImageIndicator";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -47,7 +48,7 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                             display={"flex"}
                             alignItems={"center"}
                             justifyContent={"center"}
-                            bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                            bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
                             color={'whiteAlpha.950'}
                             borderRadius={"sm"}
                         >
@@ -91,8 +92,21 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                     //cursor={"pointer"}
                 >
                     <Box display="flex" flexDirection="column" alignItems="end" h={"100%"}>
-                        <VideoIndicator />
-                        <Indicator3D />
+                        <Show
+                            when={artwork.hasImages}
+                        >
+                            <ImageIndicator />
+                        </Show>
+                        <Show
+                            when={artwork.hasVideos}
+                        >
+                            <VideoIndicator />
+                        </Show>
+                        <Show
+                            when={artwork.has3DFile}
+                        >
+                            <Indicator3D />
+                        </Show>
                     </Box>
                     <Grid
                         templateRows="repeat(2, auto)"

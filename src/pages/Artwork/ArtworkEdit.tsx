@@ -325,14 +325,14 @@ const ArtworkEdit = () => {
                         backgroundColor="rgba(0, 0, 0, 0.25)"
                         zIndex="tooltip"
                     >
-                        <Spinner size="xl" color={colorMode === "light" ? "cyan.500":"pink.500"} borderWidth="5px"/>
+                        <Spinner size="xl" color={colorMode === "light" ? "cyan.600":"pink.600"} borderWidth="5px"/>
                     </Box>
                 </Show>
                 <Box mt={5}>
                     <Breadcrumb.Root size={"lg"}>
                         <Breadcrumb.List>
                             <Breadcrumb.Item>
-                                <Breadcrumb.Link onClick={handleNavigate} color={colorMode === "light" ? "cyan.500" : "pink.500"}>Profile</Breadcrumb.Link>
+                                <Breadcrumb.Link onClick={handleNavigate} color={colorMode === "light" ? "cyan.600" : "pink.600"}>Profile</Breadcrumb.Link>
                             </Breadcrumb.Item>
                             <Breadcrumb.Separator />
                             <Breadcrumb.Item>
@@ -354,8 +354,8 @@ const ArtworkEdit = () => {
                         >
                             <GridItem>
                                 <Stack gap={10} h={"auto"}>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Title</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
@@ -364,8 +364,8 @@ const ArtworkEdit = () => {
                                             </Field.Root>
                                         </Stack>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Details</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10} gap={10}>
@@ -389,8 +389,8 @@ const ArtworkEdit = () => {
                                             </Field.Root>
                                         </Stack>
                                     </Box>  
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Categoritzation</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10} gap={10}>
@@ -455,7 +455,7 @@ const ArtworkEdit = () => {
                                                                                 <IconButton
                                                                                     onClick={() => handleTopicChange(item, "remove")} 
                                                                                     size={"2xs"} 
-                                                                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                                     color={"white"} 
                                                                                     justifyContent={"center"}
                                                                                     alignItems={"center"}
@@ -501,7 +501,7 @@ const ArtworkEdit = () => {
                                                                                 <IconButton
                                                                                     onClick={() => handleSoftwareChange(item, "remove")} 
                                                                                     size={"2xs"} 
-                                                                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                                     color={"white"} 
                                                                                     justifyContent={"center"}
                                                                                     alignItems={"center"}
@@ -525,8 +525,8 @@ const ArtworkEdit = () => {
                             </GridItem>
                             <GridItem>
                                 <Stack gap={10} h={"auto"}>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Thumbnail</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
@@ -569,13 +569,13 @@ const ArtworkEdit = () => {
                                                     <Box w={"full"} h={"full"} display={"flex"} justifyContent={imgURL ? "space-between":"flex-end"}  alignItems={"center"} mt={3}>
                                                         <Show when={imgURL}>
                                                             <Button
-                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                             >
                                                                 <FaCropSimple /> Crop
                                                             </Button>
                                                         </Show>
                                                         <Button 
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                            bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                             onClick={resetThumbnail}
                                                         > 
                                                             <GrPowerReset /> Reset
@@ -590,7 +590,7 @@ const ArtworkEdit = () => {
                                                 <Dialog.Backdrop />
                                                 <Dialog.Positioner>
                                                     <Dialog.Content>
-                                                        <Dialog.Header bg={colorMode === "light" ? "cyan.500":"blackAlpha.500"}>
+                                                        <Dialog.Header bg={colorMode === "light" ? "cyan.600":"blackAlpha.500"}>
                                                             <Dialog.Title>Crop Image</Dialog.Title>
                                                         </Dialog.Header>
                                                         <Dialog.Body w={"full"} h={"full"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -616,7 +616,7 @@ const ArtworkEdit = () => {
                                                         <Dialog.Footer>
                                                             <Dialog.ActionTrigger asChild>
                                                                 <Button 
-                                                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                                     onClick={() => {
                                                                         setIsModalOpen(false)
                                                                     }}
@@ -625,7 +625,7 @@ const ArtworkEdit = () => {
                                                                 </Button>
                                                             </Dialog.ActionTrigger>
                                                             <Button 
-                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                                 onClick={onComplete}
                                                             >
                                                                 <FaCheckCircle /> Confirm
@@ -636,8 +636,8 @@ const ArtworkEdit = () => {
                                             </Portal>
                                         </Dialog.Root>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Publishing</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
@@ -662,7 +662,7 @@ const ArtworkEdit = () => {
                                                         <Show when={publishing.length > 0}>
                                                             <Button
                                                                 type="submit"
-                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                             >
                                                                 <FaNewspaper /> Save
                                                             </Button>                                                
@@ -672,14 +672,14 @@ const ArtworkEdit = () => {
                                                     <Show when={publishing.length > 0}>
                                                         <Button
                                                             type="submit"
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                            bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                         >
                                                             <FaNewspaper /> Publish
                                                         </Button>                                               
                                                     </Show>
                                                     <Button
                                                         type="submit"
-                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                     >
                                                         <IoIosSave /> Save
                                                     </Button> 

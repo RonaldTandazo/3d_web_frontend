@@ -2,24 +2,22 @@ import { useColorMode } from '@/components/ui/color-mode';
 import { Tooltip } from '@/components/ui/tooltip';
 import { getCroppedImg } from '@/utils/CanvasCrop';
 import { Box, Button, Dialog, FileUpload, Flex, For, Grid, GridItem, Icon, Image, Portal, Show } from '@chakra-ui/react';
-import { ChangeEvent, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { FaCheckCircle, FaTrash } from 'react-icons/fa';
 import { FaCropSimple } from 'react-icons/fa6';
 import { LuUpload } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
 import ReactCrop, { centerCrop, Crop, makeAspectCrop, PixelCrop } from 'react-image-crop'
 
-type ImageFile = {
+type FileInterface = {
     originalFile: string;
     crop: string;
 };
 
-const MultimediaCollector = () => {
-    const [files, setFiles] = useState<ImageFile[]>([]);
+const MultimediaCollector = ({ type, onUpdate, files, onError }: any) => {
     const [crop, setCrop] = useState<Crop>()
     const [imgURL, setImgURL] = useState<string | undefined>(undefined)
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [error, setError] = useState<string | undefined>(undefined);
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
     const [aspect, setAspect] = useState<number | undefined>(1 / 1)
     const [scale, setScale] = useState<number>(1)
@@ -28,25 +26,28 @@ const MultimediaCollector = () => {
     const { colorMode } = useColorMode();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [recropIndex, setRecropIndex] = useState<number | null>(null);
+    const [allowTypes, setAllowTypes] = useState<string[]>([]);
+    const [allowFileSize, setAllowFileSize] = useState<number | undefined>(undefined);
+    const [maxSize, setMaxSize] = useState<string | undefined>(undefined);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return null;
 
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 5 * 1024 * 1024;
-
-        if (!allowedTypes.includes(file.type)) {
-            setError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
+        if (!allowTypes.includes(file.type)) {
+            const allowedFileTypes = allowTypes.map(type => type.split('/')[1].toUpperCase()).join(', ');
+            const errorMessage = `Invalid file type. Only ${allowedFileTypes} are allowed.`;
+            onError(errorMessage);
             return;
         }
 
-        if (file.size > maxSize) {
-            setError('File size exceeds the limit of 5MB.');
+        if (allowFileSize && file.size > allowFileSize) {
+            const errorMessage = 'File size exceeds the limit of 5MB.';
+            onError(errorMessage);
             return;
         }
         
-        setError(undefined);
+        onError(undefined);
         setCrop(undefined);
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -97,14 +98,19 @@ const MultimediaCollector = () => {
             if (recropIndex !== null) {
                 const newFiles = [...files];
                 newFiles[recropIndex].crop = croppedImageUrl;       
-                setFiles(newFiles);
+                //setFiles(newFiles);
                 setRecropIndex(null);
+
+                onUpdate(type, newFiles);
             } else {
-                const newFileObject = {
-                    originalFile: imgURL,
-                    crop: croppedImageUrl,
-                };
-                setFiles([...files, newFileObject]);
+                if(imgURL){
+                    const newFileObject = {
+                        originalFile: imgURL,
+                        crop: croppedImageUrl,
+                    };
+                    //setFiles([...files, newFileObject]);
+                    onUpdate(type, [...files, newFileObject]);
+                }
             }
 
             setIsModalOpen(false);
@@ -129,8 +135,9 @@ const MultimediaCollector = () => {
     };
 
     const handleRemoveFile = (indexToRemove: number) => {
-        const newFiles = files.filter((_, index) => index !== indexToRemove);
-        setFiles(newFiles);
+        const newFiles = files.filter((_: FileInterface, index: any) => index !== indexToRemove);
+        //setFiles(newFiles);
+        onUpdate(type, newFiles);
     }
 
     const handleCrop = (index: number) => {
@@ -140,6 +147,25 @@ const MultimediaCollector = () => {
         setRecropIndex(index);
         setCrop(undefined);
         setCompletedCrop(null);
+    }
+
+    useEffect(() => {
+        if(type == 'images'){
+            setAllowTypes(["image/png", "image/jpeg", "image/gif", "image/webp"]);
+            setAllowFileSize(100 * 1024 * 1024)
+            setMaxSize('100MB')
+        }else if(type == 'videos'){
+            setAllowTypes(["video/mp4", "video/webm", "video/mpeg"]);
+            setAllowFileSize(2 * 1024 * 1024 * 1024)
+            setMaxSize('2GB')
+        }
+    }, [type])
+
+    const fileUploadMessage = () => {
+        const allowedExtensions = allowTypes.map(type => `.${type.split('/')[1]}`).join(', ');
+        const message = `${allowedExtensions} up to ${maxSize}`;
+
+        return message;
     }
 
     return (
@@ -159,21 +185,26 @@ const MultimediaCollector = () => {
                         w={"full"}
                         h={"full"}
                         key={index}
+                        borderRadius={"md"}
                     >
                         <Box
                             cursor={"pointer"}
                             display={"flex"}
                             alignItems={"center"}
                             justifyContent={"center"}
-                            bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                            bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
                             color={'whiteAlpha.950'}
                         >
-                            <Image
-                                src={file.crop} 
-                                alt="File Preview"
-                                //objectFit="cover" 
-                                cursor="pointer"
-                            />
+                            <Show
+                                when={type == 'images'}
+                            >
+                                <Image
+                                    src={file.crop} 
+                                    alt="File Preview"
+                                    //objectFit="cover" 
+                                    cursor="pointer"
+                                />
+                            </Show>
                         </Box>
                         <Box 
                             p={2} 
@@ -195,7 +226,7 @@ const MultimediaCollector = () => {
                                     showArrow
                                     contentProps={{ 
                                         css: { 
-                                            "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                            "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
                                             'color': 'white'
                                         }
                                     }}
@@ -225,7 +256,7 @@ const MultimediaCollector = () => {
                                     showArrow
                                     contentProps={{ 
                                         css: { 
-                                            "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                            "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
                                             'color': 'white'
                                         }
                                     }}
@@ -253,7 +284,7 @@ const MultimediaCollector = () => {
                 )}
             </For>
 
-            <FileUpload.Root alignItems="stretch" maxFiles={1} accept={["image/png", "image/jpeg", "image/gif", "image/webp"]} cursor={"pointer"}>
+            <FileUpload.Root alignItems="stretch" maxFiles={1} accept={allowTypes} cursor={"pointer"}>
                 <FileUpload.HiddenInput onChange={(files) => handleFileChange(files)}/>
                 <FileUpload.Dropzone w={"full"} h={"full"}>
                     <Icon size={"lg"} color={"fg.muted"}>
@@ -261,7 +292,7 @@ const MultimediaCollector = () => {
                     </Icon>
                     <FileUpload.DropzoneContent>
                         <Box>Drag and drop files here</Box>
-                        <Box color="fg.muted">.png, .jpg, .gif, .webp up to 5MB</Box>
+                        <Box color="fg.muted">{fileUploadMessage()}</Box>
                     </FileUpload.DropzoneContent>
                 </FileUpload.Dropzone>
             </FileUpload.Root>
@@ -271,7 +302,7 @@ const MultimediaCollector = () => {
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
                         <Dialog.Content>
-                            <Dialog.Header bg={colorMode === "light" ? "cyan.500":"blackAlpha.500"}>
+                            <Dialog.Header bg={colorMode === "light" ? "cyan.600":"blackAlpha.500"}>
                                 <Dialog.Title>Crop Image</Dialog.Title>
                             </Dialog.Header>
                             <Dialog.Body w={"full"} h={"full"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -296,15 +327,17 @@ const MultimediaCollector = () => {
                             </Dialog.Body>
                             <Dialog.Footer>
                                 <Dialog.ActionTrigger asChild>
-                                    <Button 
-                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                    <Button
+                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                        color={"whiteAlpha.950"}
                                         onClick={handleCancel}
                                     >
                                         <MdCancel /> Cancel
                                     </Button>
                                 </Dialog.ActionTrigger>
-                                <Button 
-                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                <Button
+                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                    color={"whiteAlpha.950"}
                                     onClick={onComplete}
                                 >
                                     <FaCheckCircle /> Confirm

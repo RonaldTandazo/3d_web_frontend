@@ -53,10 +53,7 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
         }
 
         if (isRefreshing) {
-          console.log(isRefreshing)
           return new Observable(observer => {
-            console.log("el promise")
-            console.log(getAccessToken())
             refreshTokenPromise!.then(() => {
               const oldHeaders = operation.getContext().headers;
               operation.setContext({
@@ -90,8 +87,6 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
           });
   
           return new Observable(observer => {
-            console.log("el original")
-            console.log(getAccessToken())
             refreshTokenPromise!.then(() => {
               const oldHeaders = operation.getContext().headers;
               operation.setContext({

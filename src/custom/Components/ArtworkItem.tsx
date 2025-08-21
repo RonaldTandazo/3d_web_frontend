@@ -66,7 +66,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                 display={"flex"}
                 alignItems={"center"}
                 justifyContent={"center"}
-                bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
                 color={'whiteAlpha.950'}
                 onClick={() => handleNavigateArtworkView(artwork)}
             >
@@ -116,7 +116,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                             showArrow
                             contentProps={{ 
                                 css: { 
-                                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
                                     'color': 'white'
                                 }
                             }}
@@ -143,7 +143,7 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                             showArrow
                             contentProps={{ 
                                 css: { 
-                                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
                                     'color': 'white'
                                 }
                             }}
@@ -174,13 +174,13 @@ const ArtworkItem = ({ artwork, isOpen, onMenuToggle }: ArtworkMenuItemProps) =>
                                             showArrow
                                             contentProps={{
                                                 css: {
-                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                                                     'color': 'white',
                                                 },
                                             }}
                                         >
                                             <Menu.Item value={'edit'} justifyContent={'center'} alignItems={'center'} onClick={() => handleNavigateEditArtwork(artwork)} cursor={"pointer"}>
-                                                <Icon size={'sm'} color={colorMode === 'light' ? 'cyan.500' : 'pink.500'}>
+                                                <Icon size={'sm'} color={colorMode === 'light' ? 'cyan.600' : 'pink.600'}>
                                                     <AiFillEdit />
                                                 </Icon>
                                             </Menu.Item>

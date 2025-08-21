@@ -76,10 +76,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setLoading(true)
                 navigate('/signin');
                 
-                await RevokeToken(token);
-            } catch (error) {
-                console.error("Sign In Error:", error);
-            }finally{
                 localStorage.removeItem("user");
                 localStorage.removeItem("refreshToken");
                 
@@ -87,6 +83,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setAccessToken(null);
                 setRefreshToken(null);
                 setIsAuthenticated(false);
+
+                await RevokeToken(token);
+            } catch (error) {
+                console.error("Sign In Error:", error);
             }
         }
     };

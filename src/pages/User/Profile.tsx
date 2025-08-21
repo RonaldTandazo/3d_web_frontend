@@ -101,7 +101,7 @@ const Profile = () => {
 
     return (
         <Show
-            when={!userSocialMediaLoading || !userArtworksLoading}
+            when={!userSocialMediaLoading && !userArtworksLoading}
             fallback={
                 <LoadingProgress />
             }
@@ -145,7 +145,7 @@ const Profile = () => {
                                             showArrow
                                             contentProps={{
                                                 css: {
-                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                                                     'color': 'white',
                                                 },
                                             }}
@@ -156,7 +156,7 @@ const Profile = () => {
                                                 colorScheme="black"
                                                 size="md"
                                                 bg={"transparent"}
-                                                color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                color={colorMode === "light" ? "cyan.600" : "pink.600"}
                                                 position="absolute"
                                                 top="-20px"
                                                 left="-20px"
@@ -174,7 +174,7 @@ const Profile = () => {
                                             showArrow
                                             contentProps={{
                                                 css: {
-                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                                                     'color': 'white',
                                                 },
                                             }}
@@ -184,7 +184,7 @@ const Profile = () => {
                                                 colorScheme="black"
                                                 size="md"
                                                 bg={"transparent"}
-                                                color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                color={colorMode === "light" ? "cyan.600" : "pink.600"}
                                                 position="absolute"
                                                 top="-20px"
                                                 right="-20px"
@@ -207,7 +207,7 @@ const Profile = () => {
                                                             as={ImUser}
                                                             boxSize="200px"
                                                             color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
-                                                            bg={colorMode === 'light' ? 'cyan.500' : 'pink.500'}
+                                                            bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
                                                             rounded={'full'}
                                                             cursor="pointer"
                                                         />
@@ -272,7 +272,7 @@ const Profile = () => {
                                                             cursor="pointer"
                                                             textDecoration="none"
                                                             _hover={{ textDecoration: "underline" }}
-                                                            color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                            color={colorMode === "light" ? "cyan.600" : "pink.600"}
                                                             onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
                                                             display="flex"
                                                             alignItems="center"
@@ -334,7 +334,7 @@ const Profile = () => {
                                 <Text alignSelf={"center"} fontSize={"3xl"} fontWeight={"medium"}>ArtWorks</Text>
                                 <Button
                                     size="xs"
-                                    bg={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                    bg={colorMode === "light" ? "cyan.600" : "pink.600"}
                                     color={"white"}
                                     shadow={"lg"}
                                     onClick={handleNavigateNewArt}
@@ -393,7 +393,7 @@ const Profile = () => {
                             showArrow
                             contentProps={{
                                 css: {
-                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                                     'color': 'white',
                                 },
                             }}
@@ -407,7 +407,7 @@ const Profile = () => {
                                 shadow="md"
                                 borderRadius="full"
                                 bg={colorMode === "light" ? "black" : "white"}
-                                color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                                color={colorMode === "light" ? "pink.600" : "cyan.600"}
                                 left="20px"
                                 bottom="75px"
                                 zIndex="tooltip"

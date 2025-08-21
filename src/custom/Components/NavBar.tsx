@@ -105,7 +105,7 @@ const NavBar = () => {
     return (
         <Box 
             as="nav" 
-            bg={colorMode === "light" ? "cyan.500" : "pink.500"}
+            bg={colorMode === "light" ? "cyan.600" : "pink.600"}
             position="sticky" 
             top="0" 
             p={5}

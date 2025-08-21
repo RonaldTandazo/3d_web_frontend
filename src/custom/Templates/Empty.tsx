@@ -34,7 +34,7 @@ const Empty = ({ title, description, default_description = true }: any) => {
                 <EmptyState.Content>
                         <Icon
                             boxSize={"300px"}
-                            color={colorMode === "light" ? "cyan.500":"pink.500"}
+                            color={colorMode === "light" ? "cyan.600":"pink.600"}
                         >        
                             <MdHideSource />
                         </Icon>

@@ -15,6 +15,7 @@ const ArtVerse = () => {
 
   useEffect(() => {
     if (artVerseArtworksData?.getArtVerseArtworks) {
+      console.log(artVerseArtworksData?.getArtVerseArtworks)
       setArtworks(artVerseArtworksData.getArtVerseArtworks)
     }
   }, [artVerseArtworksData]);

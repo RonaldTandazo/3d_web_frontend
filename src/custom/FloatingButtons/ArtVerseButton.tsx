@@ -23,7 +23,7 @@ const ArtVerseButton = () => {
             showArrow
             contentProps={{
                 css: {
-                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                    '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                     'color': 'white',
                 },
             }}
@@ -39,7 +39,7 @@ const ArtVerseButton = () => {
                 shadow="md"
                 borderRadius="full"
                 bg={colorMode === "light" ? "black" : "white"}    
-                color={colorMode === "light" ? "pink.500" : "cyan.500"}
+                color={colorMode === "light" ? "pink.600" : "cyan.600"}
                 zIndex="tooltip"
             >
                 <GiAtomicSlashes />

@@ -116,7 +116,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
                             <GridItem alignItems={'center'} display={'flex'} justifyContent={'center'}>
                                 <Menu.Root unmountOnExit lazyMount open={menuOpen}>
                                     <Menu.Trigger asChild onClick={() => setMenuOpen(!menuOpen)}>
-                                        <Button size={'md'} bg={'transparent'} color={colorMode === 'light' ? 'cyan.500' : 'pink.500'} ref={buttonRef}>
+                                        <Button size={'md'} bg={'transparent'} color={colorMode === 'light' ? 'cyan.600' : 'pink.600'} ref={buttonRef}>
                                             <Icon size={'lg'}>
                                                 <GrMenu />
                                             </Icon>
@@ -135,13 +135,13 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
                                                     showArrow
                                                     contentProps={{
                                                         css: {
-                                                            '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.500' : 'colors.pink.500',
+                                                            '--tooltip-bg': colorMode === 'light' ? 'colors.cyan.600' : 'colors.pink.600',
                                                             'color': 'white'
                                                         },
                                                     }}
                                                 >
                                                     <Menu.Item value={'edit'} justifyContent={'center'} alignItems={'center'} onClick={() => handleEditClick(item)}>
-                                                        <Icon size={'sm'} color={colorMode === 'light' ? 'cyan.500' : 'pink.500'}>
+                                                        <Icon size={'sm'} color={colorMode === 'light' ? 'cyan.600' : 'pink.600'}>
                                                             <AiFillEdit />
                                                         </Icon>
                                                     </Menu.Item>

@@ -15,7 +15,7 @@ const LoadingProgress = () => {
             <ProgressCircle.Root size={"xl"} value={null}>
                 <ProgressCircle.Circle>
                     <ProgressCircle.Track />
-                    <ProgressCircle.Range strokeLinecap="round" stroke={colorMode === "light" ? "cyan.500":"pink.500"}/>
+                    <ProgressCircle.Range strokeLinecap="round" stroke={colorMode === "light" ? "cyan.600":"pink.600"}/>
                 </ProgressCircle.Circle>
             </ProgressCircle.Root>
         </Box>

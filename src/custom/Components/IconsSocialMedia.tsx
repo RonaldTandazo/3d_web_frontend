@@ -71,13 +71,13 @@ const IconsSocialMedia = ({socialNetwork, link, size}: UserSocialNetworkProps) =
             showArrow
             contentProps={{ 
                 css: { 
-                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.500":"colors.pink.500",
+                    "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
                     'color': 'white'
                 }
             }}
         >    
             <Link href={finalLink} target="_blank" rel="noopener noreferrer" borderRadius={"full"}>
-                <Icon size={size} color={colorMode === "light" ? "cyan.500":"pink.500"}>
+                <Icon size={size} color={colorMode === "light" ? "cyan.600":"pink.600"}>
                     {icono}
                 </Icon>
             </Link>

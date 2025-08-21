@@ -19,9 +19,10 @@ import SearchableInput from "@/custom/Components/SearchableInput";
 import { useGetArtworkFormData, useStoreArtwork } from "@/services/Artwork/ArtworkService";
 import { IoMdImages } from "react-icons/io";
 import MultimediaCollector from "@/custom/Components/MultimediaCollector";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 
 interface ArtWorkForm {
-    status: number[];
+    status: number;
 }
 
 interface CategoryOption {
@@ -42,6 +43,16 @@ interface SoftwareOptions {
 interface TopicOptions {
     value: number;
     label: string;
+}
+
+interface FileInterface {
+    originalFile: string | undefined;
+    crop: string | undefined;
+}
+
+interface MultimediaFiles {
+    type: string;
+    files: FileInterface[];
 }
 
 const NewArtwork = () => {
@@ -76,11 +87,13 @@ const NewArtwork = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState<string | undefined>(undefined);
     const [activeTab, setActiveTab] = useState<string | null>("1");
+    const [multimedia, setMultimedia] = useState<MultimediaFiles[]>([]);
 
     const {
         handleSubmit,
         formState: { errors },
-        control: artWorkControl
+        control: artWorkControl,
+        watch
     } = useForm<ArtWorkForm>();
 
     useEffect(() => {
@@ -130,7 +143,7 @@ const NewArtwork = () => {
 
     useEffect(() => {
         if(storeArtworkError?.message){
-            setError(storeArtworkError?.message);
+            handleError(storeArtworkError?.message);
         }
     }, [storeArtworkError]);
 
@@ -188,16 +201,18 @@ const NewArtwork = () => {
         const maxSize = 5 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            setError('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
-            return;
-        }
-
-        if (file.size > maxSize) {
-            setError('File size exceeds the limit of 5MB.');
+            const errorMessage = 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.';
+            handleError(errorMessage)
             return;
         }
         
-        setError(undefined);
+        if (file.size > maxSize) {
+            const errorMessage = 'File size exceeds the limit of 5MB.';
+            handleError(errorMessage)
+            return;
+        }
+        
+        handleError(undefined);
         setCrop(undefined)
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -249,52 +264,83 @@ const NewArtwork = () => {
         }
     };
 
-    const onSubmit = handleSubmit(async (data: any) => {
-        setError(undefined);
+    const structureData = async (type: string, data: any = null) => {
+        handleError(undefined);
         const softwareIds = selectedSoftware.map(({ value }) => value);
         const topicIds = selectedTopic.map(({ value }) => value);
-        
+
+        const status = type == 'draft' ? 3:data.status[0];
+        const schedule = type == 'schedule' ? true:false;
+
+        const images = multimediaMap['images'].map((file: FileInterface) => file.crop) ?? [];
+        const videos = multimediaMap['videos'] ?? [];
+        const file3d = multimediaMap['3d'] ?? '';
+
         const formData = {
             title: title,
             description: description,
             matureContent: matureContent,
             categories: selectedCategories,
-            softwares: softwareIds,
             topics: topicIds,
+            softwares: softwareIds,
+            images: images,
+            videos: videos,
+            file3d: file3d,
             thumbnail: preview,
-            status: data.status[0],
+            publishing: status,
+            schedule: schedule
         }
+
+        console.log(formData)
+
+        return formData;
+    }
+
+    const onSubmit = handleSubmit(async (data: any) => {
+        const storeData = await structureData('post', data)
+        await StoreArtwork(storeData)
     });
 
-    const handleSaveDraft = async() => {
-        setError(undefined);
-        const softwareIds = selectedSoftware.map(({ value }) => value);
-        const topicIds = selectedTopic.map(({ value }) => value);
+    const handleSchedulePost = handleSubmit(async (data: any) => {
+        const storeData = await structureData('schedule', data)
+        await StoreArtwork(storeData)
+    });
 
-        const artworkData = {
-            title: title,
-            description: description,
-            matureContent: matureContent,
-            categories: selectedCategories,
-            softwares: softwareIds,
-            topics: topicIds,
-            thumbnail: preview,
-            publishing: 3,
-        }
-        
-        await StoreArtwork(artworkData)
+    const handleSaveDraft = async () => {
+        const storeData = await structureData('draft', null)
+        await StoreArtwork(storeData)
     };
 
     const resetThumbnail = () => {
-        setImgURL(undefined)
-        setCompletedCrop(null)
-        setPreview(undefined)
-        setError(undefined)
+        setImgURL(undefined);
+        setCompletedCrop(null);
+        setPreview(undefined);
+        handleError(undefined);
     }
 
     const handleTab = (e) => {
         setActiveTab(e.value);
     };
+
+    const handleMultimediaUpdate = (type: string, files: []) => {
+        const existType = multimedia?.find((item) => item.type == type)
+        if(existType){
+            const updatedMultimedia = multimedia?.map((item) =>
+                item.type === type ? { ...item, files: files } : item
+            );
+            setMultimedia(updatedMultimedia);
+        }else{
+            const newType = {
+                type,
+                files
+            }
+            setMultimedia([...multimedia, newType])
+        }
+    }
+
+    const handleError = (errorMessage: string | undefined) => {
+        setError(errorMessage)
+    }
 
     const images = [
         { type: 'image', url: 'https://tse1.mm.bing.net/th/id/OIP.Z0FlCPCvgwT_99_fQ8NeSgHaEJ?rs=1&pid=ImgDetMain&o=7&rm=3', caption: "El Test" },
@@ -306,13 +352,23 @@ const NewArtwork = () => {
         { type: 'video', url: 'https://www.tiktok.com/@rolitas_clow05/video/7506954742346681656?is_from_webapp=1&sender_device=pc' },
     ];
 
-    const items = [
+    const multimediaMap = multimedia.reduce((acc: any, current: MultimediaFiles) => {
+        acc[current.type] = current.files;
+        return acc;
+    }, {});
+
+    const tabs = [
         {
             index: "1",
             title: "Images",
             icon: <IoMdImages />,
             content: (
-                <MultimediaCollector/>
+                <MultimediaCollector 
+                    type='images' 
+                    files={multimediaMap['images'] ?? []} 
+                    onUpdate={handleMultimediaUpdate}
+                    onError={handleError}
+                />
             )
         },
         {
@@ -320,7 +376,12 @@ const NewArtwork = () => {
             title: "Videos",
             icon: <MdSlowMotionVideo />,
             content: (
-                <>Videos</>
+                <MultimediaCollector 
+                    type='videos' 
+                    files={multimediaMap['videos'] ?? []} 
+                    onUpdate={handleMultimediaUpdate}
+                    onError={handleError}
+                />
             )
         },
         {
@@ -354,14 +415,14 @@ const NewArtwork = () => {
                         backgroundColor="rgba(0, 0, 0, 0.25)"
                         zIndex="tooltip"
                     >
-                        <Spinner size="xl" color={colorMode === "light" ? "cyan.500":"pink.500"} borderWidth="5px"/>
+                        <Spinner size="xl" color={colorMode === "light" ? "cyan.600":"pink.600"} borderWidth="5px"/>
                     </Box>
                 </Show>
                 <Box mt={0}>
                     <Breadcrumb.Root size={"lg"}>
                         <Breadcrumb.List>
                             <Breadcrumb.Item>
-                                <Breadcrumb.Link onClick={handleNavigate} color={colorMode === "light" ? "cyan.500" : "pink.500"}>Profile</Breadcrumb.Link>
+                                <Breadcrumb.Link onClick={handleNavigate} color={colorMode === "light" ? "cyan.600" : "pink.600"}>Profile</Breadcrumb.Link>
                             </Breadcrumb.Item>
                             <Breadcrumb.Separator />
                             <Breadcrumb.Item>
@@ -379,24 +440,24 @@ const NewArtwork = () => {
                         >
                             <GridItem>
                                 <Stack gap={10} h={"auto"}>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Title</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
                                             <Field.Root>
-                                                <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle(e.target.value)} />
+                                                <Input size={"lg"} placeholder="Name your ArtWork..." onChange={(e) => setTitle((e.target.value).trim())} />
                                             </Field.Root>
                                         </Stack>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Details</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10} gap={10}>
                                             <Field.Root>
                                                 <Field.Label fontSize={"lg"}>Description</Field.Label>
-                                                <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." onChange={(e) => setDescription(e.target.value)} />
+                                                <Textarea resize="both" size={"lg"} placeholder="Describe your ArtWork..." onChange={(e) => setDescription((e.target.value).trim())} />
                                             </Field.Root>
                                             <Field.Root>
                                                 <Field.Label fontSize={"lg"}>Mature Content</Field.Label>
@@ -414,8 +475,8 @@ const NewArtwork = () => {
                                             </Field.Root>
                                         </Stack>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Categoritzation</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10} gap={10}>
@@ -477,7 +538,7 @@ const NewArtwork = () => {
                                                                             <IconButton 
                                                                                 onClick={() => handleTopicChange(item, "remove")} 
                                                                                 size={"2xs"} 
-                                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                                 color={"white"} 
                                                                                 justifyContent={"center"}
                                                                                 alignItems={"center"}
@@ -521,7 +582,7 @@ const NewArtwork = () => {
                                                                             <IconButton 
                                                                                 onClick={() => handleSoftwareChange(item, "remove")} 
                                                                                 size={"2xs"} 
-                                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}   
+                                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}   
                                                                                 color={"white"} 
                                                                                 justifyContent={"center"}
                                                                                 alignItems={"center"}
@@ -540,8 +601,8 @@ const NewArtwork = () => {
                                             </Box>
                                         </Stack>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Multimedia</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10} gap={10}>
@@ -556,72 +617,77 @@ const NewArtwork = () => {
                                                 variant="plain"
                                             >
                                                 <Tabs.List p={1} gap={3} overflowX="hidden" w={"auto"} bg={colorMode == 'light' ? "white":"black"}>
-                                                    {items.map((item) => (
-                                                        <Tabs.Trigger
-                                                            key={item.index}
-                                                            value={item.index}
-                                                            _selected={{
-                                                                borderLeft: "4px solid",
-                                                                borderLeftColor:
-                                                                    colorMode === "light" ? "cyan.500" : "pink.500",
-                                                                backgroundColor:
-                                                                    colorMode === "light" ? "cyan.50" : "pink.200",
-                                                                color: "black",
-                                                            }}
-                                                            rounded={"sm"}
-                                                            bg={"none"}
-                                                        >
-                                                            <Box
-                                                                position={"relative"}
-                                                                overflow={"hidden"}
-                                                                whiteSpace={"nowrap"}
-                                                                display={"flex"}
-                                                                direction={"row"}
-                                                                justifyContent={"flex-start"}
-                                                                alignItems={"center"}
-                                                                gap={2}
-                                                                w={"full"}
-                                                                cursor={"pointer"}
+                                                    <For each={tabs}>
+                                                        {(tab) => (
+                                                            <Tabs.Trigger
+                                                                key={tab.index}
+                                                                value={tab.index}
+                                                                _selected={{
+                                                                    borderLeft: "4px solid",
+                                                                    borderLeftColor:
+                                                                        colorMode === "light" ? "cyan.600" : "pink.600",
+                                                                    backgroundColor:
+                                                                        colorMode === "light" ? "cyan.50" : "pink.200",
+                                                                    color: "black",
+                                                                }}
+                                                                rounded={"sm"}
+                                                                bg={"none"}
                                                             >
-                                                                <Icon
-                                                                    size={"md"}
-                                                                    color={colorMode === "light" ? "cyan.500" : "pink.500"}
+                                                                <Box
+                                                                    position={"relative"}
+                                                                    overflow={"hidden"}
+                                                                    whiteSpace={"nowrap"}
+                                                                    display={"flex"}
+                                                                    direction={"row"}
+                                                                    justifyContent={"flex-start"}
+                                                                    alignItems={"center"}
+                                                                    gap={2}
+                                                                    w={"full"}
+                                                                    cursor={"pointer"}
                                                                 >
-                                                                    {item.icon}
-                                                                </Icon>
-                                                                <Text>
-                                                                    {item.title}
-                                                                </Text>
-                                                            </Box>
-                                                        </Tabs.Trigger>
-                                                    ))}
+                                                                    <Icon
+                                                                        size={"md"}
+                                                                        color={colorMode === "light" ? "cyan.600" : "pink.600"}
+                                                                    >
+                                                                        {tab.icon}
+                                                                    </Icon>
+                                                                    <Text>
+                                                                        {tab.title}
+                                                                    </Text>
+                                                                </Box>
+                                                            </Tabs.Trigger>
+
+                                                        )}
+                                                    </For>
                                                 </Tabs.List>
                                                 <Box position={"relative"} w={"full"} h={"auto"}>
-                                                    {items.map((item) => (
-                                                        <Box
-                                                            key={item.index}
-                                                            inset="0"
-                                                            display={activeTab === item.index ? 'block' : 'none'}
-                                                            overflowY="auto"
-                                                            maxH="100%"
-                                                        >
-                                                            <Tabs.Content
-                                                                key={item.index}
-                                                                value={item.index}
+                                                    <For each={tabs}>
+                                                        {(tab) => (
+                                                            <Box
+                                                                key={tab.index}
                                                                 inset="0"
-                                                                _open={{
-                                                                    animationName: "fade-in, scale-in",
-                                                                    animationDuration: "300ms",
-                                                                }}
-                                                                _closed={{
-                                                                    animationName: "fade-out, scale-out",
-                                                                    animationDuration: "120ms",
-                                                                }}
+                                                                display={activeTab === tab.index ? 'block' : 'none'}
+                                                                overflowY="auto"
+                                                                maxH="100%"
                                                             >
-                                                                {item.content}
-                                                            </Tabs.Content>
-                                                        </Box>
-                                                    ))}
+                                                                <Tabs.Content
+                                                                    key={tab.index}
+                                                                    value={tab.index}
+                                                                    inset="0"
+                                                                    _open={{
+                                                                        animationName: "fade-in, scale-in",
+                                                                        animationDuration: "300ms",
+                                                                    }}
+                                                                    _closed={{
+                                                                        animationName: "fade-out, scale-out",
+                                                                        animationDuration: "120ms",
+                                                                    }}
+                                                                >
+                                                                    {tab.content}
+                                                                </Tabs.Content>
+                                                            </Box>
+                                                        )}
+                                                    </For>
                                                 </Box>
                                             </Tabs.Root>
                                         </Stack>
@@ -630,14 +696,14 @@ const NewArtwork = () => {
                             </GridItem>
                             <GridItem>
                                 <Stack gap={10} h={"auto"}>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Thumbnail</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
                                             <Field.Root>
                                                 <Show when={!preview}>
-                                                    <FileUpload.Root maxW="xl" alignItems="stretch" maxFiles={1} accept={["image/png", "image/jpeg", "image/gif", "image/webp"]} w={"full"} h={"full"}>
+                                                    <FileUpload.Root maxW="xl" alignItems="stretch" maxFiles={1} accept={["image/png", "image/jpeg", "image/gif", "image/webp"]} w={"full"} h={"full"} cursor={"pointer"}>
                                                         <FileUpload.HiddenInput onChange={(files) => handleFileChange(files)} />
                                                         <FileUpload.Dropzone>
                                                             <Icon size="md" color="fg.muted">
@@ -673,12 +739,14 @@ const NewArtwork = () => {
                                                     </Box>
                                                     <Box w={"full"} h={"full"} display={"flex"} justifyContent={"space-between"}  alignItems={"center"} mt={3}>
                                                         <Button
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                        >
+                                                            bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                            color={"whiteAlpha.950"}
+                                                            >
                                                             <FaCropSimple /> Crop
                                                         </Button>
                                                         <Button 
-                                                            bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                            bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                            color={"whiteAlpha.950"}
                                                             onClick={resetThumbnail}
                                                         > 
                                                             <GrPowerReset /> Reset
@@ -688,12 +756,12 @@ const NewArtwork = () => {
                                             </Field.Root>
                                         </Stack>
 
-                                        <Dialog.Root open={isModalOpen} size={"xl"}>
+                                        <Dialog.Root open={isModalOpen} size={"md"}>
                                             <Portal>
                                                 <Dialog.Backdrop />
                                                 <Dialog.Positioner>
                                                     <Dialog.Content>
-                                                        <Dialog.Header bg={colorMode === "light" ? "cyan.500":"blackAlpha.500"}>
+                                                        <Dialog.Header bg={colorMode === "light" ? "cyan.600":"blackAlpha.500"}>
                                                             <Dialog.Title>Crop Image</Dialog.Title>
                                                         </Dialog.Header>
                                                         <Dialog.Body w={"full"} h={"full"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
@@ -719,7 +787,8 @@ const NewArtwork = () => {
                                                         <Dialog.Footer>
                                                             <Dialog.ActionTrigger asChild>
                                                                 <Button 
-                                                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                                    color={"whiteAlpha.950"}
                                                                     onClick={() => {
                                                                         setIsModalOpen(false)
                                                                     }}
@@ -728,7 +797,8 @@ const NewArtwork = () => {
                                                                 </Button>
                                                             </Dialog.ActionTrigger>
                                                             <Button 
-                                                                bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                                color={"whiteAlpha.950"}
                                                                 onClick={onComplete}
                                                             >
                                                                 <FaCheckCircle /> Confirm
@@ -739,8 +809,8 @@ const NewArtwork = () => {
                                             </Portal>
                                         </Dialog.Root>
                                     </Box>
-                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.500" : "whiteAlpha.300"} shadow={"lg"}>
-                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.500" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
+                                    <Box border={"solid 1px"} w={"full"} borderRadius={"md"} borderColor={colorMode === "light" ? "cyan.600" : "whiteAlpha.300"} shadow={"lg"}>
+                                        <Box w={"full"} bg={colorMode === "light" ? "cyan.600" : "blackAlpha.500"} py={5} px={10} borderTopRadius={"sm"}>
                                             <Heading fontSize={"lg"} color={"white"}>Publishing</Heading>
                                         </Box>
                                         <Stack mx={10} mt={5} mb={10}>
@@ -750,29 +820,50 @@ const NewArtwork = () => {
                                                     <Controller
                                                         control={artWorkControl}
                                                         name="status"
-                                                        rules={{ required: "Status is required" }}
+                                                        // rules={{ required: "Status is required" }}
                                                         render={({ field }) => (
-                                                            <SearchableSelect options={publishing} field={field} defaultValue={null} />
+                                                            <SearchableSelect options={publishing} field={field} />
                                                         )}
                                                     />
                                                     <Field.ErrorText>{errors.status?.message}</Field.ErrorText>
                                                 </Field.Root>
                                             </Show>
-                                            <Box display={"flex"} justifyContent={"space-between"} mt={3}>
-                                                <Show when={publishing.length > 0}>
+                                            <Box display={"flex"} justifyContent={watch('status') ? "space-between":"flex-end"} mt={3}>
+                                                <Show when={publishing.length > 0 && watch('status')}>
                                                     <Button
-                                                        type="submit"
-                                                        bg={colorMode === "light" ? "cyan.500":"pink.500"}
+                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                        color={"whiteAlpha.950"}
+                                                        maxW={"45%"}
+                                                        onClick={handleSchedulePost}
                                                     >
-                                                        <FaNewspaper /> Publish
-                                                    </Button>                                                
+                                                        <RiCalendarScheduleFill />
+                                                        <Box
+                                                            flexDirection={"column"}
+                                                        >
+                                                            <Text>Schedule</Text>
+                                                            <Text>Post</Text>
+                                                        </Box> 
+                                                    </Button>                                
+                                                    <Button
+                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                        color={"whiteAlpha.950"}
+                                                        type="submit"
+                                                        maxW={"45%"}
+                                                    >
+                                                        <FaNewspaper /> Post
+                                                    </Button>
                                                 </Show>
-                                                <Button
-                                                    bg={colorMode === "light" ? "cyan.500":"pink.500"}
-                                                    onClick={handleSaveDraft}
+                                                <Show
+                                                    when={!watch('status')}
                                                 >
-                                                    <FaArchive /> Draft
-                                                </Button>
+                                                    <Button
+                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                        color={"whiteAlpha.950"}
+                                                        onClick={handleSaveDraft}
+                                                    >
+                                                        <FaArchive /> Draft
+                                                    </Button>
+                                                </Show>
                                             </Box>
                                         </Stack>
                                     </Box>
@@ -786,7 +877,7 @@ const NewArtwork = () => {
                         title="New ArtWork"
                         message={error}
                         type="error"
-                        onClose={() => setError(undefined)}
+                        onClose={() => handleError(undefined)}
                     />
                 </Show>
             </Box>
