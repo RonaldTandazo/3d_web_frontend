@@ -2,7 +2,6 @@ import { createContext, useContext, useState, ReactNode, useEffect, useRef } fro
 import { useLogin, useSignUp, useRefreshToken, useRevokeToken } from '../services/Authentication/AuthenticationService';
 import { useNavigate } from 'react-router-dom';
 import { ApolloError } from '@apollo/client';
-import { set } from 'react-hook-form';
 import { setAuthCallbacks } from '@/utils/ApolloClient';
 
 interface User {
@@ -56,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const callRefreshTokenRef = useRef(async (token: string) => {
         try {
-            const { data } = await refreshTokenProcess(token);
+            const { data }: any = await refreshTokenProcess(token);
             if (data && data.refreshToken) {
                 setAccessToken(data.refreshToken.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken.refreshToken);

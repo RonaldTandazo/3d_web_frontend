@@ -35,7 +35,7 @@ const SearchableInput = ({ disabled = false, placeholder = "Select Options", opt
     }
 
     return ( 
-        <Select.Root>
+        <Select.Root collection={options}>
             <Select.HiddenSelect {...rest} />
             <Select.Control>
                 <Select.Trigger onClick={() => {setIsOpen(true)}} bg={"transparent"} border={"solid thin"} borderColor={colorMode === "light" ? "gray.200" : "whiteAlpha.300"} rounded={"sm"}>

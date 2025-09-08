@@ -99,6 +99,7 @@ const SearchableSelect = ({ disabled = false, placeholder = "Select Options", op
             defaultValue={!defaultValue ? defaultValue:(multiple ? (Array.isArray(defaultValue) ? defaultValue:[defaultValue]):[defaultValue])}
             disabled={disabled}
             lazyMount
+            collection={options}
         >
             <Select.HiddenSelect {...rest} />
             <Select.Control>

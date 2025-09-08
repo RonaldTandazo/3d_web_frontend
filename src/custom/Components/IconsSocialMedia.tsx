@@ -2,7 +2,6 @@ import { Icon, Link } from "@chakra-ui/react";
 import { FaDiscord, FaFacebook, FaInstagram, FaLink, FaLinkedin, FaPinterest, FaReddit, FaSnapchat, FaTiktok, FaTumblr, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/tooltip"
 import { useColorMode } from "@/components/ui/color-mode";
-import { useState } from "react";
 
 interface UserSocialNetworkProps {
     socialNetwork: string;
