@@ -3,20 +3,20 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { OBJLoader, MTLLoader } from "three-stdlib";
 import { Box, Button, FileUpload, Heading, Icon, Show } from "@chakra-ui/react";
 import { LuUpload } from "react-icons/lu";
-import { useGLTF, OrbitControls } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 
-function ModeloOBJ({ objUrl, mtlUrl, setLoading }) {
-    const obj = useLoader(OBJLoader, objUrl);
-    const materials = useLoader(MTLLoader, mtlUrl);
+function ModeloOBJ({ objUrl, mtlUrl, setLoading }: any) {
+    const obj: any = useLoader(OBJLoader, objUrl);
+    const materials: any = useLoader(MTLLoader, mtlUrl);
 
     useEffect(() => {
         if (materials) {
             materials.preload();
-            obj.children.forEach((child) => {
+            obj.children.forEach((child: any) => {
                 //if (child instanceof THREE.Mesh) {
                     if (Array.isArray(child.material)) {
-                        child.material = child.material.map((mat) => {
+                        child.material = child.material.map((mat: any) => {
                             if (mat && mat.name && materials.materials[mat.name]) {
                                 return materials.materials[mat.name];
                             }
@@ -35,7 +35,7 @@ function ModeloOBJ({ objUrl, mtlUrl, setLoading }) {
     return <primitive object={obj} dispose={null} />;
 }
 
-function Escena3D({ objUrl, mtlUrl, setLoading }) {
+function Escena3D({ objUrl, mtlUrl, setLoading }: any) {
     return (
         <Canvas>
             <ambientLight intensity={0.5} />
@@ -47,9 +47,9 @@ function Escena3D({ objUrl, mtlUrl, setLoading }) {
 }
 
 const Viewer = () => {
-    const [objUrl, setObjUrl] = useState(null);
-    const [mtlUrl, setMtlUrl] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [objUrl, setObjUrl] = useState<any>(null);
+    const [mtlUrl, setMtlUrl] = useState<any>(null);
+    const [loading, setLoading] = useState<any>(false);
 
     const handleObjFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];

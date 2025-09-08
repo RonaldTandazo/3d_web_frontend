@@ -19,9 +19,9 @@ const MultimediaCollector = ({ type, onUpdate, files, onError }: any) => {
     const [imgURL, setImgURL] = useState<string | undefined>(undefined)
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
-    const [aspect, setAspect] = useState<number | undefined>(1 / 1)
-    const [scale, setScale] = useState<number>(1)
-    const [rotate, setRotate] = useState<number>(0)
+    const [aspect] = useState<number | undefined>(1 / 1)
+    const [scale] = useState<number>(1)
+    const [rotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const { colorMode } = useColorMode();
     const fileInputRef = useRef<HTMLInputElement>(null);
