@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Flex, Grid, GridItem, Text, Button, Menu, Portal, Icon, Separator, Popover, Group, Input, Field, Box } from '@chakra-ui/react';
+import { Flex, Grid, GridItem, Text, Button, Menu, Portal, Icon, Separator, Popover, Group, Input, Field } from '@chakra-ui/react';
 import { GrMenu } from 'react-icons/gr';
 import { AiFillEdit } from 'react-icons/ai';
 import { TiDelete } from 'react-icons/ti';
@@ -23,6 +23,13 @@ interface SocialMediaFormValues {
     link: string;
 }
 
+interface ItemSocialMedia {
+    userSocialNetworkId: number; 
+    socialMediaId: number;
+    network: string;
+    link: string;
+}
+
 const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia, socialMediaLoading }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
@@ -40,7 +47,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
         control: updateSocialMediaControl,
     } = useForm<SocialMediaFormValues>();
 
-    const handleEditClick = (item: any) => {
+    const handleEditClick = (item: ItemSocialMedia) => {
         setEditingId(item.userSocialNetworkId);
     };
 
@@ -49,7 +56,7 @@ const SocialMediaListItem: React.FC<SocialMediaItemProps> = ({ item, socialMedia
         setEditingId(null);
     };
 
-    const removeSocialNetowrk = async (data: any) => {
+    const removeSocialNetowrk = async (data: ItemSocialMedia) => {
         await RemoveUserNetwork(data.userSocialNetworkId)
         handleClose();
     }

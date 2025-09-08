@@ -75,9 +75,9 @@ const ArtworkEdit = () => {
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
     const [imgURL, setImgURL] = useState<string | undefined>(undefined)
     const [preview, setPreview] = useState<string | undefined>(undefined);
-    const [aspect, setAspect] = useState<number | undefined>(1 / 1)
-    const [scale, setScale] = useState<number>(1)
-    const [rotate, setRotate] = useState<number>(0)
+    const [aspect] = useState<number | undefined>(1 / 1)
+    const [scale] = useState<number>(1)
+    const [rotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState<string | undefined>(undefined);
@@ -279,23 +279,25 @@ const ArtworkEdit = () => {
             thumbnail: preview,
             status: data.status[0],
         }
+
+        console.log(formData)
     });
 
-    const handleSaveDraft = async() => {
-        const softwareIds = selectedSoftware.map(({ value }) => value);
+    // const handleSaveDraft = async() => {
+    //     const softwareIds = selectedSoftware.map(({ value }) => value);
         
-        const artworkData = {
-            title: title,
-            description: description,
-            matureContent: matureContent,
-            categories: selectedCategories,
-            softwares: softwareIds,
-            thumbnail: preview,
-            publishing: 3,
-        }
+    //     const artworkData = {
+    //         title: title,
+    //         description: description,
+    //         matureContent: matureContent,
+    //         categories: selectedCategories,
+    //         softwares: softwareIds,
+    //         thumbnail: preview,
+    //         publishing: 3,
+    //     }
 
-        await StoreArtwork(artworkData)
-    };
+    //     await StoreArtwork(artworkData)
+    // };
 
     const resetThumbnail = () => {
         setImgURL(undefined)

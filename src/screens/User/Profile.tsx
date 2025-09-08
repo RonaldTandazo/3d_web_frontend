@@ -1,10 +1,10 @@
 import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
-import { Box, Button, EmptyState, Flex, For, Grid, GridItem, Icon, IconButton, Image, Separator, Show, Stack, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, For, Grid, GridItem, Icon, IconButton, Image, Separator, Show, Stack, Text } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import { BsGlobe2, BsTelephoneFill } from "react-icons/bs";
-import { MdEmail, MdHideSource } from "react-icons/md";
+import { MdEmail } from "react-icons/md";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import { FaPlusSquare, FaUserEdit } from "react-icons/fa";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,7 +12,6 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import IconsSocialMedia from "@/custom/Components/IconsSocialMedia";
 import { useGetUserSocialMedia } from "@/services/UserSocialNetwork/UserSocialNetworkService";
-import LoadingScreen from "@/custom/Templates/LoadingScreen";
 import { useGetUserArtworks } from "@/services/Artwork/ArtworkService";
 import ArtworkItem from "@/custom/Components/ArtworkItem";
 import { useSubscription } from "@apollo/client";
@@ -45,12 +44,12 @@ const Profile = () => {
     const [isUserInfoVisible, setIsUserInfoVisible] = useState(true);
     const navigate = useNavigate();
     const [userSocialMedia, setUserSocialMedia] = useState([]);
-    const [artworks, setArtworks] = useState([])
+    const [artworks, setArtworks] = useState<Artwork[]>([])
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     
     const { getUserSocialMedia, data: userSocialMediaData, loading: userSocialMediaLoading } = useGetUserSocialMedia();
     const { getUserArtworks, data: userArtworksData, loading: userArtworksLoading } = useGetUserArtworks();
-    const { data, loading, error } = useSubscription(NEW_ARTWORK_SUBSCRIPTION);
+    const { data } = useSubscription(NEW_ARTWORK_SUBSCRIPTION);
 
     const charsPerLine = 50;
     const maxLines = 2;
@@ -201,7 +200,7 @@ const Profile = () => {
                                                 alignItems="center"
                                             >
                                                 <Show
-                                                    when={user.avatar}
+                                                    when={user?.avatar}
                                                     fallback={
                                                         <Icon
                                                             as={ImUser}
@@ -214,7 +213,7 @@ const Profile = () => {
                                                     }
                                                 >
                                                     <Image
-                                                        src={`${backendUrl}/avatars/${user.avatar}`}
+                                                        src={`${backendUrl}/avatars/${user?.avatar}`}
                                                         alt="Stored Image"
                                                         boxSize="200px"
                                                         borderRadius="full"

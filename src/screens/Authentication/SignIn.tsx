@@ -54,7 +54,7 @@ const SignIn = () => {
             justify="center"
         >
             <Card.Root 
-                w={{ base: "90%", md: "500px" }} // Ancho responsivo
+                w={{ base: "90%", md: "500px" }}
                 shadow="lg" 
                 borderRadius="lg"
             >

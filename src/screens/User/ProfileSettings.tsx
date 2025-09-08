@@ -55,6 +55,18 @@ interface TopicOptions {
     label: string;
 }
 
+interface ItemSocialMedia {
+    userSocialNetworkId: number; 
+    socialMediaId: number;
+    network: string;
+    link: string;
+}
+
+interface Country {
+    countryId: number;
+    name: string;
+}
+
 const backendUrl = import.meta.env.VITE_API_URL;
 
 const ProfileSettings = () => {
@@ -85,13 +97,13 @@ const ProfileSettings = () => {
     const [since, setSince] = useState<string | null>(null);
     const { colorMode } = useColorMode();
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const buttonRef = useRef<HTMLButtonElement>(null);
+    // const buttonRef = useRef<HTMLButtonElement>(null);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
     const [selectedTopic, setSelectedTopic] = useState<TopicOptions[]>([]);
     const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
-    const [buttonWidth, setButtonWidth] = useState('auto');
+    // const [buttonWidth, setButtonWidth] = useState('auto');
 
-    const opciones = {
+    const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'long',
     };
@@ -113,17 +125,17 @@ const ProfileSettings = () => {
         }
     };
 
-    useEffect(() => {
-        const updateWidth = () => {
-            if (buttonRef.current) {
-                setButtonWidth(`${buttonRef.current.offsetWidth}px`);
-            } else {
-                setTimeout(updateWidth, 50);
-            }
-        };
+    // useEffect(() => {
+    //     const updateWidth = () => {
+    //         if (buttonRef.current) {
+    //             setButtonWidth(`${buttonRef.current.offsetWidth}px`);
+    //         } else {
+    //             setTimeout(updateWidth, 50);
+    //         }
+    //     };
 
-        updateWidth();
-    }, []);
+    //     updateWidth();
+    // }, []);
 
     useEffect(() => {
         if(activeTab == "1"){
@@ -143,7 +155,7 @@ const ProfileSettings = () => {
 
     useEffect(() => {
         if (countryData?.getCountries) {
-            const formattedCountries = countryData.getCountries.map((country: any) => ({
+            const formattedCountries = countryData.getCountries.map((country: Country) => ({
                 value: country.countryId,
                 label: country.name,
             }));
@@ -178,13 +190,13 @@ const ProfileSettings = () => {
             const { userCategories, userSoftwares, userTopics } = userSkillsData.getUserSkills;
             
             if(userCategories && userCategories.length > 0){
-                setSelectedCategories(userCategories.map((item) => {
+                setSelectedCategories(userCategories.map((item: any) => {
                     return item.categoryId
                 }))
             }
 
             if(userSoftwares && userSoftwares.length > 0){
-                setSelectedSoftware(userSoftwares.map((item) => {
+                setSelectedSoftware(userSoftwares.map((item: any) => {
                     return {
                         value: item.softwareId,
                         label: item.software
@@ -193,7 +205,7 @@ const ProfileSettings = () => {
             }
 
             if(userTopics && userTopics.length > 0){
-                setSelectedTopic(userTopics.map((item) => {
+                setSelectedTopic(userTopics.map((item: any) => {
                     return {
                         value: item.topicId,
                         label: item.topic
@@ -220,7 +232,7 @@ const ProfileSettings = () => {
     useEffect(() => {
         if (user?.since) {
             const fecha = new Date(user.since);
-            setSince(fecha.toLocaleDateString('en-US', opciones));
+            setSince(fecha.toLocaleDateString('en-US', options));
         } else {
             setSince(null);
         }
@@ -353,35 +365,36 @@ const ProfileSettings = () => {
         }
     }, [storeUserPictureError, profileError, countryError, skillsError, userSkillsError, storeUserSkillsError, socialMediaError, userSocialMediaError, storeUserNetworkError, passwordError ]);
 
-    useEffect(() => {
-        if(storeUserPictureData){
-            const updatedUser = { ...user, avatar: storeUserPictureData.storeUserPicture.value };
-            updateUser(updatedUser);
+    const displayMessage = (data: any) => {
+        if (data) {
+            const valor = Object.values(data).find(value => value !== undefined);
+            if (valor && typeof valor === 'string' && valor.trim() != '') {
+                setMessage({ message: valor, type: "success" });
+                setShowAlert(true);
+            }
+        }
+    };
 
-            const valor = storeUserPictureData.storeUserPicture.label;
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(profileData){
-            const valor = Object.values(profileData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(storeUserSkillsData){
-            const valor = Object.values(storeUserSkillsData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(storeUserNetworkData){
-            const valor = Object.values(storeUserNetworkData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        }else if(passwordData){
-            const valor = Object.values(passwordData).find(value => value !== undefined);
-            setMessage({message: valor, type: "success"})
-            setShowAlert(true)
-        } 
+    useEffect(() => {
+        if (storeUserPictureData) {
+            if (user && user.userId !== undefined) {
+                const updatedUser = {
+                    ...user,
+                    avatar: storeUserPictureData.storeUserPicture.value,
+                };
+                updateUser(updatedUser);
+                
+                const valor = storeUserPictureData.storeUserPicture.label;
+                setMessage({ message: valor, type: "success" });
+                setShowAlert(true);
+            }
+        } else {
+            displayMessage(profileData || storeUserSkillsData || storeUserNetworkData || passwordData);
+        }
     }, [storeUserPictureData, profileData, storeUserSkillsData, storeUserNetworkData, passwordData]);
 
     
-    const handleTab = (e) => {
+    const handleTab = (e: {value: string}) => {
         setActiveTab(e.value);
         resetAlert()
     };
@@ -724,7 +737,7 @@ const ProfileSettings = () => {
                                                 <For
                                                     each={userSocialMedia}
                                                 >
-                                                    {(item) => {
+                                                    {(item: ItemSocialMedia) => {
                                                         return (
                                                             <SocialMediaListItem 
                                                                 key={item.userSocialNetworkId}

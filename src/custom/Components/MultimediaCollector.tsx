@@ -180,7 +180,7 @@ const MultimediaCollector = ({ type, onUpdate, files, onError }: any) => {
             shadow={"inner"}
         >
             <For each={files}>
-                {(file, index) => (
+                {(file: FileInterface, index) => (
                     <Box
                         w={"full"}
                         h={"full"}

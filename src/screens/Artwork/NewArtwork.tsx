@@ -87,9 +87,9 @@ const NewArtwork = () => {
     const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
     const [imgURL, setImgURL] = useState<string | undefined>(undefined)
     const [preview, setPreview] = useState<string | undefined>(undefined);
-    const [aspect, setAspect] = useState<number | undefined>(1 / 1)
-    const [scale, setScale] = useState<number>(1)
-    const [rotate, setRotate] = useState<number>(0)
+    const [aspect] = useState<number | undefined>(1 / 1)
+    const [scale] = useState<number>(1)
+    const [rotate] = useState<number>(0)
     const imgRef = useRef<HTMLImageElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState<string | undefined>(undefined);
@@ -354,8 +354,9 @@ const NewArtwork = () => {
             handleError('You must establish Time for scheduling')
             return;
         }
+        
         const storeData = await structureData('schedule', data)
-        //await StoreArtwork(storeData)
+        await StoreArtwork(storeData)
     });
 
     const handleSaveDraft = async () => {
@@ -393,16 +394,6 @@ const NewArtwork = () => {
     const handleError = (errorMessage: string | undefined) => {
         setError(errorMessage)
     }
-
-    const images = [
-        { type: 'image', url: 'https://tse1.mm.bing.net/th/id/OIP.Z0FlCPCvgwT_99_fQ8NeSgHaEJ?rs=1&pid=ImgDetMain&o=7&rm=3', caption: "El Test" },
-        { type: 'image', url: 'https://images.pexels.com/photos/2280549/pexels-photo-2280549.jpeg?cs=srgb&dl=pexels-chokniti-khongchum-1197604-2280549.jpg&fm=jpg', caption: "" },
-        { type: 'image', url: 'https://www.infoescola.com/wp-content/uploads/2010/06/tigre-de-bengala-60322900-1000x664.jpg', caption: "El tigre" },
-    ];
-
-    const videos = [
-        { type: 'video', url: 'https://www.tiktok.com/@rolitas_clow05/video/7506954742346681656?is_from_webapp=1&sender_device=pc' },
-    ];
 
     const multimediaMap = multimedia.reduce((acc: any, current: MultimediaFiles) => {
         acc[current.type] = current.files;
@@ -929,6 +920,7 @@ const NewArtwork = () => {
                                                                                                             }}
                                                                                                             captionLayout={"dropdown"}
                                                                                                             navLayout={"around"}
+                                                                                                            required
                                                                                                         />
                                                                                                     </Popover.Body>
                                                                                                 </Popover.Content>

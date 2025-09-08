@@ -2,7 +2,7 @@ import { Alert, CloseButton, Presence, useDisclosure } from "@chakra-ui/react";
 import { useEffect } from "react";
 
 interface AlertProps {
-    type: "error" | "success" | "warning" | "info" | undefined;
+    type: "error" | "success" | "warning" | "info" | undefined | string;
     title: string;
     message: string | undefined;
     onClose: () => void;
