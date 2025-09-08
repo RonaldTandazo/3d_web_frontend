@@ -67,6 +67,11 @@ interface Country {
     name: string;
 }
 
+interface MessageInterface {
+    type: "error" | "success" | "warning" | "info" | undefined,
+    message: string
+}
+
 const backendUrl = import.meta.env.VITE_API_URL;
 
 const ProfileSettings = () => {
@@ -91,7 +96,7 @@ const ProfileSettings = () => {
     const { changePassword: ChangePassword, data: passwordData, error: passwordError, loading: passwordLoading } = useChangePassword();
 
     const [showAlert, setShowAlert] = useState(false);
-    const [message, setMessage] = useState({message: "", type: ""});
+    const [message, setMessage] = useState<MessageInterface>({message: "", type: undefined});
     
     const [activeTab, setActiveTab] = useState<string | null>("1");
     const [since, setSince] = useState<string | null>(null);
@@ -240,7 +245,7 @@ const ProfileSettings = () => {
 
     const resetAlert = () => {
         setShowAlert(false)
-        setMessage({message: "", type: ""})
+        setMessage({message: "", type: undefined})
     }
 
     // PROFILE UPDATE
@@ -971,7 +976,7 @@ const ProfileSettings = () => {
                     title="Profile Settings"
                     message={message.message}
                     onClose={() => {
-                        setMessage({message: "", type: ""})
+                        setMessage({message: "", type: undefined})
                         setShowAlert(false);
                     }}
                 />
