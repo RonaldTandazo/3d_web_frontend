@@ -2,8 +2,8 @@ import { useColorMode } from "@/components/ui/color-mode";
 import { useAuth } from "@/context/AuthContext";
 import LoadingProgress from "@/custom/Components/LoadingProgress";
 import SearchableSelect from "@/custom/Components/SearchableSelect";
-import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, Dialog, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Portal, Show, Spinner, Stack, Tabs, Text, Textarea } from "@chakra-ui/react";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { Box, Breadcrumb, Button, Card, Checkbox, CheckboxCard, CloseButton, Dialog, Drawer, Field, FileUpload, Flex, For, Grid, GridItem, Heading, Icon, IconButton, Image, Input, Popover, Portal, Show, Spinner, Stack, Tabs, Text, Textarea } from "@chakra-ui/react";
+import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FaArchive, FaCheckCircle } from "react-icons/fa";
 import { LuUpload } from "react-icons/lu";
@@ -20,6 +20,8 @@ import { useGetArtworkFormData, useStoreArtwork } from "@/services/Artwork/Artwo
 import { IoMdImages } from "react-icons/io";
 import MultimediaCollector from "@/custom/Components/MultimediaCollector";
 import { RiCalendarScheduleFill } from "react-icons/ri";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/style.css";
 
 interface ArtWorkForm {
     status: number;
@@ -67,6 +69,8 @@ const NewArtwork = () => {
     const [topics, setTopics] = useState<TopicOptions[]>([]);
     const [softwares, setSoftwares] = useState<SoftwareOptions[]>([]);
     const [publishing, setPublishing] = useState<PublishingOptions[]>([]);
+    const [draft, setDraft] = useState<PublishingOptions | undefined>(undefined);
+    const [schedule, setSchedule] = useState<PublishingOptions | undefined>(undefined);
     
     const [title, setTitle] = useState<string>('ArtWork');
     const [description, setDescription] = useState<string | undefined>(undefined);
@@ -74,6 +78,9 @@ const NewArtwork = () => {
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
     const [selectedTopic, setSelectedTopic] = useState<TopicOptions[]>([]);
     const [selectedSoftware, setSelectedSoftware] = useState<SoftwareOptions[]>([]);
+    const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
+    const [scheduleTime, setScheduleTime] = useState<string | undefined>(undefined);
+    const formattedDate = scheduleDate ? scheduleDate.toLocaleDateString() : 'Set Date';
     
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [crop, setCrop] = useState<Crop>()
@@ -88,6 +95,8 @@ const NewArtwork = () => {
     const [error, setError] = useState<string | undefined>(undefined);
     const [activeTab, setActiveTab] = useState<string | null>("1");
     const [multimedia, setMultimedia] = useState<MultimediaFiles[]>([]);
+    const [openDrawer, setOpenDrawer] = useState<boolean>(false)
+    const [isOpenDatePicker, setIsOpenDatePicker] = useState<boolean>(false)
 
     const {
         handleSubmit,
@@ -111,13 +120,31 @@ const NewArtwork = () => {
 
             setCategories(formattedCategories);
 
-            const formattedPublishing: PublishingOptions[] = publishing.filter((item: any) => item.publishingId !== 3)
+            const formattedPublishing: PublishingOptions[] = publishing.filter((item: any) => item.type == 'select')
             .map((state: any) => ({
                 value: state.publishingId,
                 label: state.name,
             }));
 
             setPublishing(formattedPublishing);
+
+            const foundDraft = publishing.find((item: any) => item.type === 'draft');
+            setDraft(
+                foundDraft ? { 
+                    label: foundDraft.name,
+                    value: foundDraft.publishingId
+                }
+                : undefined
+            )
+
+            const foundSchedule = publishing.find((item: any) => item.type === 'schedule');
+            setSchedule(
+                foundSchedule ? { 
+                    label: foundSchedule.name,
+                    value: foundSchedule.publishingId
+                }
+                : undefined
+            )
 
             const formattedSoftware: SoftwareOptions[] = softwares.map((software: any) => ({
                 value: software.softwareId,
@@ -264,15 +291,28 @@ const NewArtwork = () => {
         }
     };
 
+    const handleDateSelect = (date: Date) => {
+        console.log("date")
+        console.log(date)
+        setScheduleDate(date);
+        setIsOpenDatePicker(false);
+    };
+
+    const handleTimeChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        const time = e.target.value;
+        setScheduleTime(time);
+    };
+
     const structureData = async (type: string, data: any = null) => {
         handleError(undefined);
         const softwareIds = selectedSoftware.map(({ value }) => value);
         const topicIds = selectedTopic.map(({ value }) => value);
 
-        const status = type == 'draft' ? 3:data.status[0];
-        const schedule = type == 'schedule' ? true:false;
+        const status = type == 'draft' ? draft?.value: type == 'schedule' ? schedule?.value:data.status[0];
+        const isSchedule = status == 4 ? true:false;
+        const publishingTargetStatus = isSchedule ? data.status[0]:null;
 
-        const images = multimediaMap['images'].map((file: FileInterface) => file.crop) ?? [];
+        const images = multimediaMap['images']?.map((file: FileInterface) => file.crop) ?? [];
         const videos = multimediaMap['videos'] ?? [];
         const file3d = multimediaMap['3d'] ?? '';
 
@@ -288,7 +328,10 @@ const NewArtwork = () => {
             file3d: file3d,
             thumbnail: preview,
             publishing: status,
-            schedule: schedule
+            schedule: isSchedule,
+            publishingTargetStatus: publishingTargetStatus,
+            scheduleDate: scheduleDate,
+            scheduleTime: scheduleTime
         }
 
         console.log(formData)
@@ -302,8 +345,17 @@ const NewArtwork = () => {
     });
 
     const handleSchedulePost = handleSubmit(async (data: any) => {
+        if(!scheduleDate){
+            handleError('You must establish Date for scheduling')
+            return;
+        }
+
+        if(!scheduleTime){  
+            handleError('You must establish Time for scheduling')
+            return;
+        }
         const storeData = await structureData('schedule', data)
-        await StoreArtwork(storeData)
+        //await StoreArtwork(storeData)
     });
 
     const handleSaveDraft = async () => {
@@ -318,7 +370,7 @@ const NewArtwork = () => {
         handleError(undefined);
     }
 
-    const handleTab = (e) => {
+    const handleTab = (e: any) => {
         setActiveTab(e.value);
     };
 
@@ -660,32 +712,24 @@ const NewArtwork = () => {
                                                         )}
                                                     </For>
                                                 </Tabs.List>
-                                                <Box position={"relative"} w={"full"} h={"auto"}>
+                                                <Box w={"full"} h={"auto"}>
                                                     <For each={tabs}>
                                                         {(tab) => (
-                                                            <Box
+                                                            <Tabs.Content
                                                                 key={tab.index}
+                                                                value={tab.index}
                                                                 inset="0"
-                                                                display={activeTab === tab.index ? 'block' : 'none'}
-                                                                overflowY="auto"
-                                                                maxH="100%"
+                                                                _open={{
+                                                                    animationName: "fade-in, scale-in",
+                                                                    animationDuration: "300ms",
+                                                                }}
+                                                                _closed={{
+                                                                    animationName: "fade-out, scale-out",
+                                                                    animationDuration: "120ms",
+                                                                }}
                                                             >
-                                                                <Tabs.Content
-                                                                    key={tab.index}
-                                                                    value={tab.index}
-                                                                    inset="0"
-                                                                    _open={{
-                                                                        animationName: "fade-in, scale-in",
-                                                                        animationDuration: "300ms",
-                                                                    }}
-                                                                    _closed={{
-                                                                        animationName: "fade-out, scale-out",
-                                                                        animationDuration: "120ms",
-                                                                    }}
-                                                                >
-                                                                    {tab.content}
-                                                                </Tabs.Content>
-                                                            </Box>
+                                                                {tab.content}
+                                                            </Tabs.Content>
                                                         )}
                                                     </For>
                                                 </Box>
@@ -830,20 +874,112 @@ const NewArtwork = () => {
                                             </Show>
                                             <Box display={"flex"} justifyContent={watch('status') ? "space-between":"flex-end"} mt={3}>
                                                 <Show when={publishing.length > 0 && watch('status')}>
-                                                    <Button
-                                                        bg={colorMode === "light" ? "cyan.600":"pink.600"}
-                                                        color={"whiteAlpha.950"}
-                                                        maxW={"45%"}
-                                                        onClick={handleSchedulePost}
+                                                    <Show
+                                                        when={schedule}
                                                     >
-                                                        <RiCalendarScheduleFill />
-                                                        <Box
-                                                            flexDirection={"column"}
-                                                        >
-                                                            <Text>Schedule</Text>
-                                                            <Text>Post</Text>
-                                                        </Box> 
-                                                    </Button>                                
+                                                        <Drawer.Root open={openDrawer} onOpenChange={(e) => setOpenDrawer(e.open)} placement={"start"} size={"sm"}>
+                                                            <Drawer.Trigger asChild>
+                                                                <Button 
+                                                                    variant="outline" 
+                                                                    size="sm"
+                                                                    bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                                    color={"whiteAlpha.950"}
+                                                                    maxW={"45%"}
+                                                                >
+                                                                    <RiCalendarScheduleFill />
+                                                                    {schedule?.label}
+                                                                </Button>
+                                                            </Drawer.Trigger>
+                                                            <Portal>
+                                                                <Drawer.Backdrop />
+                                                                <Drawer.Positioner>
+                                                                    <Drawer.Content>
+                                                                        <Drawer.Header>
+                                                                            <Drawer.Title color={colorMode == 'light' ? 'black':'white'}>Schedule Post</Drawer.Title>
+                                                                        </Drawer.Header>
+                                                                        <Drawer.Body>
+                                                                            <Text color={colorMode == 'light' ? 'black':'white'}>
+                                                                                Set the date and time when your artwork will be published
+                                                                            </Text>
+                                                                            <Box mt={25}>
+                                                                                <Box>
+                                                                                    <Text mb={1} color={colorMode == 'light' ? 'black':'white'}>Date</Text>
+                                                                                    <Popover.Root open={isOpenDatePicker} onFocusOutside={() => setIsOpenDatePicker(false)}>
+                                                                                        <Popover.Trigger asChild>
+                                                                                            <Input
+                                                                                                color={colorMode == 'light' ? 'black':'white'}
+                                                                                                value={formattedDate}
+                                                                                                placeholder="Set Date"
+                                                                                                readOnly
+                                                                                                cursor="pointer"
+                                                                                                onClick={() => setIsOpenDatePicker(true)}
+                                                                                            />
+                                                                                        </Popover.Trigger>
+                                                                                        <Portal>
+                                                                                            <Popover.Positioner>
+                                                                                                <Popover.Content>
+                                                                                                    <Popover.Arrow />
+                                                                                                    <Popover.Body>
+                                                                                                        <DayPicker
+                                                                                                            mode="single"
+                                                                                                            selected={scheduleDate}
+                                                                                                            onSelect={handleDateSelect}
+                                                                                                            style={{
+                                                                                                                color: colorMode == "light" ? "black":"white"
+                                                                                                            }}
+                                                                                                            captionLayout={"dropdown"}
+                                                                                                            navLayout={"around"}
+                                                                                                        />
+                                                                                                    </Popover.Body>
+                                                                                                </Popover.Content>
+                                                                                            </Popover.Positioner>
+                                                                                        </Portal>
+                                                                                    </Popover.Root>
+                                                                                </Box>
+                                                                                <Box mt={5}>
+                                                                                    <Text mb={1} color={colorMode == 'light' ? 'black':'white'}>Time</Text>
+                                                                                    <Input
+                                                                                        type="time"
+                                                                                        placeholder="Set Time"
+                                                                                        value={scheduleTime} 
+                                                                                        onChange={handleTimeChange}
+                                                                                        cursor="pointer"
+                                                                                        color={colorMode == 'light' ? 'black':'white'}
+                                                                                    />
+                                                                                </Box>
+                                                                            </Box>
+                                                                        </Drawer.Body>
+                                                                        <Drawer.Footer>
+                                                                            <Button 
+                                                                                color={colorMode == 'light' ? 'cyan.600':'white'}
+                                                                                bg={colorMode == 'light' ? 'white':'black'}
+                                                                                borderColor={colorMode == 'light' ? 'cyan.600':'white'}
+                                                                                onClick={() => setOpenDrawer(false)}
+                                                                            >
+                                                                                Cancel
+                                                                            </Button>
+                                                                            <Button
+                                                                                bg={colorMode === "light" ? "cyan.600":"pink.600"}
+                                                                                color={"whiteAlpha.950"}
+                                                                                maxW={"45%"}
+                                                                                onClick={handleSchedulePost}
+                                                                            >
+                                                                                Schedule
+                                                                            </Button>
+                                                                        </Drawer.Footer>
+                                                                        <Drawer.CloseTrigger asChild>
+                                                                            <CloseButton 
+                                                                                size="sm"
+                                                                                color={colorMode == 'light' ? 'cyan.600':'white'}
+                                                                                bg={colorMode == 'light' ? 'white':'black'}
+                                                                                borderColor={colorMode == 'light' ? 'cyan.600':'white'} 
+                                                                            />
+                                                                        </Drawer.CloseTrigger>
+                                                                    </Drawer.Content>
+                                                                </Drawer.Positioner>
+                                                            </Portal>
+                                                        </Drawer.Root>
+                                                    </Show>
                                                     <Button
                                                         bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                         color={"whiteAlpha.950"}
@@ -854,14 +990,14 @@ const NewArtwork = () => {
                                                     </Button>
                                                 </Show>
                                                 <Show
-                                                    when={!watch('status')}
+                                                    when={!watch('status') && draft}
                                                 >
                                                     <Button
                                                         bg={colorMode === "light" ? "cyan.600":"pink.600"}
                                                         color={"whiteAlpha.950"}
                                                         onClick={handleSaveDraft}
                                                     >
-                                                        <FaArchive /> Draft
+                                                        <FaArchive /> {draft?.label}
                                                     </Button>
                                                 </Show>
                                             </Box>

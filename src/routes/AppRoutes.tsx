@@ -1,20 +1,20 @@
 import { Routes, Route } from 'react-router-dom';
-import ArtVerse from '@/pages/Home/ArtVerse';
-import ArtworkView from '@/pages/Artwork/ArtworkView';
-import SignIn from '@/pages/Authentication/SignIn';
-import SignUp from '@/pages/Authentication/SignUp';
+import ArtVerse from '@/screens/Home/ArtVerse';
+import ArtworkView from '@/screens/Artwork/ArtworkView';
+import SignIn from '@/screens/Authentication/SignIn';
+import SignUp from '@/screens/Authentication/SignUp';
 //import Favorites from './pages/User/Favorites';
 import PrivateRoute from '../utils/PrivateRoute';
-import MainLayout from '@/pages/Layouts/MainLayout';
-import AuthLayout from '@/pages/Layouts/AuthLayout';
+import MainLayout from '@/screens/Layouts/MainLayout';
+import AuthLayout from '@/screens/Layouts/AuthLayout';
 import LoadingScreen from '@/custom/Templates/LoadingScreen';
-import NotFoundPage from '@/pages/Layouts/NotFound';
+import NotFoundPage from '@/screens/Layouts/NotFound';
 import RedirectToNotFound from '@/utils/RedirectToNotFound';
-import Profile from '@/pages/User/Profile';
-import ProfileSettings from '@/pages/User/ProfileSettings';
-import ArtworkStore from '@/pages/Artwork/NewArtwork';
-import ArtworkEdit from '@/pages/Artwork/ArtworkEdit';
-import Viewer from '@/pages/Artwork/Viewer';
+import Profile from '@/screens/User/Profile';
+import ProfileSettings from '@/screens/User/ProfileSettings';
+import ArtworkStore from '@/screens/Artwork/NewArtwork';
+import ArtworkEdit from '@/screens/Artwork/ArtworkEdit';
+import Viewer from '@/screens/Artwork/Viewer';
 import OwnerRoute from '@/utils/OwnerRoute';
 
 const AppRoutes = () => {

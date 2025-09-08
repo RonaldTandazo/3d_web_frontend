@@ -449,7 +449,7 @@ const ProfileSettings = () => {
                                                 name="countryId"
                                                 // rules={{ required: "Country is required" }}
                                                 render={({ field }) => (
-                                                    <SearchableSelect disabled={countryLoading} placeholder={"Select your Country"} options={countries} field={field} multiple={false} defaultValue={user?.countryId ?? null}/>
+                                                    <SearchableSelect disabled={countryLoading} placeholder={"Select your Country"} options={countries} field={field} multiple={false} defaultValue={user?.countryId ?? undefined}/>
                                                 )}
                                             />
                                             <Field.ErrorText>{errorsProfile.countryId?.message}</Field.ErrorText>
@@ -510,7 +510,7 @@ const ProfileSettings = () => {
                                 <Stack gap={5}>
                                     <Box w={"full"} marginBottom={"25px"}>
                                         <Field.Root>
-                                            <Field.Label fontSize={"lg"}>Categories</Field.Label>
+                                            <Field.Label fontSize={"lg"}>Main Categories</Field.Label>
                                         </Field.Root>
                                         <Flex
                                             gap={4}
@@ -542,7 +542,7 @@ const ProfileSettings = () => {
 
                                     <Box w={"full"} marginBottom={"25px"}>
                                         <Field.Root>
-                                            <Field.Label fontSize={"lg"}>Topics</Field.Label>
+                                            <Field.Label fontSize={"lg"}>Main Topics</Field.Label>
                                             <SearchableInput options={topics} placeholder="Choose topics you domain" onSelect={handleTopicChange}/>
                                         </Field.Root>
                                         <Show
@@ -587,7 +587,7 @@ const ProfileSettings = () => {
 
                                     <Box w={"full"}>
                                         <Field.Root>
-                                            <Field.Label fontSize={"lg"}>Softwares</Field.Label>
+                                            <Field.Label fontSize={"lg"}>Main Softwares</Field.Label>
                                             <SearchableInput options={softwares} placeholder="Choose softwares you domain" onSelect={handleSoftwareChange}/>
                                         </Field.Root>
                                         <Show
@@ -709,9 +709,16 @@ const ProfileSettings = () => {
                                     </Button>
 
                                     <Box w={"full"} display={userSocialMediaLoading || storeUserNetworkLoading ? "flex":"inline"} justifyContent={userSocialMediaLoading || storeUserNetworkLoading  ? "center":"start"}>
-                                        {userSocialMediaLoading || storeUserNetworkLoading ? (
-                                            <LoadingProgress />
-                                        ):userSocialMedia.length > 0 && (
+                                        <Show
+                                            when={userSocialMedia.length > 0}
+                                            fallback={
+                                                <Show
+                                                    when={userSocialMediaLoading || storeUserNetworkLoading}
+                                                >
+                                                    <LoadingProgress />
+                                                </Show>
+                                            }
+                                        >
                                             <Stack gap={5}>
                                                 <Text fontSize={"2xl"} fontWeight="bold" my={5}>Aggregated Social Media</Text>
                                                 <For
@@ -729,7 +736,7 @@ const ProfileSettings = () => {
                                                     }}
                                                 </For>
                                             </Stack>
-                                        )}
+                                        </Show>
                                     </Box>
                                 </Stack>
                             </form>
@@ -804,13 +811,13 @@ const ProfileSettings = () => {
             bg={colorMode === "light" ? "whiteAlpha.950" : "blackAlpha.500"}
             shadow={"lg"}
             rounded={"lg"}
-            maxH={"89vh"}
+            h={"full"}
             display={"flex"}
             alignItems={"center"}
             justifyContent={"center"}
         >
-            <Grid w={"75%"} templateColumns="35% 65%" gap={4} p={10}>
-                <GridItem display="flex" justifyContent="center" alignItems="center">
+            <Grid w={"75vw"} templateColumns="35% 65%" p={10} h={"100%"}>
+                <GridItem display="flex" justifyContent="center" alignItems="center" h={"100%"}>
                     <Stack>
                         <Box 
                             w="100%"
@@ -825,25 +832,28 @@ const ProfileSettings = () => {
                                     <LoadingProgress/>
                                 }
                             >
-                                {user && user.avatar ? (
+                                <Show
+                                    when={user && user.avatar}
+                                    fallback={
+                                        <Icon
+                                            as={ImUser}
+                                            boxSize="200px"
+                                            color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
+                                            bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
+                                            rounded={'full'}
+                                            cursor="pointer"
+                                        />
+                                    }
+                                >
                                     <Image
-                                        src={`${backendUrl}/avatars/${user.avatar}`}
+                                        src={`${backendUrl}/avatars/${user?.avatar}`}
                                         alt="Stored Image"
                                         boxSize="200px"
                                         borderRadius="full"
                                         fit="cover"
                                         cursor="pointer"
                                     />
-                                ) : (
-                                    <Icon
-                                        as={ImUser}
-                                        boxSize="200px"
-                                        color={colorMode === 'light' ? 'cyan.50' : 'pink.200'}
-                                        bg={colorMode === 'light' ? 'cyan.600' : 'pink.600'}
-                                        rounded={'full'}
-                                        cursor="pointer"
-                                    />
-                                )}
+                                </Show>
                             </Show>
                         </Box>
                         <input
@@ -867,7 +877,7 @@ const ProfileSettings = () => {
                         </Box>
                     </Stack>
                 </GridItem>
-                <GridItem>
+                <GridItem h={"100%"}>
                     <Tabs.Root
                         lazyMount
                         unmountOnExit
@@ -877,80 +887,72 @@ const ProfileSettings = () => {
                         value={activeTab}
                         w={"full"}
                         variant={"plain"}
+                        display={"flex"}
+                        flexDirection={"row"}
+                        h={"100%"}
                     >
-                        <Tabs.List p={1} gap={3} overflowX="hidden" w={"13vw"}>
-                            {items.map((item) => (
-                                <Tabs.Trigger
-                                    key={item.index}
-                                    value={item.index}
-                                    _selected={{
-                                        borderLeft: "4px solid",
-                                        borderLeftColor:
-                                            colorMode === "light" ? "cyan.600" : "pink.600",
-                                        backgroundColor:
-                                            colorMode === "light" ? "cyan.50" : "pink.200",
-                                        color: "black",
-                                    }}
-                                    rounded={"sm"}
-                                    bg={"none"}
-                                >
-                                    <Box
-                                        position={"relative"}
-                                        overflow={"hidden"}
-                                        whiteSpace={"nowrap"}
-                                        display={"flex"}
-                                        direction={"row"}
-                                        justifyContent={"flex-start"}
-                                        alignItems={"center"}
-                                        gap={2}
-                                        w={"full"}
+                        <Tabs.List p={1} gap={3} overflowX="hidden" w={"25%"}>
+                            <For each={items}>
+                                {(item) => (
+                                    <Tabs.Trigger
+                                        key={item.index}
+                                        value={item.index}
+                                        _selected={{
+                                            borderLeft: "4px solid",
+                                            borderLeftColor:
+                                                colorMode === "light" ? "cyan.600" : "pink.600",
+                                            backgroundColor:
+                                                colorMode === "light" ? "cyan.50" : "pink.200",
+                                            color: "black",
+                                        }}
+                                        rounded={"xs"}
+                                        bg={"none"}
                                     >
-                                        <Icon
-                                            size={"md"}
-                                            color={colorMode === "light" ? "cyan.600" : "pink.600"}
+                                        <Box
+                                            // position={"relative"}
+                                            overflow={"hidden"}
+                                            whiteSpace={"nowrap"}
+                                            display={"flex"}
+                                            direction={"row"}
+                                            justifyContent={"flex-start"}
+                                            alignItems={"center"}
+                                            gap={2}
+                                            w={"full"}
                                         >
-                                            {item.icon}
-                                        </Icon>
-                                        <Text gap={2} truncate>
-                                            {item.title}
-                                        </Text>
-                                    </Box>
-                                </Tabs.Trigger>
-                            ))}
+                                            <Icon
+                                                size={"md"}
+                                                color={colorMode === "light" ? "cyan.600" : "pink.600"}
+                                            >
+                                                {item.icon}
+                                            </Icon>
+                                            <Text gap={2} truncate>
+                                                {item.title}
+                                            </Text>
+                                        </Box>
+                                    </Tabs.Trigger>
+                                )}
+                            </For>
                         </Tabs.List>
-                        <Box position={"relative"} w={"full"} h="calc(89vh - 100px)">
-                            {items.map((item) => (
-                                <Box
-                                    key={item.index}
-                                    position="absolute"
-                                    inset="0"
-                                    display={activeTab === item.index ? 'block' : 'none'}
-                                    overflowY="auto"
-                                    maxH="100%"
-                                >
+                        <Box w={"75%"} h={"100%"}>
+                            <For
+                                each={items}
+                            >
+                                {(item) => (
                                     <Tabs.Content
                                         key={item.index}
                                         value={item.index}
-                                        position="absolute"
-                                        inset="0"
-                                        _open={{
-                                            animationName: "fade-in, scale-in",
-                                            animationDuration: "300ms",
-                                        }}
-                                        _closed={{
-                                            animationName: "fade-out, scale-out",
-                                            animationDuration: "120ms",
-                                        }}
                                     >
                                         {item.content}
                                     </Tabs.Content>
-                                </Box>
-                            ))}
+                                )}
+                            </For>
                         </Box>
                     </Tabs.Root>
                 </GridItem>
             </Grid>
-            {showAlert && message.message != "" &&(
+            <Show
+                when={showAlert && message.message != ""}
+            >
                 <NotificationAlert
                     type={message.type}
                     title="Profile Settings"
@@ -960,7 +962,7 @@ const ProfileSettings = () => {
                         setShowAlert(false);
                     }}
                 />
-            )}
+            </Show>
         </Box>
     );
 };

@@ -8,6 +8,7 @@ import { encodeToBase64 } from "@/utils/Helpers";
 import { useColorMode } from "@/components/ui/color-mode";
 import { MdHideImage } from "react-icons/md";
 import ImageIndicator from "../FloatingIcons/ImageIndicator";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const MotionBox = motion.create(Box);
 const backendUrl = import.meta.env.VITE_API_URL;
@@ -95,12 +96,44 @@ const ArtVerseGridItem = ({ artwork }: { artwork: any }) => {
                         <Show
                             when={artwork.hasImages}
                         >
-                            <ImageIndicator />
+                            <Tooltip
+                                content={"Has Images"}
+                                openDelay={500}
+                                closeDelay={100}
+                                unmountOnExit={true}    
+                                lazyMount={true}
+                                positioning={{ placement: "top" }}
+                                showArrow
+                                contentProps={{ 
+                                    css: { 
+                                        "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
+                                        'color': 'white'
+                                    }
+                                }}
+                            >
+                                <ImageIndicator />
+                            </Tooltip>
                         </Show>
                         <Show
                             when={artwork.hasVideos}
                         >
-                            <VideoIndicator />
+                            <Tooltip
+                                content={"Has Videos"}
+                                openDelay={500}
+                                closeDelay={100}
+                                unmountOnExit={true}    
+                                lazyMount={true}
+                                positioning={{ placement: "top" }}
+                                showArrow
+                                contentProps={{ 
+                                    css: { 
+                                        "--tooltip-bg": colorMode === "light" ? "colors.cyan.600":"colors.pink.600",
+                                        'color': 'white'
+                                    }
+                                }}
+                            >
+                                <VideoIndicator />
+                            </Tooltip>
                         </Show>
                         <Show
                             when={artwork.has3DFile}

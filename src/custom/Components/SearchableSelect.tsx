@@ -7,7 +7,7 @@ interface Option {
     label: string
 }
 
-const SearchableSelect = ({ disabled = false, placeholder = "Select Options", options, field, multiple = false, defaultValue = undefined, ...rest }: any) => {
+const SearchableSelect = ({ disabled = false, placeholder = "Select Options", options = [], field, multiple = false, defaultValue = undefined, ...rest }: any) => {
     const [filteredOptions, setFilteredOptions] = useState<Option[]>(options);
     const [selectedOptions, setSelectedOptions] = useState(null);
     const { colorMode } = useColorMode();
@@ -38,7 +38,7 @@ const SearchableSelect = ({ disabled = false, placeholder = "Select Options", op
 
     useEffect(() => {
         setFilteredOptions(options)
-        if (options.length > 0 && defaultValue !== undefined && defaultValue !== null) {
+        if (options.length > 0 && defaultValue) {
             const valueArray = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
             field.onChange(valueArray);
     

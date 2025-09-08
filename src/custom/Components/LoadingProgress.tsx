@@ -6,8 +6,8 @@ const LoadingProgress = () => {
 
     return (
         <Box 
-            w="full" 
-            h="full"
+            w={"full"} 
+            h={"full"}
             display={"flex"} 
             justifyContent={"center"}
             alignItems={"center"}

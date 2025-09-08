@@ -11,12 +11,6 @@ interface AlertProps {
 const NotificationAlert: React.FC<AlertProps> = ({ type, title, message, onClose }) => {
     const { open, onOpen, onToggle } = useDisclosure();
 
-    useEffect(() => {
-        if (message) {
-            onOpen();
-        }
-    }, [message, onOpen]);
-
     const handleClose = () => {
         onToggle();
 
@@ -24,6 +18,25 @@ const NotificationAlert: React.FC<AlertProps> = ({ type, title, message, onClose
             onClose();
         }, 1000);
     };
+
+    useEffect(() => {
+        if (message) {
+            onOpen();
+        }
+    }, [message, onOpen]);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (open) {
+            timer = setTimeout(() => {
+                handleClose();
+            }, 3000);
+        }
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [open, handleClose])
 
     return (
         <Presence

@@ -36,6 +36,7 @@ export const GET_ARTWORK_FORM_DATA = gql`
             publishing{
                 publishingId
                 name
+                type
             }
             categories{
                 categoryId
